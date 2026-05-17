@@ -2,20 +2,25 @@
 
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { themeNames } from "@shikijs/themes";
 
-const args = parseArgs(process.argv.slice(2));
+if (isMain()) {
+  const args = parseArgs(process.argv.slice(2));
 
-if (!args.input) {
-  console.error("Usage: pnpm run shiki-theme:to-lildocs -- <theme-name-or-json> [--out theme.ts]");
-  process.exitCode = 1;
-} else {
-  const theme = await loadTheme(args.input);
-  const lildocsTheme = mapShikiThemeToLildocsTheme(theme);
-  const outFile = path.resolve(process.cwd(), args.out ?? "theme.ts");
+  if (!args.input) {
+    console.error(
+      "Usage: pnpm run shiki-theme:to-lildocs -- <theme-name-or-json> [--out theme.ts]",
+    );
+    process.exitCode = 1;
+  } else {
+    const theme = await loadTheme(args.input);
+    const lildocsTheme = mapShikiThemeToLildocsTheme(theme);
+    const outFile = path.resolve(process.cwd(), args.out ?? "theme.ts");
 
-  await writeFile(outFile, renderThemeTs(lildocsTheme, theme), "utf8");
-  console.log(`Wrote lildocs theme for ${theme.name ?? args.input} to ${outFile}`);
+    await writeFile(outFile, renderThemeTs(lildocsTheme, theme), "utf8");
+    console.log(`Wrote lildocs theme for ${theme.name ?? args.input} to ${outFile}`);
+  }
 }
 
 function parseArgs(rawArgs) {
@@ -44,7 +49,7 @@ function parseArgs(rawArgs) {
   return parsed;
 }
 
-async function loadTheme(input) {
+export async function loadTheme(input) {
   const inputPath = path.resolve(process.cwd(), input);
   if (await exists(inputPath)) {
     return JSON.parse(await readFile(inputPath, "utf8"));
@@ -58,7 +63,7 @@ async function loadTheme(input) {
   return themeModule.default;
 }
 
-function mapShikiThemeToLildocsTheme(theme) {
+export function mapShikiThemeToLildocsTheme(theme) {
   const colors = theme.colors ?? {};
   const tokenColors = theme.tokenColors ?? [];
   const background = pickColor(
@@ -158,10 +163,14 @@ function normalizeColor(value) {
   return value;
 }
 
-function renderThemeTs(theme, sourceTheme) {
+export function renderThemeTs(theme, sourceTheme) {
   return `// Generated from Shiki theme: ${sourceTheme.displayName ?? sourceTheme.name ?? "unknown"}
 export default ${JSON.stringify(theme, null, 2)} as const;
 `;
+}
+
+function isMain() {
+  return process.argv[1] === fileURLToPath(import.meta.url);
 }
 
 async function exists(filePath) {
