@@ -15,6 +15,21 @@ node dist/cli.mjs build ./docs --font.heading Inter --font.body "Source Sans 3" 
 
 Generated HTML is written to `dist` by default and can be opened directly from disk.
 
+Docs folders can include `config.json` for theme and font defaults:
+
+```json
+{
+  "theme": "github-dark",
+  "font": {
+    "heading": "Inter",
+    "body": "Source Sans 3",
+    "code": "Roboto Mono"
+  }
+}
+```
+
+CLI flags override config values.
+
 ## Development
 
 ```bash
@@ -28,7 +43,7 @@ The v1 CLI supports:
 
 - `lildocs <path>`
 - `lildocs build <path>`
-- `lildocs dev <path>` currently returns a clear not-implemented message.
+- `lildocs dev <path>`
 - `--out <dir>`
 - `--theme <name>`
 - `--font.heading <name-or-file>`

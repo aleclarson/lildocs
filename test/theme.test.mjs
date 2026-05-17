@@ -41,6 +41,76 @@ test("uses the default built-in theme with no config", async () => {
   assert.match(css, /--ld-color-link: #2563eb/);
 });
 
+test("loads theme and fonts from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      theme: "github-dark",
+      font: {
+        heading: "Inter",
+        body: "Source Sans 3",
+        code: "Roboto Mono",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-color-background: #24292e/);
+  assert.match(css, /family=Inter:wght@400;500;600;700&display=swap/);
+  assert.match(css, /family=Source\+Sans\+3:wght@400;500;600;700&display=swap/);
+  assert.match(css, /family=Roboto\+Mono:wght@400&display=swap/);
+});
+
+test("cli theme and font options override docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      theme: "github-dark",
+      font: {
+        heading: "Inter",
+        body: "Source Sans 3",
+        code: "Roboto Mono",
+      },
+    }),
+  );
+
+  await runCli([
+    docs,
+    "--out",
+    outDir,
+    "--theme",
+    "minimal",
+    "--font.heading",
+    "Lora",
+    "--font.body",
+    "Lato",
+    "--font.code",
+    "Fira Code",
+  ]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-color-link: #0f766e/);
+  assert.match(css, /family=Lora:wght@400;500;600;700&display=swap/);
+  assert.match(css, /family=Lato:wght@400;500;600;700&display=swap/);
+  assert.match(css, /family=Fira\+Code:wght@400&display=swap/);
+  assert.doesNotMatch(css, /Source\+Sans\+3/);
+});
+
+test("reports invalid docs config", async () => {
+  const { docs } = await fixtureWorkspace();
+  await writeDocFile(docs, "config.json", "{");
+
+  await assert.rejects(() => runCli([docs]), /Invalid docs config JSON/);
+});
+
 test("maps shiki theme names to lildocs css variables", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

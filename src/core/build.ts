@@ -1,6 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mergeConfigOptions, readDocsConfig } from "./config.js";
 import { buildContentModel, type Page } from "./content.js";
 import { resolveInput } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
@@ -36,19 +37,24 @@ const sourceDir = path.dirname(fileURLToPath(import.meta.url));
 
 export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const input = await resolveInput(options.input, options.cwd);
+  const configOptions = mergeConfigOptions({
+    config: await readDocsConfig(input.docsRoot),
+    theme: options.theme,
+    fonts: options.fonts,
+  });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
   const model = await buildContentModel(input, outDirName);
   const theme = await resolveTheme({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
-    requestedTheme: options.theme,
+    requestedTheme: configOptions.theme,
   });
   const fontResolution = await resolveFontOverrides({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
     outDir,
-    fonts: options.fonts,
+    fonts: configOptions.fonts,
   });
   const baseCss = await readRenderAsset("styles.css");
   const searchScript = await readRenderAsset("search.js");

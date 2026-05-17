@@ -23,3 +23,20 @@ lildocs dev <path>
 `--font.body <name-or-file>` selects a body font from Google Fonts or a local font file.
 
 `--font.code <name-or-file>` selects a code font from Google Fonts or a local font file.
+
+## Config
+
+`docs/config.json` can declare the same theme and font settings:
+
+```json
+{
+  "theme": "github-dark",
+  "font": {
+    "heading": "Inter",
+    "body": "Source Sans 3",
+    "code": "Roboto Mono"
+  }
+}
+```
+
+CLI flags override config values.

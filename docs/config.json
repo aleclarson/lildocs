@@ -1,0 +1,8 @@
+{
+  "theme": "github-dark",
+  "font": {
+    "heading": "Inter",
+    "body": "Source Sans 3",
+    "code": "Roboto Mono"
+  }
+}
