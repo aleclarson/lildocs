@@ -2,7 +2,24 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { converter, parse } from "culori";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
+
+const toOklch = converter("oklch");
+
+function cssVariable(css, name) {
+  const match = css.match(new RegExp(`${name}: ([^;]+);`));
+  assert.ok(match, `${name} should be present`);
+  return match[1];
+}
+
+function oklchLightness(color) {
+  const parsed = parse(color);
+  assert.ok(parsed, `${color} should parse as a color`);
+  const oklch = toOklch(parsed);
+  assert.ok(oklch, `${color} should convert to OKLCH`);
+  return oklch.l;
+}
 
 test("supports the minimal built-in theme", async () => {
   const { docs, workspace } = await fixtureWorkspace();
@@ -129,6 +146,35 @@ test("reports unknown theme names", async () => {
   const { docs } = await fixtureWorkspace();
 
   await assert.rejects(() => runCli([docs, "--theme", "unknown"]), /bundled Shiki theme/);
+});
+
+test("darkens light shiki code backgrounds when contrast is too low", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir, "--theme", "github-light"]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const background = cssVariable(css, "--ld-color-background");
+  const codeBackground = cssVariable(css, "--ld-color-code-background");
+
+  assert.notEqual(codeBackground, background);
+  assert.ok(oklchLightness(codeBackground) < oklchLightness(background));
+});
+
+test("preserves dark shiki code backgrounds that already have contrast", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const background = cssVariable(css, "--ld-color-background");
+  const codeBackground = cssVariable(css, "--ld-color-code-background");
+
+  assert.equal(background, "#24292e");
+  assert.equal(codeBackground, "#2f363d");
+  assert.ok(oklchLightness(codeBackground) > oklchLightness(background));
 });
 
 test("applies google font cli overrides", async () => {

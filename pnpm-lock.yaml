@@ -11,6 +11,9 @@ importers:
       cmd-ts:
         specifier: ^0.15.0
         version: 0.15.0
+      culori:
+        specifier: ^4.0.2
+        version: 4.0.2
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -554,6 +557,10 @@ packages:
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
+
+  culori@4.0.2:
+    resolution: {integrity: sha512-1+BhOB8ahCn4O0cep0Sh2l9KCOfOdY+BXJnKMHFFzDEouSr/el18QwXEMRlOj9UY5nCeA8UN3a/82rUWRBeyBw==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -1246,6 +1253,8 @@ snapshots:
       - supports-color
 
   comma-separated-tokens@2.0.3: {}
+
+  culori@4.0.2: {}
 
   debug@4.4.3:
     dependencies:

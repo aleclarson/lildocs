@@ -65,6 +65,18 @@ test("highlights code blocks with shiki", async () => {
   assert.match(html, /style="color:/);
 });
 
+test("emits code block styles without css borders", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const codeBlockRule = css.match(/\.content pre \{[^}]+\}/)?.[0] ?? "";
+  assert.match(codeBlockRule, /background: var\(--ld-color-code-background\)/);
+  assert.doesNotMatch(codeBlockRule, /border:/);
+});
+
 test("uses the local theme shiki theme for code blocks", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

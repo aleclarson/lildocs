@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "cmd-ts": "^0.15.0",
+    "culori": "^4.0.2",
     "gray-matter": "^4.0.3",
     "jiti": "^2.7.0",
     "marked": "^18.0.3",

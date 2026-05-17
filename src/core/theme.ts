@@ -1,6 +1,7 @@
 import { pathToFileURL } from "node:url";
 import { access } from "node:fs/promises";
 import path from "node:path";
+import { clampGamut, converter, formatHex, parse, wcagContrast } from "culori";
 import { createJiti } from "jiti";
 import { bundledThemes } from "shiki";
 import type { AssetCopy } from "./markdown.js";
@@ -38,6 +39,15 @@ export type FontOverrides = {
   body?: string;
   code?: string;
 };
+
+const MIN_BACKGROUND_CONTRAST = 1.08;
+const PREFERRED_BACKGROUND_CONTRAST = 1.14;
+const MAX_BACKGROUND_CONTRAST_STEPS = 12;
+const BACKGROUND_LIGHTNESS_STEP = 0.015;
+const MAX_BACKGROUND_CHROMA = 0.03;
+
+const toOklch = converter("oklch");
+const clampToRgb = clampGamut("rgb");
 
 const themes: Record<string, Theme> = {
   default: {
@@ -263,7 +273,7 @@ function mapShikiThemeToTheme(
     tokenForeground(tokenColors, "markup.inline.raw") ??
       (shikiTheme.type === "dark" ? "#79b8ff" : "#2563eb"),
   );
-  const codeBackground = pickColor(
+  const rawCodeBackground = pickColor(
     colors,
     [
       "textCodeBlock.background",
@@ -273,6 +283,11 @@ function mapShikiThemeToTheme(
     ],
     background,
   );
+  const codeBackground = ensureBackgroundContrast({
+    background,
+    candidate: rawCodeBackground,
+    isDark: shikiTheme.type === "dark",
+  });
   const sidebarBackground = pickColor(
     colors,
     ["sideBar.background", "activityBar.background", "editorGroupHeader.tabsBackground"],
@@ -334,6 +349,64 @@ function normalizeColor(value: string) {
   }
 
   return value;
+}
+
+function ensureBackgroundContrast(options: {
+  background: string;
+  candidate: string;
+  isDark: boolean;
+}) {
+  const background = parse(options.background);
+  const candidate = parse(options.candidate);
+  if (!background || !candidate) {
+    return options.candidate;
+  }
+
+  const currentContrast = wcagContrast(background, candidate);
+  if (currentContrast >= MIN_BACKGROUND_CONTRAST) {
+    return options.candidate;
+  }
+
+  const candidateOklch = toOklch(candidate);
+  if (!candidateOklch || typeof candidateOklch.l !== "number") {
+    return options.candidate;
+  }
+
+  const direction = options.isDark ? 1 : -1;
+  let bestColor = options.candidate;
+  let bestContrast = currentContrast;
+
+  for (let step = 1; step <= MAX_BACKGROUND_CONTRAST_STEPS; step += 1) {
+    const adjusted = {
+      ...candidateOklch,
+      l: clamp(candidateOklch.l + direction * BACKGROUND_LIGHTNESS_STEP * step, 0, 1),
+      c:
+        typeof candidateOklch.c === "number"
+          ? Math.min(candidateOklch.c, MAX_BACKGROUND_CHROMA)
+          : candidateOklch.c,
+    };
+    const adjustedColor = formatHex(clampToRgb(adjusted));
+    const adjustedParsedColor = parse(adjustedColor);
+    if (!adjustedParsedColor) {
+      continue;
+    }
+    const adjustedContrast = wcagContrast(background, adjustedParsedColor);
+
+    if (adjustedContrast > bestContrast) {
+      bestColor = adjustedColor;
+      bestContrast = adjustedContrast;
+    }
+
+    if (adjustedContrast >= PREFERRED_BACKGROUND_CONTRAST) {
+      return adjustedColor;
+    }
+  }
+
+  return bestColor;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
 function resolveThemeFonts(theme: Theme, overrides: Partial<ThemeFonts>): ThemeFonts {

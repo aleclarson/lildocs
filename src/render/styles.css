@@ -99,7 +99,6 @@ body {
 .content pre {
   overflow: auto;
   padding: 14px;
-  border: 1px solid var(--ld-color-border);
   border-radius: 8px;
   background: var(--ld-color-code-background);
 }
