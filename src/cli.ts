@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { command, option, optional, positional, run, string, subcommands } from "cmd-ts";
+import { buildSite } from "./core/build.js";
 
-type CliOptions = {
+export type CliOptions = {
   input: string;
   out?: string;
   theme?: string;
@@ -26,12 +27,16 @@ const inputArgument = positional({
   description: "Markdown file or docs folder to build.",
 });
 
-function printPlaceholder(commandName: "build" | "dev", options: CliOptions) {
-  const out = options.out ?? "dist";
-  const theme = options.theme ?? "default";
+async function runBuild(options: CliOptions) {
+  const result = await buildSite({
+    input: options.input,
+    outDir: options.out ?? "dist",
+    theme: options.theme,
+    cwd: process.cwd(),
+  });
 
   console.log(
-    `lildocs ${commandName} placeholder: input=${options.input} out=${out} theme=${theme}`,
+    `Built ${result.pages.length} page${result.pages.length === 1 ? "" : "s"} to ${result.outDir}`,
   );
 }
 
@@ -43,9 +48,7 @@ const buildCommand = command({
     out: outOption,
     theme: themeOption,
   },
-  handler: (options) => {
-    printPlaceholder("build", options);
-  },
+  handler: runBuild,
 });
 
 const devCommand = command({
@@ -56,8 +59,10 @@ const devCommand = command({
     out: outOption,
     theme: themeOption,
   },
-  handler: (options) => {
-    printPlaceholder("dev", options);
+  handler: async () => {
+    throw new Error(
+      "The dev command is not implemented yet. Use `lildocs build <path>` for v1 static output.",
+    );
   },
 });
 
@@ -69,9 +74,7 @@ const bareBuildCommand = command({
     out: outOption,
     theme: themeOption,
   },
-  handler: (options) => {
-    printPlaceholder("build", options);
-  },
+  handler: runBuild,
 });
 
 const app = subcommands({
@@ -81,16 +84,21 @@ const app = subcommands({
     build: buildCommand,
     dev: devCommand,
   },
-  default: bareBuildCommand,
 });
 
-const args = process.argv.slice(2);
-const firstArg = args[0];
-const knownSubcommand =
-  firstArg === undefined ||
-  firstArg === "build" ||
-  firstArg === "dev" ||
-  firstArg === "--help" ||
-  firstArg === "-h";
+function isKnownTopLevelArg(arg: string | undefined) {
+  return arg === undefined || arg === "build" || arg === "dev" || arg === "--help" || arg === "-h";
+}
 
-await run(knownSubcommand ? app : bareBuildCommand, args);
+async function main() {
+  const args = process.argv.slice(2);
+  await run(isKnownTopLevelArg(args[0]) ? app : bareBuildCommand, args);
+}
+
+try {
+  await main();
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`lildocs: ${message}`);
+  process.exitCode = 1;
+}

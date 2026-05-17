@@ -2,13 +2,13 @@
 
 ## Current Task
 
-Task: 1. Bootstrap the Project
+Task: 15. Final v1 Verification
 Status: complete
-Last completed commit: 56002f7
+Last completed commit: pending
 
 ## Next Action
 
-Begin Task 2: implement CLI parsing and command routing behavior.
+Review future polish items after v1 verification.
 
 ## Blockers
 
@@ -21,3 +21,4 @@ None.
 - Do not run `tsc` typechecking until the implementation is complete.
 - Add deferred test case descriptions to `test-plan.md` during implementation.
 - Task 1 scaffold includes package metadata, TypeScript config, oxlint/oxfmt setup, tsdown bundling, VS Code settings, placeholder CLI commands, and the initial deferred test plan.
+- Tasks 2-15 are implemented: CLI routing, input resolution, content model, navigation, Markdown rendering, Mermaid enhancement, themes, Preact SSR layout, static output, search, examples, hardening, tests, and final verification.

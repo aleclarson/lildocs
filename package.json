@@ -10,14 +10,20 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
     "format": "oxfmt --write src package.json tsconfig.json tsdown.config.ts oxlint.json .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "format:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts oxlint.json .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "lint": "oxlint src tsdown.config.ts",
-    "test": "node --test"
+    "test": "npm run build && node --test test/*.test.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "cmd-ts": "^0.15.0"
+    "cmd-ts": "^0.15.0",
+    "gray-matter": "^4.0.3",
+    "jiti": "^2.7.0",
+    "marked": "^18.0.3",
+    "preact": "^10.29.2",
+    "preact-render-to-string": "^6.7.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

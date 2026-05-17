@@ -1,6 +1,6 @@
 # lildocs Test Plan
 
-This file captures deferred test cases while implementation proceeds. Automated tests are intentionally deferred until the implementation is complete.
+This file captures implementation test coverage. Deferred cases have been converted into automated integration coverage where practical, with visual/browser checks left as manual verification items.
 
 ## CLI Behavior
 
