@@ -30,7 +30,7 @@ lildocs dev <path>
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/alec/lildocs/main/schemas/config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
   "theme": "github-dark",
   "font": {
     "heading": "Inter",
