@@ -30,3 +30,15 @@ test("emits search UI and static search script", async () => {
   assert.match(searchScript, /scoreEntry/);
   assert.match(searchScript, /embeddedIndex/);
 });
+
+test("uses theme colors for search input placeholder and focus styles", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /\.searchBox input::placeholder \{[^}]*color: var\(--ld-color-muted-text\)/);
+  assert.match(css, /\.searchBox input:focus \{[^}]*border-color: var\(--ld-color-link\)/);
+  assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
+});

@@ -168,6 +168,16 @@ body {
   color: var(--ld-color-text);
 }
 
+.searchBox input::placeholder {
+  color: var(--ld-color-muted-text);
+}
+
+.searchBox input:focus {
+  border-color: var(--ld-color-link);
+  outline: 2px solid color-mix(in srgb, var(--ld-color-link) 45%, transparent);
+  outline-offset: 2px;
+}
+
 .searchResults {
   position: absolute;
   z-index: 10;
