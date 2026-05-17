@@ -12,8 +12,8 @@
   "scripts": {
     "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
     "docs:serve": "pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs && sirv ./dist/docs",
-    "format": "oxfmt --write src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
-    "format:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "format": "oxfmt --write src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "format:check": "oxfmt --check src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "lint": "oxlint src tsdown.config.ts",
     "test": "pnpm run build && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit"

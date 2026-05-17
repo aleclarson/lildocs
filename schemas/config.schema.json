@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/alec/lildocs/main/schemas/config.schema.json",
+  "title": "lildocs config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema URL for editor validation."
+    },
+    "theme": {
+      "description": "Built-in lildocs theme or bundled Shiki theme name.",
+      "oneOf": [
+        {
+          "title": "Built-in lildocs theme",
+          "enum": ["default", "minimal"]
+        },
+        {
+          "title": "Bundled Shiki theme",
+          "enum": [
+            "andromeeda",
+            "aurora-x",
+            "ayu-dark",
+            "ayu-light",
+            "ayu-mirage",
+            "catppuccin-frappe",
+            "catppuccin-latte",
+            "catppuccin-macchiato",
+            "catppuccin-mocha",
+            "dark-plus",
+            "dracula",
+            "dracula-soft",
+            "everforest-dark",
+            "everforest-light",
+            "github-dark",
+            "github-dark-default",
+            "github-dark-dimmed",
+            "github-dark-high-contrast",
+            "github-light",
+            "github-light-default",
+            "github-light-high-contrast",
+            "gruvbox-dark-hard",
+            "gruvbox-dark-medium",
+            "gruvbox-dark-soft",
+            "gruvbox-light-hard",
+            "gruvbox-light-medium",
+            "gruvbox-light-soft",
+            "horizon",
+            "horizon-bright",
+            "houston",
+            "kanagawa-dragon",
+            "kanagawa-lotus",
+            "kanagawa-wave",
+            "laserwave",
+            "light-plus",
+            "material-theme",
+            "material-theme-darker",
+            "material-theme-lighter",
+            "material-theme-ocean",
+            "material-theme-palenight",
+            "min-dark",
+            "min-light",
+            "monokai",
+            "night-owl",
+            "night-owl-light",
+            "nord",
+            "one-dark-pro",
+            "one-light",
+            "plastic",
+            "poimandres",
+            "red",
+            "rose-pine",
+            "rose-pine-dawn",
+            "rose-pine-moon",
+            "slack-dark",
+            "slack-ochin",
+            "snazzy-light",
+            "solarized-dark",
+            "solarized-light",
+            "synthwave-84",
+            "tokyo-night",
+            "vesper",
+            "vitesse-black",
+            "vitesse-dark",
+            "vitesse-light"
+          ]
+        }
+      ]
+    },
+    "font": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "heading": {
+          "$ref": "#/$defs/fontValue"
+        },
+        "body": {
+          "$ref": "#/$defs/fontValue"
+        },
+        "code": {
+          "$ref": "#/$defs/fontValue"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "fontValue": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Google Fonts family name or local .woff2, .woff, .ttf, or .otf file path."
+    }
+  }
+}

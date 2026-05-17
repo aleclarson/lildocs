@@ -19,6 +19,7 @@ Docs folders can include `config.json` for theme and font defaults:
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/alec/lildocs/main/schemas/config.schema.json",
   "theme": "github-dark",
   "font": {
     "heading": "Inter",
@@ -28,7 +29,7 @@ Docs folders can include `config.json` for theme and font defaults:
 }
 ```
 
-CLI flags override config values.
+`theme` accepts `default`, `minimal`, or a bundled Shiki theme name. CLI flags override config values.
 
 ## Development
 

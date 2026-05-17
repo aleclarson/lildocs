@@ -4,6 +4,7 @@ import type { FontOverrides } from "./theme.js";
 import { LildocsError } from "./errors.js";
 
 export type DocsConfig = {
+  $schema?: string;
   theme?: string;
   font?: FontOverrides;
 };
@@ -52,6 +53,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   }
 
   const config = value as DocsConfig;
+  assertOptionalString(config.$schema, "$schema", configPath);
   assertOptionalString(config.theme, "theme", configPath);
 
   if (config.font !== undefined) {

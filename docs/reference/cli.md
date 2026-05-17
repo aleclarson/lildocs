@@ -30,6 +30,7 @@ lildocs dev <path>
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/alec/lildocs/main/schemas/config.schema.json",
   "theme": "github-dark",
   "font": {
     "heading": "Inter",
@@ -39,4 +40,4 @@ lildocs dev <path>
 }
 ```
 
-CLI flags override config values.
+`theme` accepts `default`, `minimal`, or a bundled Shiki theme name. CLI flags override config values.
