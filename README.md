@@ -31,6 +31,9 @@ Docs folders can include `config.json` for theme and font defaults:
   "background": {
     "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
     "blendMode": "screen"
+  },
+  "link": {
+    "underline": "hover"
   }
 }
 ```
@@ -61,6 +64,7 @@ The v1 CLI supports:
 - `--background.image <url-or-file>`
 - `--background.gradient <gradient>`
 - `--background.blendMode <mode>`
+- `--link.underline always|hover|none`
 
 Font options accept either a Google Fonts family name or a local `.woff2`, `.woff`, `.ttf`, or `.otf` file path.
 

@@ -25,3 +25,10 @@ test("config schema supports simple background options", async () => {
   ]);
   assert.equal(schema.properties.background.additionalProperties, false);
 });
+
+test("config schema supports link underline options", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.deepEqual(schema.properties.link.properties.underline.enum, ["always", "hover", "none"]);
+  assert.equal(schema.properties.link.additionalProperties, false);
+});

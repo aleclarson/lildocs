@@ -47,6 +47,10 @@ export type BackgroundOptions = {
   blendMode?: string;
 };
 
+export type LinkOptions = {
+  underline?: "always" | "hover" | "none";
+};
+
 export type ResolvedBackground = {
   css: string;
   assets: AssetCopy[];
@@ -195,8 +199,13 @@ export async function resolveFontOverrides(options: {
   };
 }
 
-export function themeToCssVariables(theme: Theme, fontOverrides: Partial<ThemeFonts> = {}) {
+export function themeToCssVariables(
+  theme: Theme,
+  fontOverrides: Partial<ThemeFonts> = {},
+  linkOptions: LinkOptions = {},
+) {
   const fonts = resolveThemeFonts(theme, fontOverrides);
+  const linkDecoration = linkTextDecoration(linkOptions.underline);
   return `:root {
   --ld-color-background: ${theme.color.background};
   --ld-background-image: none;
@@ -210,6 +219,8 @@ export function themeToCssVariables(theme: Theme, fontOverrides: Partial<ThemeFo
   --ld-font-heading: ${fonts.heading};
   --ld-font-body: ${fonts.body};
   --ld-font-code: ${fonts.code};
+  --ld-link-text-decoration: ${linkDecoration.default};
+  --ld-link-hover-text-decoration: ${linkDecoration.hover};
 }`;
 }
 
@@ -413,6 +424,25 @@ function normalizeColor(value: string) {
   }
 
   return value;
+}
+
+function linkTextDecoration(underline: LinkOptions["underline"] = "always") {
+  if (underline === "hover") {
+    return {
+      default: "none",
+      hover: "underline",
+    };
+  }
+  if (underline === "none") {
+    return {
+      default: "none",
+      hover: "none",
+    };
+  }
+  return {
+    default: "underline",
+    hover: "underline",
+  };
 }
 
 function backgroundImageValue(

@@ -124,6 +124,17 @@
           "description": "CSS background-blend-mode value for the theme color and background layers."
         }
       }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Link presentation options.",
+      "properties": {
+        "underline": {
+          "enum": ["always", "hover", "none"],
+          "description": "Controls when content links are underlined."
+        }
+      }
     }
   },
   "$defs": {

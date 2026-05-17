@@ -15,6 +15,7 @@ export type CliOptions = {
   backgroundImage?: string;
   backgroundGradient?: string;
   backgroundBlendMode?: string;
+  linkUnderline?: string;
   host?: string;
   port?: string;
   base?: string;
@@ -69,6 +70,12 @@ const backgroundBlendModeOption = option({
   description: "CSS background-blend-mode for the theme color and background layers.",
 });
 
+const linkUnderlineOption = option({
+  type: optional(string),
+  long: "link.underline",
+  description: "Link underline behavior: always, hover, or none.",
+});
+
 const hostOption = option({
   type: optional(string),
   long: "host",
@@ -113,6 +120,9 @@ async function runBuild(options: CliOptions) {
       gradient: options.backgroundGradient,
       blendMode: options.backgroundBlendMode,
     },
+    link: {
+      underline: parseLinkUnderline(options.linkUnderline),
+    },
     cwd: process.cwd(),
   });
 
@@ -135,6 +145,9 @@ async function runDeploy(options: CliOptions) {
       image: options.backgroundImage,
       gradient: options.backgroundGradient,
       blendMode: options.backgroundBlendMode,
+    },
+    link: {
+      underline: parseLinkUnderline(options.linkUnderline),
     },
     basePath: options.base,
     workflow: options.workflow,
@@ -163,6 +176,7 @@ const buildCommand = command({
     backgroundImage: backgroundImageOption,
     backgroundGradient: backgroundGradientOption,
     backgroundBlendMode: backgroundBlendModeOption,
+    linkUnderline: linkUnderlineOption,
   },
   handler: runBuild,
 });
@@ -180,6 +194,7 @@ const devCommand = command({
     backgroundImage: backgroundImageOption,
     backgroundGradient: backgroundGradientOption,
     backgroundBlendMode: backgroundBlendModeOption,
+    linkUnderline: linkUnderlineOption,
     host: hostOption,
     port: portOption,
   },
@@ -199,6 +214,9 @@ const devCommand = command({
         gradient: options.backgroundGradient,
         blendMode: options.backgroundBlendMode,
       },
+      link: {
+        underline: parseLinkUnderline(options.linkUnderline),
+      },
       cwd: process.cwd(),
       host: options.host ?? "127.0.0.1",
       port,
@@ -215,6 +233,13 @@ function parsePort(value: string) {
   return port;
 }
 
+function parseLinkUnderline(value: string | undefined): "always" | "hover" | "none" | undefined {
+  if (value === undefined || value === "always" || value === "hover" || value === "none") {
+    return value;
+  }
+  throw new Error(`Invalid link underline style: ${value}`);
+}
+
 const deployCommand = command({
   name: "deploy",
   description: "Build GitHub Pages-ready documentation output.",
@@ -228,6 +253,7 @@ const deployCommand = command({
     backgroundImage: backgroundImageOption,
     backgroundGradient: backgroundGradientOption,
     backgroundBlendMode: backgroundBlendModeOption,
+    linkUnderline: linkUnderlineOption,
     base: baseOption,
     workflow: workflowOption,
   },
@@ -247,6 +273,7 @@ const bareBuildCommand = command({
     backgroundImage: backgroundImageOption,
     backgroundGradient: backgroundGradientOption,
     backgroundBlendMode: backgroundBlendModeOption,
+    linkUnderline: linkUnderlineOption,
   },
   handler: runBuild,
 });

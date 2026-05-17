@@ -16,6 +16,7 @@ import {
   themeToMermaidConfig,
   type FontOverrides,
   type BackgroundOptions,
+  type LinkOptions,
 } from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
 
@@ -26,6 +27,7 @@ export type BuildOptions = {
   theme?: string;
   fonts?: FontOverrides;
   background?: BackgroundOptions;
+  link?: LinkOptions;
   dev?: {
     clientScriptPath: string;
   };
@@ -46,6 +48,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     theme: options.theme,
     fonts: options.fonts,
     background: options.background,
+    link: options.link,
   });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
@@ -69,7 +72,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     outDir,
     background: configOptions.background,
   });
-  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts)}\n${backgroundResolution.css}${baseCss}`;
+  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link)}\n${backgroundResolution.css}${baseCss}`;
   const assets: AssetCopy[] = [...fontResolution.assets, ...backgroundResolution.assets];
   const mermaid = await createMermaidRenderer({
     themeConfig: themeToMermaidConfig(theme, fontResolution.themeFonts),

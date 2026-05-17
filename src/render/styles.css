@@ -86,6 +86,14 @@ body {
   color: var(--ld-color-link);
 }
 
+.content a {
+  text-decoration: var(--ld-link-text-decoration);
+}
+
+.content a:hover {
+  text-decoration: var(--ld-link-hover-text-decoration);
+}
+
 .navList {
   list-style: none;
   margin: 0;
@@ -207,6 +215,11 @@ body {
 .searchResults a {
   color: var(--ld-color-text);
   text-decoration: none;
+}
+
+.searchResults a.selected,
+.searchResults a:hover {
+  background: var(--ld-color-code-background);
 }
 
 .searchResults span {

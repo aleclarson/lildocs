@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import type { BackgroundOptions, FontOverrides } from "./theme.js";
+import type { BackgroundOptions, FontOverrides, LinkOptions } from "./theme.js";
 import { LildocsError } from "./errors.js";
 
 export type DocsConfig = {
@@ -8,6 +8,7 @@ export type DocsConfig = {
   theme?: string;
   font?: FontOverrides;
   background?: BackgroundOptions;
+  link?: LinkOptions;
 };
 
 export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
@@ -38,6 +39,7 @@ export function mergeConfigOptions(options: {
   theme?: string;
   fonts?: FontOverrides;
   background?: BackgroundOptions;
+  link?: LinkOptions;
 }) {
   return {
     theme: options.theme ?? options.config.theme,
@@ -50,6 +52,9 @@ export function mergeConfigOptions(options: {
       image: options.background?.image ?? options.config.background?.image,
       gradient: options.background?.gradient ?? options.config.background?.gradient,
       blendMode: options.background?.blendMode ?? options.config.background?.blendMode,
+    },
+    link: {
+      underline: options.link?.underline ?? options.config.link?.underline,
     },
   };
 }
@@ -85,6 +90,18 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     assertOptionalString(config.background.blendMode, "background.blendMode", configPath);
   }
 
+  if (config.link !== undefined) {
+    if (!config.link || typeof config.link !== "object" || Array.isArray(config.link)) {
+      throw new LildocsError(`Docs config "link" must be an object: ${configPath}`);
+    }
+    assertOptionalEnum(
+      config.link.underline,
+      "link.underline",
+      ["always", "hover", "none"],
+      configPath,
+    );
+  }
+
   return {
     theme: config.theme,
     font: config.font
@@ -101,12 +118,25 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
           blendMode: config.background.blendMode,
         }
       : undefined,
+    link: config.link
+      ? {
+          underline: config.link.underline,
+        }
+      : undefined,
   };
 }
 
 function assertOptionalString(value: unknown, name: string, configPath: string) {
   if (value !== undefined && (typeof value !== "string" || value.length === 0)) {
     throw new LildocsError(`Docs config "${name}" must be a non-empty string: ${configPath}`);
+  }
+}
+
+function assertOptionalEnum(value: unknown, name: string, allowed: string[], configPath: string) {
+  if (value !== undefined && !allowed.includes(String(value))) {
+    throw new LildocsError(
+      `Docs config "${name}" must be one of ${allowed.join(", ")}: ${configPath}`,
+    );
   }
 }
 

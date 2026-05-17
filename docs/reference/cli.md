@@ -30,6 +30,8 @@ lildocs dev <path>
 
 `--background.blendMode <mode>` sets the CSS background blend mode.
 
+`--link.underline always|hover|none` controls content link underlines.
+
 ## Config
 
 `docs/config.json` can declare the same theme and font settings:
@@ -46,6 +48,9 @@ lildocs dev <path>
   "background": {
     "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
     "blendMode": "screen"
+  },
+  "link": {
+    "underline": "hover"
   }
 }
 ```

@@ -183,6 +183,46 @@ test("cli background options override docs config", async () => {
   assert.doesNotMatch(css, /linear-gradient\(red, blue\)/);
 });
 
+test("loads link underline options from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      link: {
+        underline: "hover",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-link-text-decoration: none/);
+  assert.match(css, /--ld-link-hover-text-decoration: underline/);
+});
+
+test("cli link underline options override docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      link: {
+        underline: "none",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir, "--link.underline", "always"]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-link-text-decoration: underline/);
+  assert.match(css, /--ld-link-hover-text-decoration: underline/);
+});
+
 test("maps shiki theme names to lildocs css variables", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

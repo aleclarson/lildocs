@@ -31,6 +31,22 @@ test("emits search UI and static search script", async () => {
   assert.match(searchScript, /embeddedIndex/);
 });
 
+test("search script preloads links and supports keyboard result selection", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const searchScript = await readFile(path.join(outDir, "assets", "search.js"), "utf8");
+  assert.match(searchScript, /document\.addEventListener\("mouseover"/);
+  assert.match(searchScript, /preload\.rel = "prefetch"/);
+  assert.match(searchScript, /event\.key === "ArrowDown"/);
+  assert.match(searchScript, /event\.key === "ArrowUp"/);
+  assert.match(searchScript, /event\.key === "Enter"/);
+  assert.match(searchScript, /window\.location\.href = selected\.href/);
+  assert.match(searchScript, /preloadRelativeUrl\(selected\?\.getAttribute\("href"\)\)/);
+});
+
 test("uses theme colors for search input placeholder and focus styles", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -41,4 +57,5 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchBox input::placeholder \{[^}]*color: var\(--ld-color-muted-text\)/);
   assert.match(css, /\.searchBox input:focus \{[^}]*border-color: var\(--ld-color-link\)/);
   assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
+  assert.match(css, /\.searchResults a\.selected,\n\.searchResults a:hover \{[^}]*background: var\(--ld-color-code-background\)/);
 });
