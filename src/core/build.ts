@@ -22,6 +22,9 @@ export type BuildOptions = {
   cwd: string;
   theme?: string;
   fonts?: FontOverrides;
+  dev?: {
+    clientScriptPath: string;
+  };
 };
 
 export type BuildResult = {
@@ -79,7 +82,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     await Promise.all(
       model.pages.map(async (page) => {
         const nav = buildNavigation(model, page);
-        const html = renderPage(page, nav, css, searchIndexJson);
+        const html = renderPage(page, nav, css, searchIndexJson, options.dev);
         const outputPath = path.join(outDir, page.outputPath);
         await mkdir(path.dirname(outputPath), { recursive: true });
         await writeFile(outputPath, html);

@@ -4,8 +4,16 @@ import type { Page } from "../core/content.js";
 import type { NavItem } from "../core/nav.js";
 import { Layout } from "./Layout.js";
 
-export function renderPage(page: Page, nav: NavItem[], css: string, searchIndexJson: string) {
+export function renderPage(
+  page: Page,
+  nav: NavItem[],
+  css: string,
+  searchIndexJson: string,
+  dev?: {
+    clientScriptPath: string;
+  },
+) {
   return `<!doctype html>${render(
-    <Layout page={page} nav={nav} css={css} searchIndexJson={searchIndexJson} />,
+    <Layout page={page} nav={nav} css={css} searchIndexJson={searchIndexJson} dev={dev} />,
   )}`;
 }

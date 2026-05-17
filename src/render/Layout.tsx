@@ -8,9 +8,12 @@ export type LayoutProps = {
   nav: NavItem[];
   css: string;
   searchIndexJson: string;
+  dev?: {
+    clientScriptPath: string;
+  };
 };
 
-export function Layout({ page, nav, css, searchIndexJson }: LayoutProps) {
+export function Layout({ page, nav, css, searchIndexJson, dev }: LayoutProps) {
   return (
     <html lang="en">
       <head>
@@ -60,6 +63,7 @@ export function Layout({ page, nav, css, searchIndexJson }: LayoutProps) {
           dangerouslySetInnerHTML={{ __html: searchIndexJson }}
         />
         <script src={rootRelativeUrl(page.route, "assets/search.js")} />
+        {dev ? <script type="module" src={dev.clientScriptPath} /> : null}
         <style dangerouslySetInnerHTML={{ __html: css }} />
       </body>
     </html>

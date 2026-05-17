@@ -2,6 +2,7 @@
 
 import { command, option, optional, positional, run, string, subcommands } from "cmd-ts";
 import { buildSite } from "./core/build.js";
+import { startDevServer } from "./core/dev.js";
 
 export type CliOptions = {
   input: string;
@@ -10,6 +11,8 @@ export type CliOptions = {
   fontHeading?: string;
   fontBody?: string;
   fontCode?: string;
+  host?: string;
+  port?: string;
 };
 
 const outOption = option({
@@ -40,6 +43,18 @@ const fontCodeOption = option({
   type: optional(string),
   long: "font.code",
   description: "Code font name from Google Fonts or local font file path.",
+});
+
+const hostOption = option({
+  type: optional(string),
+  long: "host",
+  description: "Host address for the local development server.",
+});
+
+const portOption = option({
+  type: optional(string),
+  long: "port",
+  description: "Port for the local development server.",
 });
 
 const inputArgument = positional({
@@ -90,13 +105,35 @@ const devCommand = command({
     fontHeading: fontHeadingOption,
     fontBody: fontBodyOption,
     fontCode: fontCodeOption,
+    host: hostOption,
+    port: portOption,
   },
-  handler: async () => {
-    throw new Error(
-      "The dev command is not implemented yet. Use `lildocs build <path>` for v1 static output.",
-    );
+  handler: async (options) => {
+    const port = parsePort(options.port ?? "3000");
+    await startDevServer({
+      input: options.input,
+      outDir: options.out ?? ".lildocs",
+      theme: options.theme,
+      fonts: {
+        heading: options.fontHeading,
+        body: options.fontBody,
+        code: options.fontCode,
+      },
+      cwd: process.cwd(),
+      host: options.host ?? "127.0.0.1",
+      port,
+    });
+    await new Promise(() => {});
   },
 });
+
+function parsePort(value: string) {
+  const port = Number(value);
+  if (!Number.isInteger(port) || port < 0 || port > 65535) {
+    throw new Error(`Invalid port: ${value}`);
+  }
+  return port;
+}
 
 const bareBuildCommand = command({
   name: "lildocs",

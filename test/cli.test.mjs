@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import path from "node:path";
 import test from "node:test";
-import { fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
+import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 test("builds with bare path invocation", async () => {
   const { docs, workspace } = await fixtureWorkspace();
@@ -21,10 +22,27 @@ test("builds with explicit build command", async () => {
   assert.match(result.stdout, /Built 3 pages/);
 });
 
-test("dev command returns a clear v1 message", async () => {
-  const { docs } = await fixtureWorkspace();
+test("dev command serves and rebuilds the generated site", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, ".dev-site");
+  const server = await startDevCli(["dev", docs, "--out", outDir, "--port", "0"]);
 
-  await assert.rejects(() => runCli(["dev", docs]), /dev command is not implemented yet/);
+  try {
+    const home = await fetchText(server.url);
+    assert.match(home, /Fixture Home/);
+    assert.match(home, /\/__lildocs\/client\.js/);
+
+    const client = await fetchText(new URL("/__lildocs/client.js", server.url));
+    assert.match(client, /EventSource/);
+
+    await writeDocFile(docs, "index.md", "# Updated Home\n\nChanged content.");
+    await waitFor(async () => {
+      const updated = await fetchText(server.url);
+      return updated.includes("Updated Home");
+    });
+  } finally {
+    await server.close();
+  }
 });
 
 test("unknown commands report usage errors", async () => {
@@ -36,3 +54,65 @@ test("unsupported options report usage errors", async () => {
 
   await assert.rejects(() => runCli([docs, "--wat"]), /Unknown option|Unknown argument/);
 });
+
+async function startDevCli(args) {
+  const child = spawn(process.execPath, [path.resolve("dist/cli.mjs"), ...args], {
+    cwd: process.cwd(),
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let stdout = "";
+  let stderr = "";
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => {
+    stdout += chunk;
+  });
+  child.stderr.on("data", (chunk) => {
+    stderr += chunk;
+  });
+
+  const url = await waitFor(() => {
+    const match = stdout.match(/listening at (http:\/\/[^\s]+)/);
+    return match?.[1];
+  }, 5000).catch((error) => {
+    child.kill();
+    throw new Error(`${error.message}\nstdout:\n${stdout}\nstderr:\n${stderr}`);
+  });
+
+  return {
+    url,
+    close: async () => {
+      if (child.exitCode !== null) {
+        return;
+      }
+      child.kill();
+      await new Promise((resolve) => child.once("exit", resolve));
+    },
+  };
+}
+
+async function fetchText(url) {
+  const response = await fetch(url);
+  assert.equal(response.status, 200);
+  return response.text();
+}
+
+async function waitFor(callback, timeout = 3000) {
+  const started = Date.now();
+  let lastError;
+  while (Date.now() - started < timeout) {
+    try {
+      const result = await callback();
+      if (result) {
+        return result;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  if (lastError) {
+    throw lastError;
+  }
+  throw new Error("Timed out waiting for condition");
+}

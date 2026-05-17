@@ -1,3 +1,4 @@
 dist/
+.lildocs/
 node_modules/
 src/generated/
