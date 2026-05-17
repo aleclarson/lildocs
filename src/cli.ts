@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { command, option, optional, positional, run, string, subcommands } from "cmd-ts";
+import { command, flag, option, optional, positional, run, string, subcommands } from "cmd-ts";
 import { buildSite } from "./core/build.js";
 import { startDevServer } from "./core/dev.js";
+import { deployGitHubPages } from "./core/deploy.js";
 
 export type CliOptions = {
   input: string;
@@ -16,6 +17,8 @@ export type CliOptions = {
   backgroundBlendMode?: string;
   host?: string;
   port?: string;
+  base?: string;
+  workflow?: boolean;
 };
 
 const outOption = option({
@@ -78,6 +81,17 @@ const portOption = option({
   description: "Port for the local development server.",
 });
 
+const baseOption = option({
+  type: optional(string),
+  long: "base",
+  description: "GitHub Pages base path, such as /repo/ for project pages.",
+});
+
+const workflowOption = flag({
+  long: "workflow",
+  description: "Create a GitHub Actions workflow for GitHub Pages deployment.",
+});
+
 const inputArgument = positional({
   type: string,
   displayName: "path",
@@ -105,6 +119,35 @@ async function runBuild(options: CliOptions) {
   console.log(
     `Built ${result.pages.length} page${result.pages.length === 1 ? "" : "s"} to ${result.outDir}`,
   );
+}
+
+async function runDeploy(options: CliOptions) {
+  const result = await deployGitHubPages({
+    input: options.input,
+    outDir: options.out ?? "dist",
+    theme: options.theme,
+    fonts: {
+      heading: options.fontHeading,
+      body: options.fontBody,
+      code: options.fontCode,
+    },
+    background: {
+      image: options.backgroundImage,
+      gradient: options.backgroundGradient,
+      blendMode: options.backgroundBlendMode,
+    },
+    basePath: options.base,
+    workflow: options.workflow,
+    cwd: process.cwd(),
+  });
+
+  console.log(`Built GitHub Pages site to ${result.outDir}`);
+  console.log(
+    `Upload ${result.outDir} with actions/upload-pages-artifact or run with --workflow to create a workflow.`,
+  );
+  if (result.workflowPath) {
+    console.log(`Created GitHub Pages workflow at ${result.workflowPath}`);
+  }
 }
 
 const buildCommand = command({
@@ -172,6 +215,25 @@ function parsePort(value: string) {
   return port;
 }
 
+const deployCommand = command({
+  name: "deploy",
+  description: "Build GitHub Pages-ready documentation output.",
+  args: {
+    input: inputArgument,
+    out: outOption,
+    theme: themeOption,
+    fontHeading: fontHeadingOption,
+    fontBody: fontBodyOption,
+    fontCode: fontCodeOption,
+    backgroundImage: backgroundImageOption,
+    backgroundGradient: backgroundGradientOption,
+    backgroundBlendMode: backgroundBlendModeOption,
+    base: baseOption,
+    workflow: workflowOption,
+  },
+  handler: runDeploy,
+});
+
 const bareBuildCommand = command({
   name: "lildocs",
   description: "Build a static documentation site from Markdown files.",
@@ -194,12 +256,20 @@ const app = subcommands({
   description: "Turn Markdown docs into a static searchable documentation site.",
   cmds: {
     build: buildCommand,
+    deploy: deployCommand,
     dev: devCommand,
   },
 });
 
 function isKnownTopLevelArg(arg: string | undefined) {
-  return arg === undefined || arg === "build" || arg === "dev" || arg === "--help" || arg === "-h";
+  return (
+    arg === undefined ||
+    arg === "build" ||
+    arg === "deploy" ||
+    arg === "dev" ||
+    arg === "--help" ||
+    arg === "-h"
+  );
 }
 
 async function main() {

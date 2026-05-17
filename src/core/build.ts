@@ -29,6 +29,7 @@ export type BuildOptions = {
   dev?: {
     clientScriptPath: string;
   };
+  basePath?: string;
 };
 
 export type BuildResult = {

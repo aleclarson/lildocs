@@ -11,6 +11,8 @@ node dist/cli.mjs ./docs
 node dist/cli.mjs ./docs/index.md
 node dist/cli.mjs build ./docs --out dist --theme minimal
 node dist/cli.mjs build ./docs --font.heading Inter --font.body "Source Sans 3" --font.code "Roboto Mono"
+node dist/cli.mjs deploy ./docs
+node dist/cli.mjs deploy ./docs --workflow
 ```
 
 Generated HTML is written to `dist` by default and can be opened directly from disk.
@@ -61,3 +63,27 @@ The v1 CLI supports:
 - `--background.blendMode <mode>`
 
 Font options accept either a Google Fonts family name or a local `.woff2`, `.woff`, `.ttf`, or `.otf` file path.
+
+## GitHub Pages
+
+`lildocs deploy <path>` builds the same static site as `build`, then adds GitHub Pages deployment files:
+
+- `.nojekyll`
+- `lildocs-deploy.json`
+
+The command prepares output only. It does not commit, push, or publish the site directly.
+
+```bash
+node dist/cli.mjs deploy ./docs --out dist
+node dist/cli.mjs deploy ./docs --base /repo-name/
+```
+
+Use `--base /repo-name/` for GitHub project pages when you want deployment metadata to record the project path. Generated page links remain relative so the site can still be opened from disk.
+
+To generate a GitHub Actions workflow:
+
+```bash
+node dist/cli.mjs deploy ./docs --workflow
+```
+
+This creates `.github/workflows/lildocs-pages.yml` if it does not already exist. The workflow installs dependencies with pnpm, builds the CLI, generates the site, uploads the output with `actions/upload-pages-artifact`, and deploys with `actions/deploy-pages`. In your repository settings, set Pages source to **GitHub Actions** before relying on the workflow.
