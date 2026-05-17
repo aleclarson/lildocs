@@ -20,10 +20,15 @@ export type RenderedMarkdown = {
   text: string;
 };
 
+export type MarkdownRenderOptions = {
+  shikiTheme?: string;
+};
+
 export async function renderMarkdownPage(
   model: ContentModel,
   page: Page,
   outDir: string,
+  options: MarkdownRenderOptions = {},
 ): Promise<RenderedMarkdown> {
   const assets: AssetCopy[] = [];
   const headingIds = [...page.headings];
@@ -62,7 +67,7 @@ export async function renderMarkdownPage(
           return `<pre class="mermaid">${escapeHtml(code)}</pre>`;
         }
 
-        return highlightCode(code, lang, props);
+        return highlightCode(code, lang, props, options.shikiTheme);
       },
     }),
   );
@@ -76,11 +81,11 @@ export async function renderMarkdownPage(
   };
 }
 
-async function highlightCode(code: string, lang: string, props: string[]) {
+async function highlightCode(code: string, lang: string, props: string[], theme = "github-light") {
   try {
     return await codeToHtml(code, {
       lang: lang || "text",
-      theme: "github-light",
+      theme,
       meta: {
         __raw: props.join(" "),
       },
@@ -88,7 +93,7 @@ async function highlightCode(code: string, lang: string, props: string[]) {
   } catch {
     return codeToHtml(code, {
       lang: "text",
-      theme: "github-light",
+      theme,
     });
   }
 }

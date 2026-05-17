@@ -65,6 +65,39 @@ test("highlights code blocks with shiki", async () => {
   assert.match(html, /style="color:/);
 });
 
+test("uses the local theme shiki theme for code blocks", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "theme.ts",
+    `export default {
+  color: {
+    background: "#24292e",
+    text: "#e1e4e8",
+    mutedText: "#959da5",
+    border: "#1b1f23",
+    link: "#79b8ff",
+    codeBackground: "#2f363d",
+  },
+  font: {
+    body: "system-ui, sans-serif",
+    code: "ui-monospace, monospace",
+  },
+  shiki: {
+    theme: "github-dark",
+  },
+};`,
+  );
+  await writeDocFile(docs, "code.md", "# Code\n\n```ts\nconst message = \"hello\";\n```\n");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  assert.match(html, /class="shiki github-dark"/);
+  assert.doesNotMatch(html, /class="shiki github-light"/);
+});
+
 test("omits frontmatter from rendered content", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

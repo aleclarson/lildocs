@@ -55,7 +55,9 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   await mkdir(path.join(outDir, "assets"), { recursive: true });
 
   const renderedPages = await Promise.all(
-    model.pages.map((page) => renderMarkdownPage(model, page, outDir)),
+    model.pages.map((page) =>
+      renderMarkdownPage(model, page, outDir, { shikiTheme: theme.shiki?.theme }),
+    ),
   );
   for (const [index, rendered] of renderedPages.entries()) {
     const page = model.pages[index];

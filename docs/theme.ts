@@ -13,5 +13,8 @@ export default {
     "heading": "system-ui, sans-serif",
     "body": "system-ui, sans-serif",
     "code": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+  },
+  "shiki": {
+    "theme": "github-dark"
   }
 } as const;

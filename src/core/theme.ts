@@ -21,6 +21,9 @@ export type Theme = {
     code?: string;
     mono?: string;
   };
+  shiki?: {
+    theme: string;
+  };
 };
 
 export type ThemeFonts = {
@@ -51,6 +54,9 @@ const themes: Record<string, Theme> = {
       body: "system-ui, sans-serif",
       code: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
     },
+    shiki: {
+      theme: "github-light",
+    },
   },
   minimal: {
     color: {
@@ -66,6 +72,9 @@ const themes: Record<string, Theme> = {
       heading: "Arial, sans-serif",
       body: "Arial, sans-serif",
       code: "Menlo, Consolas, monospace",
+    },
+    shiki: {
+      theme: "github-light",
     },
   },
 };
