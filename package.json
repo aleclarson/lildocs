@@ -1,0 +1,32 @@
+{
+  "name": "lildocs",
+  "version": "0.0.0",
+  "description": "A lightweight CLI that turns Markdown docs into a static searchable documentation site.",
+  "bin": {
+    "lildocs": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "format": "oxfmt --write src package.json tsconfig.json tsdown.config.ts oxlint.json .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "format:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts oxlint.json .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "lint": "oxlint src tsdown.config.ts",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cmd-ts": "^0.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "oxfmt": "^0.50.0",
+    "oxlint": "^1.65.0",
+    "tsdown": "^0.22.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
