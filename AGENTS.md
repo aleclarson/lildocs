@@ -13,6 +13,7 @@ Read `spec.md` before product changes. Keep behavior aligned with the README and
 - Use Conventional Commits.
 - Keep commits atomic and single-purpose.
 - Always commit your work when a task implies a checkpoint or durable handoff.
+- Delete plan files once the plan is completed and approved by a human.
 - Avoid new dependencies unless they are clearly justified.
 - Update tests with behavior changes.
 
