@@ -11,6 +11,7 @@
   "type": "module",
   "scripts": {
     "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
+    "extract:shiki-themes": "node scripts/extract-shiki-themes.mjs",
     "format": "oxfmt --write src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "format:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "lint": "oxlint src tsdown.config.ts",
@@ -28,6 +29,7 @@
     "shiki": "^4.0.2"
   },
   "devDependencies": {
+    "@shikijs/themes": "^4.0.2",
     "@types/node": "^24.0.0",
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
