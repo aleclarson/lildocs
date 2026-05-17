@@ -5,6 +5,7 @@ import markedShiki from "marked-shiki";
 import { codeToHtml } from "shiki";
 import type { ContentModel, Heading, Page } from "./content.js";
 import { LildocsError } from "./errors.js";
+import type { MermaidRenderer } from "./mermaid.js";
 import { rootRelativeUrl, toPosixPath } from "./paths.js";
 import { normalizeSearchText } from "./search.js";
 
@@ -16,11 +17,11 @@ export type AssetCopy = {
 export type RenderedMarkdown = {
   html: string;
   assets: AssetCopy[];
-  needsMermaid: boolean;
   text: string;
 };
 
 export type MarkdownRenderOptions = {
+  mermaid?: MermaidRenderer;
   shikiTheme?: string;
 };
 
@@ -32,7 +33,7 @@ export async function renderMarkdownPage(
 ): Promise<RenderedMarkdown> {
   const assets: AssetCopy[] = [];
   const headingIds = [...page.headings];
-  let needsMermaid = false;
+  let mermaidDiagramIndex = 0;
   const renderer = new Renderer();
 
   renderer.heading = ({ tokens, depth }) => {
@@ -63,8 +64,21 @@ export async function renderMarkdownPage(
     markedShiki({
       async highlight(code, lang, props) {
         if (lang?.toLowerCase() === "mermaid") {
-          needsMermaid = true;
-          return `<pre class="mermaid">${escapeHtml(code)}</pre>`;
+          mermaidDiagramIndex += 1;
+          if (!options.mermaid) {
+            throw new LildocsError(`No Mermaid renderer configured for ${page.relativePath}`);
+          }
+
+          try {
+            return await options.mermaid.render(
+              code,
+              `mermaid-${stableIdPart(page.route)}-${mermaidDiagramIndex}`,
+            );
+          } catch (error) {
+            throw new LildocsError(
+              `Failed to render Mermaid diagram ${mermaidDiagramIndex} in ${page.relativePath}: ${errorMessage(error)}`,
+            );
+          }
         }
 
         return highlightCode(code, lang, props, options.shikiTheme);
@@ -76,7 +90,6 @@ export async function renderMarkdownPage(
   return {
     html,
     assets,
-    needsMermaid,
     text: normalizeSearchText(page.markdown),
   };
 }
@@ -180,6 +193,22 @@ function isExternalOrAnchor(href: string) {
 
 function stripHtml(value: string) {
   return value.replace(/<[^>]*>/g, "");
+}
+
+function stableIdPart(value: string) {
+  return value
+    .replace(/\.[^.]+$/, "")
+    .replace(/[^a-z0-9_-]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+}
+
+function errorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
 }
 
 function escapeHtml(value: string) {

@@ -8,7 +8,7 @@ Write normal Markdown files. Navigation is inferred from folders.
 | --- | --- |
 | Tables | Supported |
 | Task lists | Supported |
-| Mermaid | Supported |
+| Mermaid | Build-time SVG for flowcharts, state, sequence, class, ER, and XY charts |
 
 - [x] Frontmatter titles
 - [x] Relative links

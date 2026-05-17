@@ -26,15 +26,28 @@ test("rewrites markdown links to generated html routes", async () => {
   assert.match(html, /href=".\/guide.html"/);
 });
 
-test("emits mermaid enhancement when diagrams are present", async () => {
+test("renders mermaid diagrams to static svg", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
 
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /class="mermaid"/);
-  assert.match(html, /mermaid\.initialize/);
+  assert.match(html, /<figure class="mermaidDiagram" id="mermaid-index-1">/);
+  assert.match(html, /<svg role="img"/);
+  assert.doesNotMatch(html, /mermaid\.initialize/);
+  assert.doesNotMatch(html, /cdn\.jsdelivr\.net\/npm\/mermaid/);
+});
+
+test("reports invalid mermaid diagrams during build", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "broken.md", "# Broken\n\n```mermaid\nnot a diagram\n```\n");
+
+  await assert.rejects(
+    () => runCli([docs, "--out", outDir]),
+    /Failed to render Mermaid diagram 1 in broken\.md/,
+  );
 });
 
 test("renders gfm tables task lists and strikethrough", async () => {

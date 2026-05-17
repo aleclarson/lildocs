@@ -5,6 +5,7 @@ import { clampGamut, converter, formatHex, parse, wcagContrast } from "culori";
 import { createJiti } from "jiti";
 import { bundledThemes } from "shiki";
 import type { AssetCopy } from "./markdown.js";
+import type { MermaidThemeConfig } from "./mermaid.js";
 import { LildocsError } from "./errors.js";
 
 export type Theme = {
@@ -197,6 +198,22 @@ export function themeToCssVariables(theme: Theme, fontOverrides: Partial<ThemeFo
   --ld-font-body: ${fonts.body};
   --ld-font-code: ${fonts.code};
 }`;
+}
+
+export function themeToMermaidConfig(
+  theme: Theme,
+  fontOverrides: Partial<ThemeFonts> = {},
+): MermaidThemeConfig {
+  const fonts = resolveThemeFonts(theme, fontOverrides);
+  return {
+    bg: theme.color.background,
+    fg: theme.color.text,
+    accent: theme.color.link,
+    muted: theme.color.mutedText,
+    surface: theme.color.codeBackground,
+    border: theme.color.border,
+    fontFamily: fonts.body,
+  };
 }
 
 function validateTheme(value: unknown, themePath: string): Theme {

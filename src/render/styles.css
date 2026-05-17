@@ -66,6 +66,15 @@ body {
   height: auto;
 }
 
+.mermaidDiagram {
+  overflow-x: auto;
+}
+
+.mermaidDiagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .content a,
 .toc a,
 .navList a {

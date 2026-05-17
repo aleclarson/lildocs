@@ -8,10 +8,9 @@ export type LayoutProps = {
   nav: NavItem[];
   css: string;
   searchIndexJson: string;
-  needsMermaid: boolean;
 };
 
-export function Layout({ page, nav, css, searchIndexJson, needsMermaid }: LayoutProps) {
+export function Layout({ page, nav, css, searchIndexJson }: LayoutProps) {
   return (
     <html lang="en">
       <head>
@@ -61,20 +60,6 @@ export function Layout({ page, nav, css, searchIndexJson, needsMermaid }: Layout
           dangerouslySetInnerHTML={{ __html: searchIndexJson }}
         />
         <script src={rootRelativeUrl(page.route, "assets/search.js")} />
-        {needsMermaid ? (
-          <script
-            type="module"
-            src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"
-          />
-        ) : null}
-        {needsMermaid ? (
-          <script
-            type="module"
-            dangerouslySetInnerHTML={{
-              __html: "mermaid.initialize({ startOnLoad: true });",
-            }}
-          />
-        ) : null}
         <style dangerouslySetInnerHTML={{ __html: css }} />
       </body>
     </html>

@@ -4,12 +4,14 @@ import { fileURLToPath } from "node:url";
 import { buildContentModel, type Page } from "./content.js";
 import { resolveInput } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
+import { createMermaidRenderer } from "./mermaid.js";
 import { buildNavigation } from "./nav.js";
 import { buildSearchIndex } from "./search.js";
 import {
   resolveFontOverrides,
   resolveTheme,
   themeToCssVariables,
+  themeToMermaidConfig,
   type FontOverrides,
 } from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
@@ -49,43 +51,48 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const searchScript = await readRenderAsset("search.js");
   const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts)}\n${baseCss}`;
   const assets: AssetCopy[] = [...fontResolution.assets];
-  let siteNeedsMermaid = false;
+  const mermaid = await createMermaidRenderer({
+    themeConfig: themeToMermaidConfig(theme, fontResolution.themeFonts),
+  });
 
   await rm(outDir, { recursive: true, force: true });
   await mkdir(path.join(outDir, "assets"), { recursive: true });
 
-  const renderedPages = await Promise.all(
-    model.pages.map((page) =>
-      renderMarkdownPage(model, page, outDir, { shikiTheme: theme.shiki?.theme }),
-    ),
-  );
-  for (const [index, rendered] of renderedPages.entries()) {
-    const page = model.pages[index];
-    if (!page) {
-      continue;
+  try {
+    const renderedPages = await Promise.all(
+      model.pages.map((page) =>
+        renderMarkdownPage(model, page, outDir, { mermaid, shikiTheme: theme.shiki?.theme }),
+      ),
+    );
+    for (const [index, rendered] of renderedPages.entries()) {
+      const page = model.pages[index];
+      if (!page) {
+        continue;
+      }
+      page.html = rendered.html;
+      page.searchText = rendered.text;
+      assets.push(...rendered.assets);
     }
-    page.html = rendered.html;
-    page.searchText = rendered.text;
-    assets.push(...rendered.assets);
-    siteNeedsMermaid ||= rendered.needsMermaid;
+
+    const searchIndexJson = JSON.stringify(buildSearchIndex(model.pages), null, 2);
+
+    await Promise.all(
+      model.pages.map(async (page) => {
+        const nav = buildNavigation(model, page);
+        const html = renderPage(page, nav, css, searchIndexJson);
+        const outputPath = path.join(outDir, page.outputPath);
+        await mkdir(path.dirname(outputPath), { recursive: true });
+        await writeFile(outputPath, html);
+      }),
+    );
+
+    await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
+    await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
+    await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
+    await copyAssets(assets);
+  } finally {
+    await mermaid.close();
   }
-
-  const searchIndexJson = JSON.stringify(buildSearchIndex(model.pages), null, 2);
-
-  await Promise.all(
-    model.pages.map(async (page) => {
-      const nav = buildNavigation(model, page);
-      const html = renderPage(page, nav, css, searchIndexJson, siteNeedsMermaid);
-      const outputPath = path.join(outDir, page.outputPath);
-      await mkdir(path.dirname(outputPath), { recursive: true });
-      await writeFile(outputPath, html);
-    }),
-  );
-
-  await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
-  await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
-  await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
-  await copyAssets(assets);
 
   return {
     outDir,
