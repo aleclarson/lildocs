@@ -41,6 +41,17 @@ export type FontOverrides = {
   code?: string;
 };
 
+export type BackgroundOptions = {
+  image?: string;
+  gradient?: string;
+  blendMode?: string;
+};
+
+export type ResolvedBackground = {
+  css: string;
+  assets: AssetCopy[];
+};
+
 const MIN_BACKGROUND_CONTRAST = 1.08;
 const PREFERRED_BACKGROUND_CONTRAST = 1.14;
 const MAX_BACKGROUND_CONTRAST_STEPS = 12;
@@ -188,6 +199,8 @@ export function themeToCssVariables(theme: Theme, fontOverrides: Partial<ThemeFo
   const fonts = resolveThemeFonts(theme, fontOverrides);
   return `:root {
   --ld-color-background: ${theme.color.background};
+  --ld-background-image: none;
+  --ld-background-blend-mode: normal;
   --ld-color-text: ${theme.color.text};
   --ld-color-muted-text: ${theme.color.mutedText};
   --ld-color-border: ${theme.color.border};
@@ -198,6 +211,40 @@ export function themeToCssVariables(theme: Theme, fontOverrides: Partial<ThemeFo
   --ld-font-body: ${fonts.body};
   --ld-font-code: ${fonts.code};
 }`;
+}
+
+export function resolveBackgroundOptions(options: {
+  cwd: string;
+  docsRoot: string;
+  outDir: string;
+  background?: BackgroundOptions;
+}): ResolvedBackground {
+  const assets: AssetCopy[] = [];
+  const layers: string[] = [];
+
+  if (options.background?.gradient) {
+    layers.push(options.background.gradient);
+  }
+
+  if (options.background?.image) {
+    layers.push(backgroundImageValue(options.background.image, options, assets));
+  }
+
+  if (layers.length === 0 && !options.background?.blendMode) {
+    return {
+      assets,
+      css: "",
+    };
+  }
+
+  return {
+    assets,
+    css: `:root {
+  --ld-background-image: ${layers.length > 0 ? layers.join(", ") : "none"};
+  --ld-background-blend-mode: ${options.background?.blendMode ?? "normal"};
+}
+`,
+  };
 }
 
 export function themeToMermaidConfig(
@@ -366,6 +413,42 @@ function normalizeColor(value: string) {
   }
 
   return value;
+}
+
+function backgroundImageValue(
+  value: string,
+  options: {
+    cwd: string;
+    docsRoot: string;
+    outDir: string;
+  },
+  assets: AssetCopy[],
+) {
+  const trimmed = value.trim();
+  if (isCssImageFunction(trimmed)) {
+    return trimmed;
+  }
+  if (
+    /^(?:[a-z]+:)?\/\//i.test(trimmed) ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("/")
+  ) {
+    return `url(${quoteCssString(trimmed)})`;
+  }
+
+  const source = path.resolve(options.docsRoot, trimmed);
+  const assetRelativePath = path.relative(options.docsRoot, source).split(path.sep).join("/");
+  assets.push({
+    from: source,
+    to: path.join(options.outDir, "assets", assetRelativePath),
+  });
+  return `url(${quoteCssString(`./${assetRelativePath}`)})`;
+}
+
+function isCssImageFunction(value: string) {
+  return /^(?:url|linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient|repeating-radial-gradient|repeating-conic-gradient)\(/i.test(
+    value,
+  );
 }
 
 function ensureBackgroundContrast(options: {

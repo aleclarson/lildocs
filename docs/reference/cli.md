@@ -24,6 +24,12 @@ lildocs dev <path>
 
 `--font.code <name-or-file>` selects a code font from Google Fonts or a local font file.
 
+`--background.image <url-or-file>` sets a page background image from a URL or docs-relative file.
+
+`--background.gradient <gradient>` sets a CSS background gradient.
+
+`--background.blendMode <mode>` sets the CSS background blend mode.
+
 ## Config
 
 `docs/config.json` can declare the same theme and font settings:
@@ -36,8 +42,15 @@ lildocs dev <path>
     "heading": "Inter",
     "body": "Source Sans 3",
     "code": "Roboto Mono"
+  },
+  "background": {
+    "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
+    "blendMode": "screen"
   }
 }
 ```
 
 `theme` accepts `default`, `minimal`, or a bundled Shiki theme name. CLI flags override config values.
+
+Backgrounds support `background.image`, `background.gradient`, and `background.blendMode`.
+Image values can be URLs, `url(...)` values, or docs-relative file paths.

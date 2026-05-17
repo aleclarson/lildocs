@@ -1,9 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
-  "theme": "github-dark",
+  "theme": "aurora-x",
   "font": {
     "heading": "Inter",
     "body": "Source Sans 3",
     "code": "Roboto Mono"
+  },
+  "background": {
+    "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
+    "blendMode": "screen"
   }
 }

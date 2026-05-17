@@ -111,6 +111,78 @@ test("reports invalid docs config", async () => {
   await assert.rejects(() => runCli([docs]), /Invalid docs config JSON/);
 });
 
+test("loads background gradient from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      background: {
+        gradient: "linear-gradient(135deg, rgb(255 255 255 / 0.1), transparent)",
+        blendMode: "screen",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-background-image: linear-gradient\(135deg, rgb\(255 255 255 \/ 0\.1\), transparent\)/);
+  assert.match(css, /--ld-background-blend-mode: screen/);
+});
+
+test("copies local background images from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "images/background.svg", '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      background: {
+        image: "images/background.svg",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-background-image: url\("\.\/images\/background\.svg"\)/);
+  await access(path.join(outDir, "assets", "images", "background.svg"));
+});
+
+test("cli background options override docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      background: {
+        gradient: "linear-gradient(red, blue)",
+        blendMode: "screen",
+      },
+    }),
+  );
+
+  await runCli([
+    docs,
+    "--out",
+    outDir,
+    "--background.gradient",
+    "linear-gradient(black, transparent)",
+    "--background.blendMode",
+    "multiply",
+  ]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-background-image: linear-gradient\(black, transparent\)/);
+  assert.match(css, /--ld-background-blend-mode: multiply/);
+  assert.doesNotMatch(css, /linear-gradient\(red, blue\)/);
+});
+
 test("maps shiki theme names to lildocs css variables", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

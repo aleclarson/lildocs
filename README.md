@@ -25,11 +25,17 @@ Docs folders can include `config.json` for theme and font defaults:
     "heading": "Inter",
     "body": "Source Sans 3",
     "code": "Roboto Mono"
+  },
+  "background": {
+    "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
+    "blendMode": "screen"
   }
 }
 ```
 
 `theme` accepts `default`, `minimal`, or a bundled Shiki theme name. CLI flags override config values.
+
+Backgrounds support `background.image`, `background.gradient`, and `background.blendMode`.
 
 ## Development
 
@@ -50,5 +56,8 @@ The v1 CLI supports:
 - `--font.heading <name-or-file>`
 - `--font.body <name-or-file>`
 - `--font.code <name-or-file>`
+- `--background.image <url-or-file>`
+- `--background.gradient <gradient>`
+- `--background.blendMode <mode>`
 
 Font options accept either a Google Fonts family name or a local `.woff2`, `.woff`, `.ttf`, or `.otf` file path.

@@ -14,3 +14,14 @@ test("config schema lists the exact bundled shiki themes", async () => {
     bundledThemesInfo.map((theme) => theme.id).sort((a, b) => a.localeCompare(b)),
   );
 });
+
+test("config schema supports simple background options", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.deepEqual(Object.keys(schema.properties.background.properties), [
+    "image",
+    "gradient",
+    "blendMode",
+  ]);
+  assert.equal(schema.properties.background.additionalProperties, false);
+});

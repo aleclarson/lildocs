@@ -1,12 +1,13 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import type { FontOverrides } from "./theme.js";
+import type { BackgroundOptions, FontOverrides } from "./theme.js";
 import { LildocsError } from "./errors.js";
 
 export type DocsConfig = {
   $schema?: string;
   theme?: string;
   font?: FontOverrides;
+  background?: BackgroundOptions;
 };
 
 export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
@@ -36,6 +37,7 @@ export function mergeConfigOptions(options: {
   config: DocsConfig;
   theme?: string;
   fonts?: FontOverrides;
+  background?: BackgroundOptions;
 }) {
   return {
     theme: options.theme ?? options.config.theme,
@@ -43,6 +45,11 @@ export function mergeConfigOptions(options: {
       heading: options.fonts?.heading ?? options.config.font?.heading,
       body: options.fonts?.body ?? options.config.font?.body,
       code: options.fonts?.code ?? options.config.font?.code,
+    },
+    background: {
+      image: options.background?.image ?? options.config.background?.image,
+      gradient: options.background?.gradient ?? options.config.background?.gradient,
+      blendMode: options.background?.blendMode ?? options.config.background?.blendMode,
     },
   };
 }
@@ -65,6 +72,19 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     assertOptionalString(config.font.code, "font.code", configPath);
   }
 
+  if (config.background !== undefined) {
+    if (
+      !config.background ||
+      typeof config.background !== "object" ||
+      Array.isArray(config.background)
+    ) {
+      throw new LildocsError(`Docs config "background" must be an object: ${configPath}`);
+    }
+    assertOptionalString(config.background.image, "background.image", configPath);
+    assertOptionalString(config.background.gradient, "background.gradient", configPath);
+    assertOptionalString(config.background.blendMode, "background.blendMode", configPath);
+  }
+
   return {
     theme: config.theme,
     font: config.font
@@ -72,6 +92,13 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
           heading: config.font.heading,
           body: config.font.body,
           code: config.font.code,
+        }
+      : undefined,
+    background: config.background
+      ? {
+          image: config.background.image,
+          gradient: config.background.gradient,
+          blendMode: config.background.blendMode,
         }
       : undefined,
   };

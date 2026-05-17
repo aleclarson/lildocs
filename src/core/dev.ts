@@ -7,7 +7,7 @@ import { LildocsError } from "./errors.js";
 import { resolveInput } from "./input.js";
 import { isHiddenOrSystemPath } from "./paths.js";
 import { serveStaticFile } from "./server.js";
-import type { FontOverrides } from "./theme.js";
+import type { BackgroundOptions, FontOverrides } from "./theme.js";
 
 export type DevOptions = {
   input: string;
@@ -15,6 +15,7 @@ export type DevOptions = {
   cwd: string;
   theme?: string;
   fonts?: FontOverrides;
+  background?: BackgroundOptions;
   host: string;
   port: number;
 };
@@ -59,6 +60,7 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
         cwd: options.cwd,
         theme: options.theme,
         fonts: options.fonts,
+        background: options.background,
         dev: {
           clientScriptPath: DEV_CLIENT_PATH,
         },

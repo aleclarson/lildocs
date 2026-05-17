@@ -102,6 +102,28 @@
           "$ref": "#/$defs/fontValue"
         }
       }
+    },
+    "background": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional page background layered on top of the theme background color.",
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Background image URL, CSS url(...), or docs-relative image path."
+        },
+        "gradient": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS gradient value, such as linear-gradient(...)."
+        },
+        "blendMode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS background-blend-mode value for the theme color and background layers."
+        }
+      }
     }
   },
   "$defs": {

@@ -8,7 +8,12 @@
 
 body {
   margin: 0;
-  background: var(--ld-color-background);
+  background-color: var(--ld-color-background);
+  background-image: var(--ld-background-image);
+  background-blend-mode: var(--ld-background-blend-mode);
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .siteHeader {

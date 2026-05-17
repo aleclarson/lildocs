@@ -10,10 +10,12 @@ import { buildNavigation } from "./nav.js";
 import { buildSearchIndex } from "./search.js";
 import {
   resolveFontOverrides,
+  resolveBackgroundOptions,
   resolveTheme,
   themeToCssVariables,
   themeToMermaidConfig,
   type FontOverrides,
+  type BackgroundOptions,
 } from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
 
@@ -23,6 +25,7 @@ export type BuildOptions = {
   cwd: string;
   theme?: string;
   fonts?: FontOverrides;
+  background?: BackgroundOptions;
   dev?: {
     clientScriptPath: string;
   };
@@ -41,6 +44,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     config: await readDocsConfig(input.docsRoot),
     theme: options.theme,
     fonts: options.fonts,
+    background: options.background,
   });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
@@ -58,8 +62,14 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const baseCss = await readRenderAsset("styles.css");
   const searchScript = await readRenderAsset("search.js");
-  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts)}\n${baseCss}`;
-  const assets: AssetCopy[] = [...fontResolution.assets];
+  const backgroundResolution = resolveBackgroundOptions({
+    cwd: options.cwd,
+    docsRoot: input.docsRoot,
+    outDir,
+    background: configOptions.background,
+  });
+  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts)}\n${backgroundResolution.css}${baseCss}`;
+  const assets: AssetCopy[] = [...fontResolution.assets, ...backgroundResolution.assets];
   const mermaid = await createMermaidRenderer({
     themeConfig: themeToMermaidConfig(theme, fontResolution.themeFonts),
   });

@@ -11,6 +11,9 @@ export type CliOptions = {
   fontHeading?: string;
   fontBody?: string;
   fontCode?: string;
+  backgroundImage?: string;
+  backgroundGradient?: string;
+  backgroundBlendMode?: string;
   host?: string;
   port?: string;
 };
@@ -45,6 +48,24 @@ const fontCodeOption = option({
   description: "Code font name from Google Fonts or local font file path.",
 });
 
+const backgroundImageOption = option({
+  type: optional(string),
+  long: "background.image",
+  description: "Background image URL or docs-relative image path.",
+});
+
+const backgroundGradientOption = option({
+  type: optional(string),
+  long: "background.gradient",
+  description: "CSS background gradient, such as linear-gradient(...).",
+});
+
+const backgroundBlendModeOption = option({
+  type: optional(string),
+  long: "background.blendMode",
+  description: "CSS background-blend-mode for the theme color and background layers.",
+});
+
 const hostOption = option({
   type: optional(string),
   long: "host",
@@ -73,6 +94,11 @@ async function runBuild(options: CliOptions) {
       body: options.fontBody,
       code: options.fontCode,
     },
+    background: {
+      image: options.backgroundImage,
+      gradient: options.backgroundGradient,
+      blendMode: options.backgroundBlendMode,
+    },
     cwd: process.cwd(),
   });
 
@@ -91,6 +117,9 @@ const buildCommand = command({
     fontHeading: fontHeadingOption,
     fontBody: fontBodyOption,
     fontCode: fontCodeOption,
+    backgroundImage: backgroundImageOption,
+    backgroundGradient: backgroundGradientOption,
+    backgroundBlendMode: backgroundBlendModeOption,
   },
   handler: runBuild,
 });
@@ -105,6 +134,9 @@ const devCommand = command({
     fontHeading: fontHeadingOption,
     fontBody: fontBodyOption,
     fontCode: fontCodeOption,
+    backgroundImage: backgroundImageOption,
+    backgroundGradient: backgroundGradientOption,
+    backgroundBlendMode: backgroundBlendModeOption,
     host: hostOption,
     port: portOption,
   },
@@ -118,6 +150,11 @@ const devCommand = command({
         heading: options.fontHeading,
         body: options.fontBody,
         code: options.fontCode,
+      },
+      background: {
+        image: options.backgroundImage,
+        gradient: options.backgroundGradient,
+        blendMode: options.backgroundBlendMode,
       },
       cwd: process.cwd(),
       host: options.host ?? "127.0.0.1",
@@ -145,6 +182,9 @@ const bareBuildCommand = command({
     fontHeading: fontHeadingOption,
     fontBody: fontBodyOption,
     fontCode: fontCodeOption,
+    backgroundImage: backgroundImageOption,
+    backgroundGradient: backgroundGradientOption,
+    backgroundBlendMode: backgroundBlendModeOption,
   },
   handler: runBuild,
 });
