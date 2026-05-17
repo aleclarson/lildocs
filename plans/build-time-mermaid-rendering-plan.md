@@ -39,24 +39,26 @@ This works, but it means:
 
 ## Recommended Renderer
 
-Use Mermaid's own package with a headless DOM implementation.
-
-Recommended first pass:
-
-- `mermaid`
-- `happy-dom`
+Use `beautiful-mermaid` for the first implementation.
 
 Reasoning:
 
-- `mermaid` is the source renderer.
-- `happy-dom` is lighter and simpler than browser automation.
-- Avoid Playwright/Chromium unless Mermaid rendering is not reliable under `happy-dom`.
+- It renders SVG without DOM setup.
+- It is synchronous, which keeps the Markdown render pipeline simpler.
+- It exposes Shiki theme integration through `fromShikiTheme`.
+- It also accepts simple foreground/background/accent-style theme values, which maps well to lildocs tokens.
+- Its smaller rendering surface is acceptable for lildocs' current Mermaid support.
 
-Alternative if DOM-based rendering proves unreliable:
+Accepted caveat:
 
-- `@mermaid-js/mermaid-cli`
+- `beautiful-mermaid` is not Mermaid's official renderer.
+- It supports a practical subset of Mermaid diagram types rather than every Mermaid feature.
+- lildocs should document that build-time Mermaid rendering supports the diagram types handled by `beautiful-mermaid`.
 
-Do not choose Mermaid CLI initially. It pulls in browser automation weight and complicates installation.
+Fallback if compatibility becomes a blocker:
+
+- Use official `mermaid` with `happy-dom`.
+- Keep `@mermaid-js/mermaid-cli` as a last resort because it pulls in browser automation weight and complicates installation.
 
 ## Desired Output
 
@@ -91,7 +93,17 @@ Suggested exports:
 
 ```ts
 export type MermaidRenderOptions = {
-  theme?: "default" | "dark" | "neutral" | "forest" | "base";
+  themeConfig: MermaidThemeConfig;
+};
+
+export type MermaidThemeConfig = {
+  bg: string;
+  fg: string;
+  accent?: string;
+  muted?: string;
+  surface?: string;
+  border?: string;
+  fontFamily?: string;
 };
 
 export type MermaidRenderer = {
@@ -99,15 +111,24 @@ export type MermaidRenderer = {
   close: () => Promise<void>;
 };
 
-export async function createMermaidRenderer(options?: MermaidRenderOptions): Promise<MermaidRenderer>;
+export async function createMermaidRenderer(options: MermaidRenderOptions): Promise<MermaidRenderer>;
 ```
+
+Keep this wrapper even if `beautiful-mermaid` is selected. The rest of the build pipeline should not care which renderer is underneath.
 
 `createMermaidRenderer` should:
 
-1. Create a `happy-dom` window/document.
-2. Install `window`, `document`, and required DOM globals for Mermaid.
-3. Import and initialize Mermaid once.
-4. Render diagrams with deterministic IDs.
+1. Import `renderMermaidSVG` from `beautiful-mermaid`.
+2. Render diagrams with deterministic IDs or deterministic wrapper IDs.
+3. Normalize thrown parser/rendering errors into lildocs diagnostics.
+
+The wrapper should call:
+
+```ts
+renderMermaidSVG(source, options.themeConfig)
+```
+
+If the underlying package does not accept a stable diagram ID option, wrap the returned SVG in a deterministic `<figure id="...">` and rely on deterministic-output tests to catch generated SVG instability.
 
 ## Markdown Pipeline Changes
 
@@ -148,11 +169,12 @@ type RenderedMarkdown = {
 
 Update `src/core/build.ts`:
 
-1. Create one Mermaid renderer per build.
-2. Pass it into every `renderMarkdownPage` call.
-3. Close the renderer after rendering finishes.
-4. Stop tracking `siteNeedsMermaid`.
-5. Call `renderPage` without Mermaid script flags.
+1. Derive a Mermaid theme config from the resolved lildocs theme and final font overrides.
+2. Create one Mermaid renderer per build using that config.
+3. Pass it into every `renderMarkdownPage` call.
+4. Close the renderer after rendering finishes.
+5. Stop tracking `siteNeedsMermaid`.
+6. Call `renderPage` without Mermaid script flags.
 
 Important: ensure the renderer is closed in a `finally` block.
 
@@ -181,22 +203,55 @@ Add minimal CSS to `src/render/styles.css`:
 }
 ```
 
-Do not overstyle diagrams. Mermaid theme controls the internal diagram colors.
+Do not overstyle diagrams. `beautiful-mermaid` theme config controls the internal diagram colors.
 
 ## Theme Strategy
 
-Initial implementation:
+Yes, adapting lildocs theme support to `beautiful-mermaid` is possible. Its theme object accepts foreground, background, accent, muted, surface, and border-style values, so lildocs can map its existing build-time theme tokens into diagram configuration before rendering SVGs.
 
-- Use Mermaid's `default` theme.
-- If the lildocs theme appears dark, consider `dark` later.
+Initial implementation should integrate Mermaid with the existing lildocs theme system without adding new CLI options:
 
-Do not couple Mermaid theme selection to Shiki themes in the first pass. That would expand the feature.
+- Continue resolving lildocs themes through `resolveTheme`.
+- Continue applying `--font.heading`, `--font.body`, and `--font.code` through `resolveFontOverrides`.
+- Add a `themeToMermaidConfig(theme, fontOverrides)` helper in `src/core/theme.ts` or `src/core/mermaid.ts`.
+- Pass the derived config into `createMermaidRenderer`.
+- Map lildocs tokens to `beautiful-mermaid`'s `bg`, `fg`, `accent`, `muted`, `surface`, and `border`.
+
+Prefer putting `themeToMermaidConfig` in `src/core/theme.ts` so it can reuse `resolveThemeFonts` without widening internal theme APIs. If it lives in `src/core/mermaid.ts`, export `resolveThemeFonts` deliberately and keep that export documented as internal.
+
+Suggested mapping:
+
+```ts
+export function themeToMermaidConfig(
+  theme: Theme,
+  fontOverrides: Partial<ThemeFonts> = {},
+): MermaidThemeConfig {
+  const fonts = resolveThemeFonts(theme, fontOverrides);
+  return {
+    bg: theme.color.background,
+    fg: theme.color.text,
+    accent: theme.color.link,
+    muted: theme.color.mutedText,
+    surface: theme.color.codeBackground,
+    border: theme.color.border,
+    fontFamily: fonts.body,
+  };
+}
+```
+
+Do not add `--mermaid.theme` in the first pass. lildocs already has one user-facing theme concept, and diagrams should follow it automatically. A separate option can still be added later if users need explicit overrides.
+
+Do not couple Mermaid theme selection directly to Shiki themes in the first pass. If a Shiki theme has been converted into a lildocs theme, Mermaid should see only the resulting lildocs tokens.
+
+If lildocs later supports choosing Shiki themes directly for code highlighting, `beautiful-mermaid`'s `fromShikiTheme` can become the bridge. Today, lildocs stores the converted lildocs theme, not the original Shiki theme object, so the first implementation should still derive Mermaid colors from lildocs theme tokens.
 
 Future option:
 
 ```bash
---mermaid.theme default|dark|neutral|forest|base
+--mermaid.theme <beautiful-mermaid-theme-name>
 ```
+
+If that option is added later, it should override only Mermaid's diagram theme choice while leaving the rest of the lildocs theme unchanged.
 
 ## Deterministic IDs
 
@@ -233,10 +288,10 @@ Do not silently fall back to client-side Mermaid in the first implementation. Si
 Add runtime dependencies:
 
 ```bash
-pnpm add mermaid happy-dom
+pnpm add beautiful-mermaid
 ```
 
-If Mermaid pulls in large transitive dependencies, this is still acceptable because Mermaid support is already a product requirement. Reassess only if install size becomes a release blocker.
+Do not add `mermaid`, `happy-dom`, or `@mermaid-js/mermaid-cli` unless `beautiful-mermaid` proves insufficient.
 
 ## Tests
 
@@ -273,8 +328,10 @@ Add or extend `test/static-output.test.mjs`:
 - Invalid Mermaid syntax fails with source path and diagram index.
 - Non-Mermaid code blocks still use Shiki.
 - Output is deterministic across two builds of the same docs.
+- A local dark `theme.ts` produces dark/themed Mermaid SVG output without adding a Mermaid-specific CLI option.
+- Font CLI overrides are reflected in the Mermaid renderer config.
 
-If Mermaid rendering under `happy-dom` is slow, keep tests focused but do not skip them entirely.
+If SVG rendering is slow, keep tests focused but do not skip them entirely.
 
 ## Manual Verification
 
@@ -295,9 +352,9 @@ Inspect:
 
 ## Implementation Steps
 
-1. Add `mermaid` and `happy-dom`.
+1. Add `beautiful-mermaid`.
 2. Create `src/core/mermaid.ts`.
-3. Add renderer setup and teardown.
+3. Add renderer wrapper and error normalization.
 4. Thread Mermaid renderer through `buildSite` and `renderMarkdownPage`.
 5. Replace Mermaid code-block output with rendered SVG figures.
 6. Remove `needsMermaid` from `RenderedMarkdown`, build, `renderPage`, and `Layout`.
@@ -309,8 +366,8 @@ Inspect:
 
 ## Risks
 
-- Mermaid may require browser globals not implemented by `happy-dom`.
-- Mermaid may produce nondeterministic IDs or timestamps unless configured carefully.
+- `beautiful-mermaid` may reject Mermaid syntax that the official Mermaid renderer accepts.
+- SVG output may include nondeterministic IDs or generated attributes unless wrapped or normalized carefully.
 - SVG output may include inline styles that clash with page CSS.
 - Rendering many diagrams may slow builds.
 
@@ -319,13 +376,14 @@ Mitigations:
 - Keep Mermaid renderer isolated in one module.
 - Normalize IDs.
 - Add deterministic output tests.
-- Reuse a single initialized renderer per build.
+- Keep an official `mermaid` + `happy-dom` fallback path available if compatibility becomes a blocker.
 
 ## Acceptance Criteria
 
 - Mermaid diagrams render to SVG during build.
 - Generated pages no longer load Mermaid from a CDN.
 - Invalid Mermaid fails the build clearly.
+- Documentation notes that build-time Mermaid support follows `beautiful-mermaid`'s supported diagram types.
 - Existing Shiki code highlighting remains intact.
 - Static output still works from disk.
 - Tests cover successful rendering, invalid syntax, nested pages, and deterministic output.
