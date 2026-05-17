@@ -2,6 +2,7 @@ import { pathToFileURL } from "node:url";
 import { access } from "node:fs/promises";
 import path from "node:path";
 import { createJiti } from "jiti";
+import type { AssetCopy } from "./markdown.js";
 import { LildocsError } from "./errors.js";
 
 export type Theme = {
@@ -15,9 +16,23 @@ export type Theme = {
     sidebarBackground?: string;
   };
   font: {
+    heading?: string;
     body: string;
-    mono: string;
+    code?: string;
+    mono?: string;
   };
+};
+
+export type ThemeFonts = {
+  heading: string;
+  body: string;
+  code: string;
+};
+
+export type FontOverrides = {
+  heading?: string;
+  body?: string;
+  code?: string;
 };
 
 const themes: Record<string, Theme> = {
@@ -32,8 +47,9 @@ const themes: Record<string, Theme> = {
       sidebarBackground: "#fafafa",
     },
     font: {
+      heading: "system-ui, sans-serif",
       body: "system-ui, sans-serif",
-      mono: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+      code: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
     },
   },
   minimal: {
@@ -47,8 +63,9 @@ const themes: Record<string, Theme> = {
       sidebarBackground: "#ffffff",
     },
     font: {
+      heading: "Arial, sans-serif",
       body: "Arial, sans-serif",
-      mono: "Menlo, Consolas, monospace",
+      code: "Menlo, Consolas, monospace",
     },
   },
 };
@@ -78,7 +95,63 @@ export async function resolveTheme(options: {
   return themes.default;
 }
 
-export function themeToCssVariables(theme: Theme) {
+export async function resolveFontOverrides(options: {
+  cwd: string;
+  docsRoot: string;
+  outDir: string;
+  fonts?: FontOverrides;
+}) {
+  const css: string[] = [];
+  const assets: AssetCopy[] = [];
+  const themeFonts: Partial<ThemeFonts> = {};
+
+  const resolved = await Promise.all(
+    (["heading", "body", "code"] as const).map(async (target) => {
+      const value = options.fonts?.[target];
+      return {
+        target,
+        value,
+        localFontPath: value ? await resolveLocalFontPath(value, options) : undefined,
+      };
+    }),
+  );
+
+  for (const { target, value, localFontPath } of resolved) {
+    if (!value) {
+      continue;
+    }
+
+    if (localFontPath) {
+      const family = `Lildocs ${capitalize(target)} Font`;
+      const outputRelativePath = `assets/fonts/${path.basename(localFontPath)}`;
+      assets.push({
+        from: localFontPath,
+        to: path.join(options.outDir, outputRelativePath),
+      });
+      css.push(`@font-face {
+  font-family: ${quoteCssString(family)};
+  src: url("./fonts/${path.basename(localFontPath)}") format("${fontFormat(localFontPath)}");
+  font-display: swap;
+}`);
+      themeFonts[target] = quoteCssString(family);
+      continue;
+    }
+
+    css.push(
+      `@import url("${googleFontsCssUrl(value, target === "code" ? "400" : "400;500;600;700")}");`,
+    );
+    themeFonts[target] = quoteCssString(value);
+  }
+
+  return {
+    assets,
+    css: css.length > 0 ? `${css.join("\n")}\n` : "",
+    themeFonts,
+  };
+}
+
+export function themeToCssVariables(theme: Theme, fontOverrides: Partial<ThemeFonts> = {}) {
+  const fonts = resolveThemeFonts(theme, fontOverrides);
   return `:root {
   --ld-color-background: ${theme.color.background};
   --ld-color-text: ${theme.color.text};
@@ -87,8 +160,9 @@ export function themeToCssVariables(theme: Theme) {
   --ld-color-link: ${theme.color.link};
   --ld-color-code-background: ${theme.color.codeBackground};
   --ld-color-sidebar-background: ${theme.color.sidebarBackground ?? theme.color.background};
-  --ld-font-body: ${theme.font.body};
-  --ld-font-mono: ${theme.font.mono};
+  --ld-font-heading: ${fonts.heading};
+  --ld-font-body: ${fonts.body};
+  --ld-font-code: ${fonts.code};
 }`;
 }
 
@@ -106,7 +180,7 @@ function validateTheme(value: unknown, themePath: string): Theme {
     theme.color?.link,
     theme.color?.codeBackground,
     theme.font?.body,
-    theme.font?.mono,
+    theme.font?.code ?? theme.font?.mono,
   ];
 
   if (required.some((item) => typeof item !== "string" || item.length === 0)) {
@@ -116,6 +190,80 @@ function validateTheme(value: unknown, themePath: string): Theme {
   }
 
   return theme;
+}
+
+function resolveThemeFonts(theme: Theme, overrides: Partial<ThemeFonts>): ThemeFonts {
+  const body = overrides.body ?? theme.font.body;
+  return {
+    heading: overrides.heading ?? theme.font.heading ?? body,
+    body,
+    code:
+      overrides.code ??
+      theme.font.code ??
+      theme.font.mono ??
+      "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+  };
+}
+
+async function resolveLocalFontPath(
+  value: string,
+  options: {
+    cwd: string;
+    docsRoot: string;
+  },
+) {
+  const candidates = [path.resolve(options.cwd, value), path.resolve(options.docsRoot, value)];
+
+  const existingCandidates = await Promise.all(
+    candidates.map(async (candidate) => ({
+      candidate,
+      exists: isFontFile(candidate) && (await exists(candidate)),
+    })),
+  );
+  const existingCandidate = existingCandidates.find((candidate) => candidate.exists);
+  if (existingCandidate) {
+    return existingCandidate.candidate;
+  }
+
+  if (isFontFile(value) && path.basename(value) !== value) {
+    throw new LildocsError(`Font file does not exist: ${value}`);
+  }
+
+  return undefined;
+}
+
+function isFontFile(value: string) {
+  return /\.(?:woff2?|ttf|otf)$/i.test(value);
+}
+
+function fontFormat(value: string) {
+  const extension = path.extname(value).toLowerCase();
+  if (extension === ".woff2") {
+    return "woff2";
+  }
+  if (extension === ".woff") {
+    return "woff";
+  }
+  if (extension === ".ttf") {
+    return "truetype";
+  }
+  if (extension === ".otf") {
+    return "opentype";
+  }
+  return "woff2";
+}
+
+function googleFontsCssUrl(fontName: string, weights: string) {
+  const family = fontName.trim().replace(/\s+/g, "+");
+  return `https://fonts.googleapis.com/css2?family=${family}:wght@${weights}&display=swap`;
+}
+
+function quoteCssString(value: string) {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+
+function capitalize(value: string) {
+  return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 }
 
 async function exists(filePath: string) {

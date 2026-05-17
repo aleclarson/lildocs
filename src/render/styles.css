@@ -52,6 +52,15 @@ body {
   line-height: 1.65;
 }
 
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  font-family: var(--ld-font-heading);
+}
+
 .content img {
   max-width: 100%;
   height: auto;
@@ -96,7 +105,7 @@ body {
 }
 
 .content code {
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-code);
   font-size: 0.92em;
 }
 

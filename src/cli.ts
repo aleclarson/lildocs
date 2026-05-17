@@ -7,6 +7,9 @@ export type CliOptions = {
   input: string;
   out?: string;
   theme?: string;
+  fontHeading?: string;
+  fontBody?: string;
+  fontCode?: string;
 };
 
 const outOption = option({
@@ -21,6 +24,24 @@ const themeOption = option({
   description: "Built-in theme name to use.",
 });
 
+const fontHeadingOption = option({
+  type: optional(string),
+  long: "font.heading",
+  description: "Heading font name from Google Fonts or local font file path.",
+});
+
+const fontBodyOption = option({
+  type: optional(string),
+  long: "font.body",
+  description: "Body font name from Google Fonts or local font file path.",
+});
+
+const fontCodeOption = option({
+  type: optional(string),
+  long: "font.code",
+  description: "Code font name from Google Fonts or local font file path.",
+});
+
 const inputArgument = positional({
   type: string,
   displayName: "path",
@@ -32,6 +53,11 @@ async function runBuild(options: CliOptions) {
     input: options.input,
     outDir: options.out ?? "dist",
     theme: options.theme,
+    fonts: {
+      heading: options.fontHeading,
+      body: options.fontBody,
+      code: options.fontCode,
+    },
     cwd: process.cwd(),
   });
 
@@ -47,6 +73,9 @@ const buildCommand = command({
     input: inputArgument,
     out: outOption,
     theme: themeOption,
+    fontHeading: fontHeadingOption,
+    fontBody: fontBodyOption,
+    fontCode: fontCodeOption,
   },
   handler: runBuild,
 });
@@ -58,6 +87,9 @@ const devCommand = command({
     input: inputArgument,
     out: outOption,
     theme: themeOption,
+    fontHeading: fontHeadingOption,
+    fontBody: fontBodyOption,
+    fontCode: fontCodeOption,
   },
   handler: async () => {
     throw new Error(
@@ -73,6 +105,9 @@ const bareBuildCommand = command({
     input: inputArgument,
     out: outOption,
     theme: themeOption,
+    fontHeading: fontHeadingOption,
+    fontBody: fontBodyOption,
+    fontCode: fontCodeOption,
   },
   handler: runBuild,
 });

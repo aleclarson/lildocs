@@ -40,6 +40,7 @@ pnpm test
 - Support `lildocs <path>`, `lildocs build <path>`, and `lildocs dev <path>`.
 - Treat bare `lildocs <path>` as a build command.
 - Support `--out <dir>` and `--theme <name>`.
+- Support `--font.heading`, `--font.body`, and `--font.code` with Google Fonts names or local font files.
 - Default output directory is `dist`.
 - Generated HTML must work without a server.
 - Keep client-side JavaScript limited to search, Mermaid, or progressive enhancement.

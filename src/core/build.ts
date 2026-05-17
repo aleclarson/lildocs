@@ -6,7 +6,12 @@ import { resolveInput } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
 import { buildNavigation } from "./nav.js";
 import { buildSearchIndex } from "./search.js";
-import { resolveTheme, themeToCssVariables } from "./theme.js";
+import {
+  resolveFontOverrides,
+  resolveTheme,
+  themeToCssVariables,
+  type FontOverrides,
+} from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
 
 export type BuildOptions = {
@@ -14,6 +19,7 @@ export type BuildOptions = {
   outDir: string;
   cwd: string;
   theme?: string;
+  fonts?: FontOverrides;
 };
 
 export type BuildResult = {
@@ -33,10 +39,16 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     docsRoot: input.docsRoot,
     requestedTheme: options.theme,
   });
+  const fontResolution = await resolveFontOverrides({
+    cwd: options.cwd,
+    docsRoot: input.docsRoot,
+    outDir,
+    fonts: options.fonts,
+  });
   const baseCss = await readRenderAsset("styles.css");
   const searchScript = await readRenderAsset("search.js");
-  const css = `${themeToCssVariables(theme)}\n${baseCss}`;
-  const assets: AssetCopy[] = [];
+  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts)}\n${baseCss}`;
+  const assets: AssetCopy[] = [...fontResolution.assets];
   let siteNeedsMermaid = false;
 
   await rm(outDir, { recursive: true, force: true });

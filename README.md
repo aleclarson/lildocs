@@ -10,6 +10,7 @@ pnpm run build
 node dist/cli.mjs ./docs
 node dist/cli.mjs ./docs/index.md
 node dist/cli.mjs build ./docs --out dist --theme minimal
+node dist/cli.mjs build ./docs --font.heading Inter --font.body "Source Sans 3" --font.code "Roboto Mono"
 ```
 
 Generated HTML is written to `dist` by default and can be opened directly from disk.
@@ -30,3 +31,8 @@ The v1 CLI supports:
 - `lildocs dev <path>` currently returns a clear not-implemented message.
 - `--out <dir>`
 - `--theme <name>`
+- `--font.heading <name-or-file>`
+- `--font.body <name-or-file>`
+- `--font.code <name-or-file>`
+
+Font options accept either a Google Fonts family name or a local `.woff2`, `.woff`, `.ttf`, or `.otf` file path.
