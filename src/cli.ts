@@ -21,7 +21,7 @@ const outOption = option({
 const themeOption = option({
   type: optional(string),
   long: "theme",
-  description: "Built-in theme name to use.",
+  description: "Built-in lildocs theme or bundled Shiki theme name to use.",
 });
 
 const fontHeadingOption = option({

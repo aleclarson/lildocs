@@ -24,6 +24,21 @@ test("uses the default built-in theme with no config", async () => {
   assert.match(css, /--ld-color-link: #2563eb/);
 });
 
+test("maps shiki theme names to lildocs css variables", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "code.md", "# Code\n\n```ts\nconst message = \"hello\";\n```\n");
+
+  await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  assert.match(css, /--ld-color-background: #24292e/);
+  assert.match(css, /--ld-color-text: #e1e4e8/);
+  assert.match(html, /class="shiki github-dark"/);
+  assert.doesNotMatch(html, /class="shiki github-light"/);
+});
+
 test("loads local theme files", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -81,10 +96,39 @@ test("cli theme takes precedence over local theme files", async () => {
   assert.doesNotMatch(css, /#dc2626/);
 });
 
+test("cli shiki theme takes precedence over local theme files", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "theme.ts",
+    `export default {
+  color: {
+    background: "#ffffff",
+    text: "#111111",
+    mutedText: "#555555",
+    border: "#dddddd",
+    link: "#dc2626",
+    codeBackground: "#f8fafc",
+  },
+  font: {
+    body: "system-ui, sans-serif",
+    mono: "ui-monospace, monospace",
+  },
+};`,
+  );
+
+  await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /--ld-color-background: #24292e/);
+  assert.doesNotMatch(css, /#dc2626/);
+});
+
 test("reports unknown theme names", async () => {
   const { docs } = await fixtureWorkspace();
 
-  await assert.rejects(() => runCli([docs, "--theme", "unknown"]), /Unknown theme/);
+  await assert.rejects(() => runCli([docs, "--theme", "unknown"]), /bundled Shiki theme/);
 });
 
 test("applies google font cli overrides", async () => {

@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
-    "docs:serve": "pnpm run shiki-theme:to-lildocs -- github-dark --out docs/theme.ts && pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs --font.heading Inter --font.body \"Source Sans 3\" --font.code \"Roboto Mono\" && sirv ./dist/docs",
+    "docs:serve": "pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs --theme github-dark --font.heading Inter --font.body \"Source Sans 3\" --font.code \"Roboto Mono\" && sirv ./dist/docs",
     "extract:shiki-themes": "node scripts/extract-shiki-themes.mjs",
     "shiki-theme:map-all": "node scripts/map-all-shiki-themes-to-lildocs.mjs",
     "shiki-theme:to-lildocs": "node scripts/shiki-theme-to-lildocs-theme.mjs",

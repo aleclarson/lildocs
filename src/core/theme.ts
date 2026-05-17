@@ -2,6 +2,7 @@ import { pathToFileURL } from "node:url";
 import { access } from "node:fs/promises";
 import path from "node:path";
 import { createJiti } from "jiti";
+import { bundledThemes } from "shiki";
 import type { AssetCopy } from "./markdown.js";
 import { LildocsError } from "./errors.js";
 
@@ -86,12 +87,11 @@ export async function resolveTheme(options: {
 }) {
   if (options.requestedTheme) {
     const theme = themes[options.requestedTheme];
-    if (!theme) {
-      throw new LildocsError(
-        `Unknown theme "${options.requestedTheme}". Available themes: ${Object.keys(themes).join(", ")}`,
-      );
+    if (theme) {
+      return theme;
     }
-    return theme;
+
+    return resolveShikiTheme(options.requestedTheme);
   }
 
   const localThemePath = path.join(options.docsRoot, "theme.ts");
@@ -102,6 +102,20 @@ export async function resolveTheme(options: {
   }
 
   return themes.default;
+}
+
+async function resolveShikiTheme(themeName: string): Promise<Theme> {
+  const themeLoader = bundledThemes[themeName as keyof typeof bundledThemes];
+  if (!themeLoader) {
+    throw new LildocsError(
+      `Unknown theme "${themeName}". Use a built-in lildocs theme (${Object.keys(themes).join(", ")}) or a bundled Shiki theme.`,
+    );
+  }
+
+  const themeModule = await themeLoader();
+  const shikiTheme = "default" in themeModule ? themeModule.default : themeModule;
+
+  return mapShikiThemeToTheme(shikiTheme, themeName);
 }
 
 export async function resolveFontOverrides(options: {
@@ -199,6 +213,127 @@ function validateTheme(value: unknown, themePath: string): Theme {
   }
 
   return theme;
+}
+
+function mapShikiThemeToTheme(
+  shikiTheme: {
+    colors?: Record<string, string>;
+    tokenColors?: Array<{
+      scope?: string | string[];
+      settings?: {
+        foreground?: string;
+      };
+    }>;
+    bg?: string;
+    fg?: string;
+    type?: string;
+  },
+  themeName: string,
+): Theme {
+  const colors = shikiTheme.colors ?? {};
+  const tokenColors = shikiTheme.tokenColors ?? [];
+  const background = pickColor(
+    colors,
+    ["editor.background", "background", "sideBar.background"],
+    shikiTheme.bg ?? (shikiTheme.type === "dark" ? "#111111" : "#ffffff"),
+  );
+  const text = pickColor(
+    colors,
+    ["editor.foreground", "foreground", "sideBar.foreground"],
+    shikiTheme.fg ?? (shikiTheme.type === "dark" ? "#f5f5f5" : "#111111"),
+  );
+  const mutedText = pickColor(
+    colors,
+    [
+      "descriptionForeground",
+      "breadcrumb.foreground",
+      "editorLineNumber.foreground",
+      "sideBar.foreground",
+    ],
+    tokenForeground(tokenColors, "comment") ?? text,
+  );
+  const border = pickColor(
+    colors,
+    ["panel.border", "sideBar.border", "editorGroup.border", "tab.border"],
+    shikiTheme.type === "dark" ? "#333333" : "#e5e5e5",
+  );
+  const link = pickColor(
+    colors,
+    ["textLink.foreground", "terminal.ansiBlue", "activityBarBadge.background"],
+    tokenForeground(tokenColors, "markup.inline.raw") ??
+      (shikiTheme.type === "dark" ? "#79b8ff" : "#2563eb"),
+  );
+  const codeBackground = pickColor(
+    colors,
+    [
+      "textCodeBlock.background",
+      "editorWidget.background",
+      "editor.lineHighlightBackground",
+      "editor.background",
+    ],
+    background,
+  );
+  const sidebarBackground = pickColor(
+    colors,
+    ["sideBar.background", "activityBar.background", "editorGroupHeader.tabsBackground"],
+    background,
+  );
+
+  return {
+    color: {
+      background,
+      text,
+      mutedText,
+      border,
+      link,
+      codeBackground,
+      sidebarBackground,
+    },
+    font: {
+      heading: "system-ui, sans-serif",
+      body: "system-ui, sans-serif",
+      code: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    },
+    shiki: {
+      theme: themeName,
+    },
+  };
+}
+
+function pickColor(colors: Record<string, string>, keys: string[], fallback: string) {
+  for (const key of keys) {
+    const value = colors[key];
+    if (typeof value === "string" && value.trim()) {
+      return normalizeColor(value);
+    }
+  }
+
+  return normalizeColor(fallback);
+}
+
+function tokenForeground(
+  tokenColors: Array<{
+    scope?: string | string[];
+    settings?: {
+      foreground?: string;
+    };
+  }>,
+  scope: string,
+) {
+  const token = tokenColors.find((item) => {
+    const scopes = Array.isArray(item.scope) ? item.scope : [item.scope];
+    return scopes.includes(scope);
+  });
+
+  return token?.settings?.foreground;
+}
+
+function normalizeColor(value: string) {
+  if (/^#[0-9a-f]{3,8}$/i.test(value)) {
+    return value;
+  }
+
+  return value;
 }
 
 function resolveThemeFonts(theme: Theme, overrides: Partial<ThemeFonts>): ThemeFonts {
