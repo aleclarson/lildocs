@@ -170,6 +170,43 @@ test("copies nested assets with nested relative links", async () => {
   assert.match(html, /href="..\/index.html"/);
 });
 
+test("renders previous and next page links in generated navigation order", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(homeHtml, /<nav class="pageNav" aria-label="Page navigation">/);
+  assert.doesNotMatch(homeHtml, /rel="prev"/);
+  assert.match(homeHtml, /rel="next" href=".\/guide.html"/);
+  assert.match(homeHtml, /Frontmatter Title/);
+
+  const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
+  assert.match(nestedHtml, /rel="prev" href="..\/guide.html"/);
+  assert.match(nestedHtml, /Frontmatter Title/);
+  assert.match(nestedHtml, /rel="next" href="..\/quickstart.html"/);
+  assert.match(nestedHtml, /Quickstart/);
+
+  const lastHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
+  assert.match(lastHtml, /rel="prev" href=".\/nested\/page.html"/);
+  assert.match(lastHtml, /Nested Page/);
+  assert.doesNotMatch(lastHtml, /rel="next"/);
+});
+
+test("omits previous and next navigation for single page sites", async () => {
+  const { workspace } = await fixtureWorkspace();
+  const docs = path.join(workspace, "single");
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "index.md", "# Only Page\n\nSolo.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.doesNotMatch(html, /aria-label="Page navigation"/);
+});
+
 test("reports missing referenced assets", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

@@ -7,6 +7,7 @@ import { resolveInput } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
 import { createMermaidRenderer } from "./mermaid.js";
 import { buildNavigation } from "./nav.js";
+import { relativeUrl } from "./paths.js";
 import { buildSearchIndex } from "./search.js";
 import {
   resolveFontOverrides,
@@ -19,6 +20,7 @@ import {
   type LinkOptions,
 } from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
+import type { PageNavigation } from "../render/renderPage.js";
 
 export type BuildOptions = {
   input: string;
@@ -98,11 +100,19 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     }
 
     const searchIndexJson = JSON.stringify(buildSearchIndex(model.pages), null, 2);
+    const pageNavigation = buildPageNavigation(model.pages);
 
     await Promise.all(
       model.pages.map(async (page) => {
         const nav = buildNavigation(model, page);
-        const html = renderPage(page, nav, css, searchIndexJson, options.dev);
+        const html = renderPage(
+          page,
+          nav,
+          pageNavigation.get(page.route),
+          css,
+          searchIndexJson,
+          options.dev,
+        );
         const outputPath = path.join(outDir, page.outputPath);
         await mkdir(path.dirname(outputPath), { recursive: true });
         await writeFile(outputPath, html);
@@ -130,4 +140,33 @@ async function readRenderAsset(name: string) {
   } catch {
     return readFile(path.resolve(sourceDir, "../render", name), "utf8");
   }
+}
+
+function buildPageNavigation(pages: Page[]) {
+  const navigation = new Map<string, PageNavigation>();
+
+  if (pages.length < 2) {
+    return navigation;
+  }
+
+  for (const [index, page] of pages.entries()) {
+    const previous = pages[index - 1];
+    const next = pages[index + 1];
+    navigation.set(page.route, {
+      previous: previous
+        ? {
+            title: previous.title,
+            href: relativeUrl(page.route, previous.route),
+          }
+        : undefined,
+      next: next
+        ? {
+            title: next.title,
+            href: relativeUrl(page.route, next.route),
+          }
+        : undefined,
+    });
+  }
+
+  return navigation;
 }

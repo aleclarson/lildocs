@@ -2,10 +2,12 @@ import { h } from "preact";
 import type { Heading, Page } from "../core/content.js";
 import type { NavItem } from "../core/nav.js";
 import { relativeUrl, rootRelativeUrl } from "../core/paths.js";
+import type { PageNavigation } from "./renderPage.js";
 
 export type LayoutProps = {
   page: Page;
   nav: NavItem[];
+  pageNavigation?: PageNavigation;
   css: string;
   searchIndexJson: string;
   dev?: {
@@ -13,7 +15,7 @@ export type LayoutProps = {
   };
 };
 
-export function Layout({ page, nav, css, searchIndexJson, dev }: LayoutProps) {
+export function Layout({ page, nav, pageNavigation, css, searchIndexJson, dev }: LayoutProps) {
   return (
     <html lang="en">
       <head>
@@ -53,6 +55,7 @@ export function Layout({ page, nav, css, searchIndexJson, dev }: LayoutProps) {
             </aside>
             <main className="content">
               <article dangerouslySetInnerHTML={{ __html: page.html ?? "" }} />
+              <PageNav pageNavigation={pageNavigation} />
             </main>
             <aside className="toc">
               <Toc headings={page.headings} />
@@ -74,6 +77,31 @@ export function Layout({ page, nav, css, searchIndexJson, dev }: LayoutProps) {
         <style dangerouslySetInnerHTML={{ __html: css }} />
       </body>
     </html>
+  );
+}
+
+function PageNav({ pageNavigation }: { pageNavigation?: PageNavigation }) {
+  if (!pageNavigation?.previous && !pageNavigation?.next) {
+    return null;
+  }
+
+  return (
+    <nav className="pageNav" aria-label="Page navigation">
+      {pageNavigation.previous ? (
+        <a className="pageNavLink pageNavPrevious" rel="prev" href={pageNavigation.previous.href}>
+          <span>Previous</span>
+          {pageNavigation.previous.title}
+        </a>
+      ) : (
+        <span />
+      )}
+      {pageNavigation.next ? (
+        <a className="pageNavLink pageNavNext" rel="next" href={pageNavigation.next.href}>
+          <span>Next</span>
+          {pageNavigation.next.title}
+        </a>
+      ) : null}
+    </nav>
   );
 }
 
