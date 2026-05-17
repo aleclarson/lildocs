@@ -96,19 +96,30 @@ export async function renderMarkdownPage(
 
 async function highlightCode(code: string, lang: string, props: string[], theme = "github-light") {
   try {
-    return await codeToHtml(code, {
-      lang: lang || "text",
-      theme,
-      meta: {
-        __raw: props.join(" "),
-      },
-    });
+    return normalizeShikiBackground(
+      await codeToHtml(code, {
+        lang: lang || "text",
+        theme,
+        meta: {
+          __raw: props.join(" "),
+        },
+      }),
+    );
   } catch {
-    return codeToHtml(code, {
-      lang: "text",
-      theme,
-    });
+    return normalizeShikiBackground(
+      await codeToHtml(code, {
+        lang: "text",
+        theme,
+      }),
+    );
   }
+}
+
+function normalizeShikiBackground(html: string) {
+  return html.replace(
+    /background-color:[^;"]+;?/,
+    "background-color:var(--ld-color-code-background);",
+  );
 }
 
 export async function copyAssets(assets: AssetCopy[]) {

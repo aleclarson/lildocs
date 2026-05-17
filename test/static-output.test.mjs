@@ -78,6 +78,19 @@ test("highlights code blocks with shiki", async () => {
   assert.match(html, /style="color:/);
 });
 
+test("uses lildocs code background for shiki blocks", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "code.md", "# Code\n\n```ts\nconst message = \"hello\";\n```\n");
+
+  await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
+
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  assert.match(html, /class="shiki github-dark"/);
+  assert.match(html, /background-color:var\(--ld-color-code-background\)/);
+  assert.doesNotMatch(html, /background-color:#24292e/);
+});
+
 test("emits code block styles without css borders", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
