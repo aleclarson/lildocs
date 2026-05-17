@@ -38,6 +38,14 @@ title: Frontmatter Title
 ## Guide Heading
 
 Nested content.
+
+| Feature | Status |
+| --- | --- |
+| Tables | Works |
+
+- [x] Task lists
+
+~~Removed copy~~
 `,
   );
   await writeFile(path.join(docs, "quickstart.md"), "# Quickstart\n\nFast path.");
@@ -48,6 +56,13 @@ Nested content.
     workspace,
     docs,
   };
+}
+
+export async function writeDocFile(docs, relativePath, contents) {
+  const filePath = path.join(docs, relativePath);
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, contents);
+  return filePath;
 }
 
 export async function runCli(args, options = {}) {

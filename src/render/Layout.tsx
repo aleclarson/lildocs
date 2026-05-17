@@ -7,10 +7,11 @@ export type LayoutProps = {
   page: Page;
   nav: NavItem[];
   css: string;
+  searchIndexJson: string;
   needsMermaid: boolean;
 };
 
-export function Layout({ page, nav, css, needsMermaid }: LayoutProps) {
+export function Layout({ page, nav, css, searchIndexJson, needsMermaid }: LayoutProps) {
   return (
     <html lang="en">
       <head>
@@ -53,6 +54,11 @@ export function Layout({ page, nav, css, needsMermaid }: LayoutProps) {
           dangerouslySetInnerHTML={{
             __html: `window.lildocsSearchUrl = ${JSON.stringify(rootRelativeUrl(page.route, "search-index.json"))};`,
           }}
+        />
+        <script
+          type="application/json"
+          id="lildocs-search-index"
+          dangerouslySetInnerHTML={{ __html: searchIndexJson }}
         />
         <script src={rootRelativeUrl(page.route, "assets/search.js")} />
         {needsMermaid ? (

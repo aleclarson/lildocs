@@ -56,10 +56,12 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     siteNeedsMermaid ||= rendered.needsMermaid;
   }
 
+  const searchIndexJson = JSON.stringify(buildSearchIndex(model.pages), null, 2);
+
   await Promise.all(
     model.pages.map(async (page) => {
       const nav = buildNavigation(model, page);
-      const html = renderPage(page, nav, css, siteNeedsMermaid);
+      const html = renderPage(page, nav, css, searchIndexJson, siteNeedsMermaid);
       const outputPath = path.join(outDir, page.outputPath);
       await mkdir(path.dirname(outputPath), { recursive: true });
       await writeFile(outputPath, html);
@@ -68,10 +70,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
 
   await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
   await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
-  await writeFile(
-    path.join(outDir, "search-index.json"),
-    JSON.stringify(buildSearchIndex(model.pages), null, 2),
-  );
+  await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
   await copyAssets(assets);
 
   return {

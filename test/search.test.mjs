@@ -26,5 +26,7 @@ test("emits search UI and static search script", async () => {
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const searchScript = await readFile(path.join(outDir, "assets", "search.js"), "utf8");
   assert.match(html, /id="lildocs-search-input"/);
+  assert.match(html, /id="lildocs-search-index"/);
   assert.match(searchScript, /scoreEntry/);
+  assert.match(searchScript, /embeddedIndex/);
 });

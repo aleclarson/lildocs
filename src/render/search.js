@@ -5,8 +5,11 @@
     return;
   }
 
+  const embeddedIndex = document.querySelector("#lildocs-search-index");
   const base = new URL(window.lildocsSearchUrl || "search-index.json", document.baseURI);
-  const index = await fetch(base).then((response) => response.json());
+  const index = embeddedIndex?.textContent
+    ? JSON.parse(embeddedIndex.textContent)
+    : await fetch(base).then((response) => response.json());
   const siteRoot = new URL(".", base);
 
   input.addEventListener("input", () => {

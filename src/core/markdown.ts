@@ -2,6 +2,7 @@ import { copyFile, mkdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { Marked, Renderer, parser } from "marked";
 import type { ContentModel, Heading, Page } from "./content.js";
+import { LildocsError } from "./errors.js";
 import { rootRelativeUrl, toPosixPath } from "./paths.js";
 import { normalizeSearchText } from "./search.js";
 
@@ -77,13 +78,15 @@ export async function copyAssets(assets: AssetCopy[]) {
 
   await Promise.all(
     [...uniqueAssets.values()].map(async (asset) => {
+      let assetStat;
       try {
-        const assetStat = await stat(asset.from);
-        if (!assetStat.isFile()) {
-          return;
-        }
+        assetStat = await stat(asset.from);
       } catch {
-        return;
+        throw new LildocsError(`Referenced asset does not exist: ${asset.from}`);
+      }
+
+      if (!assetStat.isFile()) {
+        throw new LildocsError(`Referenced asset is not a file: ${asset.from}`);
       }
 
       await mkdir(path.dirname(asset.to), { recursive: true });

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
@@ -26,4 +26,12 @@ test("uses markdown file input as home page", async () => {
 
 test("reports missing input paths", async () => {
   await assert.rejects(() => runCli(["./missing-docs"]), /Input path does not exist/);
+});
+
+test("reports unsupported file input types", async () => {
+  const { workspace } = await fixtureWorkspace();
+  const textFile = path.join(workspace, "notes.txt");
+  await writeFile(textFile, "not markdown");
+
+  await assert.rejects(() => runCli([textFile]), /Input file must be Markdown/);
 });
