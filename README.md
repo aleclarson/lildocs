@@ -5,8 +5,8 @@
 ## Usage
 
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm run build
 node dist/cli.mjs ./docs
 node dist/cli.mjs ./docs/index.md
 node dist/cli.mjs build ./docs --out dist --theme minimal
@@ -17,10 +17,10 @@ Generated HTML is written to `dist` by default and can be opened directly from d
 ## Development
 
 ```bash
-npm run format
-npm run lint
-npm run build
-npm test
+pnpm run format
+pnpm run lint
+pnpm run build
+pnpm test
 ```
 
 The v1 CLI supports:

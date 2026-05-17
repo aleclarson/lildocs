@@ -29,10 +29,10 @@ Read `spec.md` before product changes. Keep behavior aligned with the README and
 Useful commands:
 
 ```bash
-npm run format
-npm run lint
-npm run typecheck
-npm test
+pnpm run format
+pnpm run lint
+pnpm run typecheck
+pnpm test
 ```
 
 ## Product Constraints
