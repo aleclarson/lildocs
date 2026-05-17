@@ -1,6 +1,8 @@
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { Marked, Renderer, parser } from "marked";
+import markedShiki from "marked-shiki";
+import { codeToHtml } from "shiki";
 import type { ContentModel, Heading, Page } from "./content.js";
 import { LildocsError } from "./errors.js";
 import { rootRelativeUrl, toPosixPath } from "./paths.js";
@@ -48,29 +50,47 @@ export async function renderMarkdownPage(
     return `<img src="${escapeHtml(rewritten)}" alt="${escapeHtml(text)}"${titleAttribute}>`;
   };
 
-  renderer.code = ({ text, lang }) => {
-    if (lang?.toLowerCase() === "mermaid") {
-      needsMermaid = true;
-      return `<pre class="mermaid">${escapeHtml(text)}</pre>`;
-    }
-
-    const languageClass = lang ? ` class="language-${escapeHtml(lang)}"` : "";
-    return `<pre><code${languageClass}>${escapeHtml(text)}</code></pre>`;
-  };
-
   const marked = new Marked({
-    async: false,
+    async: true,
     gfm: true,
     renderer,
-  });
+  }).use(
+    markedShiki({
+      async highlight(code, lang, props) {
+        if (lang?.toLowerCase() === "mermaid") {
+          needsMermaid = true;
+          return `<pre class="mermaid">${escapeHtml(code)}</pre>`;
+        }
 
-  const html = marked.parse(page.markdown) as string;
+        return highlightCode(code, lang, props);
+      },
+    }),
+  );
+
+  const html = await marked.parse(page.markdown);
   return {
     html,
     assets,
     needsMermaid,
     text: normalizeSearchText(page.markdown),
   };
+}
+
+async function highlightCode(code: string, lang: string, props: string[]) {
+  try {
+    return await codeToHtml(code, {
+      lang: lang || "text",
+      theme: "github-light",
+      meta: {
+        __raw: props.join(" "),
+      },
+    });
+  } catch {
+    return codeToHtml(code, {
+      lang: "text",
+      theme: "github-light",
+    });
+  }
 }
 
 export async function copyAssets(assets: AssetCopy[]) {

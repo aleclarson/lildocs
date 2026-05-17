@@ -49,6 +49,22 @@ test("renders gfm tables task lists and strikethrough", async () => {
   assert.match(html, /<del>Removed copy<\/del>/);
 });
 
+test("highlights code blocks with shiki", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "code.md",
+    "# Code\n\n```ts\nconst message: string = \"hello\";\nconsole.log(message);\n```\n",
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  assert.match(html, /class="shiki/);
+  assert.match(html, /style="color:/);
+});
+
 test("omits frontmatter from rendered content", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
