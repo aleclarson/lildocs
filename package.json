@@ -14,7 +14,7 @@
     "format": "oxfmt --write src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "format:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "lint": "oxlint src tsdown.config.ts",
-    "test": "npm run build && node --test test/*.test.mjs",
+    "test": "pnpm run build && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -34,5 +34,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "packageManager": "pnpm@10.29.3"
 }
