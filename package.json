@@ -11,6 +11,7 @@
   "type": "module",
   "scripts": {
     "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
+    "docs:serve": "pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs && sirv ./dist/docs",
     "extract:shiki-themes": "node scripts/extract-shiki-themes.mjs",
     "shiki-theme:map-all": "node scripts/map-all-shiki-themes-to-lildocs.mjs",
     "shiki-theme:to-lildocs": "node scripts/shiki-theme-to-lildocs-theme.mjs",
@@ -35,6 +36,7 @@
     "@types/node": "^24.0.0",
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
+    "sirv": "^3.0.2",
     "tsdown": "^0.22.0",
     "typescript": "^5.9.0"
   },
