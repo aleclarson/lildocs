@@ -29,6 +29,9 @@ export function Layout({ page, nav, css, searchIndexJson, dev }: LayoutProps) {
               Docs
             </a>
             <div className="searchBox">
+              <span className="searchIcon material-symbols-rounded" aria-hidden="true">
+                search
+              </span>
               <input
                 id="lildocs-search-input"
                 type="search"
