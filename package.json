@@ -12,9 +12,10 @@
   "scripts": {
     "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
     "extract:shiki-themes": "node scripts/extract-shiki-themes.mjs",
-    "format": "oxfmt --write src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
-    "format:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
-    "lint": "oxlint src tsdown.config.ts",
+    "shiki-theme:to-lildocs": "node scripts/shiki-theme-to-lildocs-theme.mjs",
+    "format": "oxfmt --write src scripts package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "format:check": "oxfmt --check src scripts package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "lint": "oxlint src scripts tsdown.config.ts",
     "test": "pnpm run build && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit"
   },
