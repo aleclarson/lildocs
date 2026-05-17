@@ -12,6 +12,7 @@ Read `spec.md` before product changes. Keep behavior aligned with the README and
 - Follow existing code style and architecture.
 - Use Conventional Commits.
 - Keep commits atomic and single-purpose.
+- Always commit your work when a task implies a checkpoint or durable handoff.
 - Avoid new dependencies unless they are clearly justified.
 - Update tests with behavior changes.
 
