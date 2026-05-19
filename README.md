@@ -65,6 +65,8 @@ pnpm lildocs build ./docs
 
 The output is self-contained. Page links are relative, local assets are copied into the output folder, and `search-index.json` is generated next to the HTML files.
 
+When lildocs can detect a GitHub repository, the generated header includes a GitHub icon button before search. During GitHub Actions builds, lildocs uses the `GITHUB_REPOSITORY` environment variable. Otherwise, it walks up from the docs root to the nearest `package.json` and uses its `repository` field when it points to GitHub.
+
 ### `lildocs dev <path>`
 
 Start a local development server that rebuilds the generated site when docs files change.

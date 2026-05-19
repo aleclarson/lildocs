@@ -59,3 +59,9 @@ lildocs dev <path>
 
 Backgrounds support `background.image`, `background.gradient`, and `background.blendMode`.
 Image values can be URLs, `url(...)` values, or docs-relative file paths.
+
+## Repository Link
+
+Generated sites include a GitHub icon button before the search field when lildocs can detect a GitHub repository.
+
+During GitHub Actions builds, lildocs reads `GITHUB_REPOSITORY` as `<owner>/<repo>`. For local builds, it walks up from the docs root to the nearest `package.json` and uses the `repository` field when it points to GitHub.
