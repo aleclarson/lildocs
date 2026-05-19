@@ -4,7 +4,7 @@
 
 `lildocs` is a Node/TypeScript CLI that turns Markdown docs into a static searchable documentation site.
 
-Read `spec.md` before product changes. Keep behavior aligned with the README and existing tests.
+Keep product behavior aligned with the README, generated documentation, and existing tests.
 
 ## Workflow
 

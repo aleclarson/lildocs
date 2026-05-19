@@ -35,8 +35,32 @@ disk or from any static file host.
 - [CLI reference](https://aleclarson.github.io/lildocs/reference/cli.html)
 - [Configuration reference](https://aleclarson.github.io/lildocs/reference/configuration.html)
 - [Themes and styling](https://aleclarson.github.io/lildocs/reference/theming.html)
-- [Contributing](https://aleclarson.github.io/lildocs/contributing.html)
 
 `lildocs` is intentionally narrow: no manual nav config, versioned docs, MDX,
 plugin system, hosted search, auth, CMS features, i18n, redirects, analytics, or
 API reference generation.
+
+## Contributing
+
+Use these commands when working on lildocs itself:
+
+```bash
+pnpm install
+pnpm run format
+pnpm run lint
+pnpm run typecheck
+pnpm test
+```
+
+Keep behavior aligned with the README, documentation, and existing tests.
+
+The project uses:
+
+- `cmd-ts` for CLI parsing
+- Preact SSR for rendering
+- `marked` and `gray-matter` for Markdown and frontmatter
+- `jiti` for theme loading
+- `tsdown` for bundling
+- `oxlint` for linting
+- `oxfmt` for formatting
+- Node's built-in `node:test` runner

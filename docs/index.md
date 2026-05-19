@@ -30,9 +30,7 @@ GitHub Pages.
 - [Themes and styling](reference/theming.md) covers built-in themes, Shiki
   themes, local `theme.ts`, fonts, backgrounds, and link styling.
 
-## Publishing And Project Work
+## Publishing
 
 - [GitHub Pages deployment](guides/github-pages.md) shows how to generate
   Pages-ready output and optional workflow files.
-- [Contributing](contributing.md) lists the commands used when working on
-  lildocs itself.
