@@ -109,11 +109,18 @@ body {
   display: block;
   padding: 6px 8px;
   border-radius: 6px;
-  color: var(--ld-color-muted-text);
 }
 
 .navList a {
+  color: var(--ld-color-muted-text);
   text-decoration: none;
+}
+
+.navFolder {
+  color: color-mix(in srgb, var(--ld-color-muted-text) 72%, var(--ld-color-sidebar-background));
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .navList a.active {
