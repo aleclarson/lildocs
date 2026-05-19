@@ -10,6 +10,7 @@ Use one of the supported command shapes:
 lildocs <path>
 lildocs build <path>
 lildocs dev <path>
+lildocs deploy <path>
 ```
 
 ## Options
@@ -31,6 +32,14 @@ lildocs dev <path>
 `--background.blendMode <mode>` sets the CSS background blend mode.
 
 `--link.underline always|hover|none` controls content link underlines.
+
+`--host <address>` sets the dev server host.
+
+`--port <number>` sets the dev server port.
+
+`--base <path>` sets GitHub Pages project-page metadata for `deploy`.
+
+`--workflow` creates a GitHub Actions workflow for GitHub Pages deployment.
 
 ## Config
 

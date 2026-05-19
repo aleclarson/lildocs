@@ -18,6 +18,9 @@ lildocs ./docs
 
 Read the [authoring guide](guides/authoring.md) or browse the [CLI reference](reference/cli.md).
 
+> [!TIP]
+> Use callouts in your docs to keep important notes scannable.
+
 ## Mermaid
 
 ```mermaid
