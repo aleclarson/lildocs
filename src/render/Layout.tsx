@@ -105,6 +105,7 @@ export function Layout({
           dangerouslySetInnerHTML={{ __html: searchIndexJson }}
         />
         <script src={rootRelativeUrl(page.route, "assets/search.js")} />
+        <script src={rootRelativeUrl(page.route, "assets/copy-code.js")} />
         {dev ? <script type="module" src={dev.clientScriptPath} /> : null}
         <style dangerouslySetInnerHTML={{ __html: css }} />
       </body>

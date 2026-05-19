@@ -103,6 +103,22 @@ test("highlights code blocks with shiki", async () => {
   assert.match(html, /style="color:/);
 });
 
+test("emits copy-to-clipboard controls for code blocks", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "code.md", "# Code\n\n```ts\nconst message = \"hello\";\n```\n");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const script = await readFile(path.join(outDir, "assets", "copy-code.js"), "utf8");
+  assert.match(html, /<script src=".\/assets\/copy-code\.js"><\/script>/);
+  assert.match(css, /\.copyCodeButton \{/);
+  assert.match(script, /navigator\.clipboard\?\.writeText/);
+  assert.match(script, /const copyText = block\.textContent \?\? ""/);
+});
+
 test("uses lildocs code background for shiki blocks", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

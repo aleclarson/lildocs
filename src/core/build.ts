@@ -75,6 +75,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const baseCss = await readRenderAsset("styles.css");
   const searchScript = await readRenderAsset("search.js");
+  const copyCodeScript = await readRenderAsset("copy-code.js");
   const backgroundResolution = resolveBackgroundOptions({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
@@ -142,6 +143,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
 
     await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
     await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
+    await writeFile(path.join(outDir, "assets", "copy-code.js"), copyCodeScript);
     await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
     await copyAssets(assets);
   } finally {

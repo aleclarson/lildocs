@@ -10,7 +10,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js dist/render/",
+    "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js src/render/copy-code.js dist/render/",
     "docs:serve": "pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs && sirv ./dist/docs",
     "format": "oxfmt --write src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "format:check": "oxfmt --check src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
