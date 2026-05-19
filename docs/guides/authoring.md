@@ -74,7 +74,7 @@ title: CLI Reference
 | Standard Markdown | Supported |
 | GitHub-flavored Markdown | Supported |
 | Frontmatter | Supported |
-| Syntax-highlighted fenced code blocks | Supported |
+| Syntax-highlighted fenced code blocks | Supported, with copy buttons |
 | Heading anchors | Supported |
 | Relative Markdown links | Supported |
 | Images and local assets | Supported |
