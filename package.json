@@ -10,7 +10,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js src/render/copy-code.js dist/render/",
+    "build": "tsdown && mkdir -p dist/render && cp src/render/styles.css src/render/search.js src/render/copy-code.js src/render/navigation.js dist/render/",
     "docs:serve": "pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs && sirv ./dist/docs",
     "format": "oxfmt --write src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
     "format:check": "oxfmt --check src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
@@ -28,7 +28,8 @@
     "marked-shiki": "^1.2.1",
     "preact": "^10.29.2",
     "preact-render-to-string": "^6.7.0",
-    "shiki": "^4.0.2"
+    "shiki": "^4.0.2",
+    "swup": "^4.9.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -87,7 +87,7 @@
       const selected = links[selectedIndex] ?? links[0];
       if (selected) {
         preloadRelativeUrl(selected.getAttribute("href"));
-        window.location.href = selected.href;
+        selected.click();
       }
       return;
     }

@@ -91,7 +91,7 @@ test("search script preloads links and supports keyboard result selection", asyn
   assert.match(searchScript, /event\.key === "ArrowDown"/);
   assert.match(searchScript, /event\.key === "ArrowUp"/);
   assert.match(searchScript, /event\.key === "Enter"/);
-  assert.match(searchScript, /window\.location\.href = selected\.href/);
+  assert.match(searchScript, /selected\.click\(\)/);
   assert.match(searchScript, /preloadRelativeUrl\(selected\?\.getAttribute\("href"\)\)/);
 });
 

@@ -38,6 +38,9 @@ importers:
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
+      swup:
+        specifier: ^4.9.0
+        version: 4.9.0
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
@@ -580,6 +583,9 @@ packages:
   defu@6.1.7:
     resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
 
+  delegate-it@6.4.0:
+    resolution: {integrity: sha512-NbMljKgnyvQQFLRx3hjPs2x++R3GzIZgvtINq/Q7PzxiC58CSG+N2RT8x4qF7JhkFZI4h9zZ1BszoJYdYREkbA==}
+
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
@@ -741,6 +747,9 @@ packages:
       oxlint-tsgolint:
         optional: true
 
+  path-to-regexp@6.3.0:
+    resolution: {integrity: sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ==}
+
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
@@ -832,6 +841,9 @@ packages:
     resolution: {integrity: sha512-uCC2VHvQRYu+lMh4My/sFNmF2klFymLX1wHJeXnbEJERpV/ZsVuonzerjfrGpIGF7LBVa1O7i9kjiWvJiFck8g==}
     engines: {node: '>=0.10.0'}
 
+  swup@4.9.0:
+    resolution: {integrity: sha512-XRM9gfvIAXMh/FxeQLJXMAqmKv3jmr4jCm0Efpv1qz5RRII714EqvpPACS2jZFp58RMGbAS/+5R5HxPVy9g0hw==}
+
   tinyexec@1.1.2:
     resolution: {integrity: sha512-dAqSqE/RabpBKI8+h26GfLq6Vb3JVXs30XYQjdMjaj/c2tS8IYYMbIzP599KtRj7c57/wYApb3QjgRgXmrCukA==}
     engines: {node: '>=18'}
@@ -891,6 +903,9 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  typed-query-selector@2.12.2:
+    resolution: {integrity: sha512-EOPFbyIub4ngnEdqi2yOcNeDLaX/0jcE1JoAXQDDMIthap7FoN795lc/SHfIq2d416VufXpM8z/lD+WRm2gfOQ==}
 
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
@@ -1280,6 +1295,10 @@ snapshots:
 
   defu@6.1.7: {}
 
+  delegate-it@6.4.0:
+    dependencies:
+      typed-query-selector: 2.12.2
+
   dequal@2.0.3: {}
 
   devlop@1.1.0:
@@ -1454,6 +1473,8 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.65.0
       '@oxlint/binding-win32-x64-msvc': 1.65.0
 
+  path-to-regexp@6.3.0: {}
+
   pathe@2.0.3: {}
 
   picomatch@4.0.4: {}
@@ -1556,6 +1577,11 @@ snapshots:
 
   strip-bom-string@1.0.0: {}
 
+  swup@4.9.0:
+    dependencies:
+      delegate-it: 6.4.0
+      path-to-regexp: 6.3.0
+
   tinyexec@1.1.2: {}
 
   tinyglobby@0.2.16:
@@ -1598,6 +1624,8 @@ snapshots:
 
   tslib@2.8.1:
     optional: true
+
+  typed-query-selector@2.12.2: {}
 
   typescript@5.9.3: {}
 

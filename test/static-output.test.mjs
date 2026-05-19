@@ -119,6 +119,25 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   assert.match(script, /const copyText = block\.textContent \?\? ""/);
 });
 
+test("emits swup navigation enhancement assets", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const navigationScript = await readFile(path.join(outDir, "assets", "navigation.js"), "utf8");
+  const swupScript = await readFile(path.join(outDir, "assets", "swup.umd.js"), "utf8");
+  assert.match(html, /<div id="swup" class="contentGrid transition-fade">/);
+  assert.match(html, /<script src=".\/assets\/swup\.umd\.js"><\/script>/);
+  assert.match(html, /<script src=".\/assets\/navigation\.js"><\/script>/);
+  assert.match(css, /html\.is-changing \.transition-fade/);
+  assert.match(navigationScript, /window\.location\.protocol === "file:"/);
+  assert.match(navigationScript, /new window\.Swup/);
+  assert.match(swupScript, /\(t\|\|self\)\.Swup=e\(\)/);
+});
+
 test("uses lildocs code background for shiki blocks", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

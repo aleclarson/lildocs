@@ -79,7 +79,7 @@ export function Layout({
               </div>
             </div>
           </header>
-          <div className="contentGrid">
+          <div id="swup" className="contentGrid transition-fade">
             <aside className="sidebar">
               <nav aria-label="Documentation navigation">
                 <NavList items={nav} currentRoute={page.route} pageRoute={page.route} />
@@ -106,6 +106,8 @@ export function Layout({
         />
         <script src={rootRelativeUrl(page.route, "assets/search.js")} />
         <script src={rootRelativeUrl(page.route, "assets/copy-code.js")} />
+        <script src={rootRelativeUrl(page.route, "assets/swup.umd.js")} />
+        <script src={rootRelativeUrl(page.route, "assets/navigation.js")} />
         {dev ? <script type="module" src={dev.clientScriptPath} /> : null}
         <style dangerouslySetInnerHTML={{ __html: css }} />
       </body>

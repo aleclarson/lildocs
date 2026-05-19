@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeConfigOptions, readDocsConfig } from "./config.js";
@@ -46,6 +47,7 @@ export type BuildResult = {
 };
 
 const sourceDir = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 
 export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const input = await resolveInput(options.input, options.cwd);
@@ -76,6 +78,8 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const baseCss = await readRenderAsset("styles.css");
   const searchScript = await readRenderAsset("search.js");
   const copyCodeScript = await readRenderAsset("copy-code.js");
+  const navigationScript = await readRenderAsset("navigation.js");
+  const swupScript = await readSwupAsset();
   const backgroundResolution = resolveBackgroundOptions({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
@@ -144,6 +148,8 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
     await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
     await writeFile(path.join(outDir, "assets", "copy-code.js"), copyCodeScript);
+    await writeFile(path.join(outDir, "assets", "swup.umd.js"), swupScript);
+    await writeFile(path.join(outDir, "assets", "navigation.js"), navigationScript);
     await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
     await copyAssets(assets);
   } finally {
@@ -240,6 +246,10 @@ async function readRenderAsset(name: string) {
   } catch {
     return readFile(path.resolve(sourceDir, "../render", name), "utf8");
   }
+}
+
+async function readSwupAsset() {
+  return readFile(path.join(path.dirname(require.resolve("swup")), "Swup.umd.js"), "utf8");
 }
 
 function buildPageNavigation(pages: Page[]) {
