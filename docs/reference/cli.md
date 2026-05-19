@@ -4,7 +4,7 @@ title: CLI Reference
 
 # Command Line
 
-Use one of the supported command shapes:
+lildocs supports these command shapes:
 
 ```bash
 lildocs <path>
@@ -13,75 +13,107 @@ lildocs dev <path>
 lildocs deploy <path>
 ```
 
-## Options
+`<path>` can be a Markdown folder or a single Markdown file.
 
-`--out <dir>` changes the output directory.
+## Bare Build Command
 
-`--theme <name>` selects a built-in theme.
+Build a static documentation site from a Markdown folder or file.
 
-`--font.heading <name-or-file>` selects a heading font from Google Fonts or a local font file.
-
-`--font.body <name-or-file>` selects a body font from Google Fonts or a local font file.
-
-`--font.code <name-or-file>` selects a code font from Google Fonts or a local font file.
-
-`--background.image <url-or-file>` sets a page background image from a URL or docs-relative file.
-
-`--background.gradient <gradient>` sets a CSS background gradient.
-
-`--background.blendMode <mode>` sets the CSS background blend mode.
-
-`--link.underline always|hover|none` controls content link underlines.
-
-`--host <address>` sets the dev server host.
-
-`--port <number>` sets the dev server port.
-
-`--base <path>` sets GitHub Pages project-page metadata for `deploy`.
-
-`--workflow` creates a GitHub Actions workflow for GitHub Pages deployment.
-
-## Config
-
-`docs/config.json` can declare the same theme and font settings:
-
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
-  "theme": "github-dark",
-  "favicon": "./images/favicon.svg",
-  "font": {
-    "heading": "Inter",
-    "body": "Source Sans 3",
-    "code": "Roboto Mono"
-  },
-  "logo": {
-    "image": "./images/logo.svg",
-    "text": "Acme Docs",
-    "font": "Onest"
-  },
-  "background": {
-    "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
-    "blendMode": "screen"
-  },
-  "link": {
-    "underline": "hover"
-  }
-}
+```bash
+lildocs ./docs
 ```
 
-`theme` accepts `default`, `minimal`, or a bundled Shiki theme name. CLI flags override config values.
+This is the shortest form of the build command. It treats `./docs` as the
+documentation root, finds the home page, generates navigation from the folder
+structure, builds a search index, and writes the site to `dist`.
 
-Favicons support `favicon` with URL, data URL, absolute URL path, or docs-relative file values.
+If the path points to a Markdown file, that file becomes the home page and its
+parent folder becomes the docs root:
 
-Backgrounds support `background.image`, `background.gradient`, and `background.blendMode`.
-Image values can be URLs, `url(...)` values, or docs-relative file paths.
+```bash
+lildocs ./docs/index.md
+```
 
-Logos support `logo.image`, `logo.text`, and `logo.font`.
-Image values can be URLs, data URLs, absolute URL paths, or docs-relative file paths.
+Use this form for simple local scripts, CI jobs, or one-off builds.
 
-## Repository Link
+## Build Command
 
-Generated sites include a GitHub icon button before the search field when lildocs can detect a GitHub repository.
+Build a static documentation site with the explicit `build` subcommand.
 
-During GitHub Actions builds, lildocs reads `GITHUB_REPOSITORY` as `<owner>/<repo>`. For local builds, it walks up from the docs root to the nearest `package.json` and uses the `repository` field when it points to GitHub.
+```bash
+lildocs build ./docs
+```
+
+`build` does the same generation work as the bare `lildocs <path>` form, but it
+is clearer in package scripts and CI configuration:
+
+```bash
+pnpm lildocs build ./docs
+```
+
+Build output is self-contained. Page links are relative, local assets are copied
+into the output folder, and `search-index.json` is generated next to the HTML
+files.
+
+## Dev Command
+
+Start a local development server that rebuilds the generated site when docs
+files change.
+
+```bash
+lildocs dev ./docs
+```
+
+The dev server writes generated files to `.lildocs` by default, serves them from
+`127.0.0.1:3000`, and injects a small live-reload client while developing.
+
+Choose a different output folder when you want to inspect generated files:
+
+```bash
+lildocs dev ./docs --out ./.docs-preview
+```
+
+Choose the host or port when the defaults conflict with another local service:
+
+```bash
+lildocs dev ./docs --host 0.0.0.0 --port 4173
+```
+
+The dev output directory must stay inside the current workspace, cannot be the
+repository root, and cannot contain the docs root.
+
+## Deploy Command
+
+Build GitHub Pages-ready output.
+
+```bash
+lildocs deploy ./docs
+```
+
+`deploy` builds the same static site as `build`, then adds Pages deployment
+metadata. See [GitHub Pages](../guides/github-pages.md) for the full publishing
+workflow.
+
+## Options
+
+| Option | Applies to | Description |
+| --- | --- | --- |
+| `--out <dir>` | build, dev, deploy | Output directory for generated files. Build and deploy default to `dist`; dev defaults to `.lildocs`. |
+| `--theme <name>` | build, dev, deploy | Built-in lildocs theme or bundled Shiki theme name. |
+| `--font.heading <name-or-file>` | build, dev, deploy | Heading font from Google Fonts or a local font file. |
+| `--font.body <name-or-file>` | build, dev, deploy | Body and interface font from Google Fonts or a local font file. |
+| `--font.code <name-or-file>` | build, dev, deploy | Code font from Google Fonts or a local font file. |
+| `--background.image <url-or-file>` | build, dev, deploy | Background image URL or docs-relative image path. |
+| `--background.gradient <gradient>` | build, dev, deploy | CSS background gradient. |
+| `--background.blendMode <mode>` | build, dev, deploy | CSS `background-blend-mode` for the theme color and background layers. |
+| `--link.underline <style>` | build, dev, deploy | Content link underline behavior: `always`, `hover`, or `none`. |
+| `--host <address>` | dev | Host address for the local development server. |
+| `--port <number>` | dev | Port for the local development server. |
+| `--base <path>` | deploy | GitHub Pages base path, such as `/repo/` for project pages. |
+| `--workflow` | deploy | Create a GitHub Actions workflow for GitHub Pages deployment. |
+
+CLI flags override matching `config.json` values. See
+[Configuration](configuration.md) for persistent defaults.
+
+Favicon and logo settings are configuration-only and do not have CLI flags. See
+[Themes and styling](theming.md) for examples.
