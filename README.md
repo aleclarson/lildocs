@@ -29,13 +29,13 @@ disk or from any static file host.
 
 ## Documentation
 
-- [Getting started](docs/getting-started.md)
-- [Authoring docs](docs/guides/authoring.md)
-- [GitHub Pages deployment](docs/guides/github-pages.md)
-- [CLI reference](docs/reference/cli.md)
-- [Configuration reference](docs/reference/configuration.md)
-- [Themes and styling](docs/reference/theming.md)
-- [Contributing](docs/contributing.md)
+- [Getting started](https://aleclarson.github.io/lildocs/getting-started.html)
+- [Authoring docs](https://aleclarson.github.io/lildocs/guides/authoring.html)
+- [GitHub Pages deployment](https://aleclarson.github.io/lildocs/guides/github-pages.html)
+- [CLI reference](https://aleclarson.github.io/lildocs/reference/cli.html)
+- [Configuration reference](https://aleclarson.github.io/lildocs/reference/configuration.html)
+- [Themes and styling](https://aleclarson.github.io/lildocs/reference/theming.html)
+- [Contributing](https://aleclarson.github.io/lildocs/contributing.html)
 
 `lildocs` is intentionally narrow: no manual nav config, versioned docs, MDX,
 plugin system, hosted search, auth, CMS features, i18n, redirects, analytics, or
