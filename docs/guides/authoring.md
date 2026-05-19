@@ -1,23 +1,108 @@
+---
+title: Authoring Docs
+---
+
 # Authoring Docs
 
-Write normal Markdown files. Navigation is inferred from folders.
+Write normal Markdown files in a folder. lildocs uses that folder as the site
+source and turns the file tree into navigation.
 
-## Supported Markdown
+## Docs Root And Home Page
 
-| Feature | Status |
+When the input is a folder, lildocs treats that folder as the docs root and
+looks for a home page in this order:
+
+1. `index.md`
+2. `intro.md`
+3. `introduction.md`
+4. `getting-started.md`
+5. `quickstart.md`
+6. `readme.md`
+7. `README.md`
+
+If none of those files exists, the first Markdown file found in the folder tree
+is used as the home page.
+
+When the input is a Markdown file, that file becomes the home page and its
+parent folder becomes the docs root:
+
+```bash
+lildocs ./docs/index.md
+```
+
+## Navigation
+
+Navigation is generated from the folder structure. Nested folders become nested
+navigation groups, and hidden or system files are ignored.
+
+```text
+docs/
+  index.md
+  getting-started.md
+  guides/
+    authoring.md
+  reference/
+    cli.md
+```
+
+That folder tree creates top-level links for the home page and
+`getting-started.md`, plus `Guides` and `Reference` groups.
+
+## Page Titles
+
+Page titles are inferred in this order:
+
+1. `title` in frontmatter
+2. The first `h1`
+3. The filename
+
+Use frontmatter when the navigation label should differ from the visible page
+heading:
+
+```md
+---
+title: CLI Reference
+---
+
+# Command Line
+```
+
+## Markdown Features
+
+| Feature | Support |
 | --- | --- |
-| Tables | Supported |
-| Task lists | Supported |
+| Standard Markdown | Supported |
+| GitHub-flavored Markdown | Supported |
+| Frontmatter | Supported |
+| Syntax-highlighted fenced code blocks | Supported |
+| Heading anchors | Supported |
+| Relative Markdown links | Supported |
+| Images and local assets | Supported |
 | GitHub-style callouts | Supported |
-| Mermaid | Build-time SVG for flowcharts, state, sequence, class, ER, and XY charts |
+| Mermaid diagrams | Supported out of the box |
 
-- [x] Frontmatter titles
-- [x] Relative links
-- [x] Static assets
+## Links And Assets
+
+Use normal relative Markdown links:
+
+```md
+Read the [CLI reference](../reference/cli.md).
+```
+
+Use normal Markdown images for local assets:
+
+```md
+![Small example image](../images/example.svg)
+```
+
+![Small example image](../images/example.svg)
+
+Local assets referenced by Markdown are copied into the generated site.
 
 ## Callouts
 
-Use GitHub-style blockquote callouts to highlight notes, tips, important details, warnings, and cautions:
+Use GitHub-style blockquote callouts to highlight notes, tips, important
+details, warnings, and cautions:
 
 ```md
 > [!NOTE]
@@ -27,6 +112,36 @@ Use GitHub-style blockquote callouts to highlight notes, tips, important details
 > Something readers should check before continuing.
 ```
 
-Supported callout types are `NOTE`, `TIP`, `IMPORTANT`, `WARNING`, and `CAUTION`.
+Supported callout types are `NOTE`, `TIP`, `IMPORTANT`, `WARNING`, and
+`CAUTION`.
 
-Link back to the [home page](../index.md).
+> [!TIP]
+> Callouts are rendered as regular static HTML and work without client-side
+> JavaScript.
+
+## Mermaid
+
+Use fenced `mermaid` code blocks:
+
+````md
+```mermaid
+flowchart LR
+  Markdown --> Build
+  Build --> StaticHTML[Static HTML]
+```
+````
+
+```mermaid
+flowchart LR
+  Markdown --> Build
+  Build --> StaticHTML[Static HTML]
+```
+
+Mermaid diagrams work out of the box. lildocs keeps client-side JavaScript
+limited to search, Mermaid, or progressive enhancement.
+
+## Search
+
+Search is generated locally at build time from page titles, headings, and body
+text. No external search service is required, and the generated search index is
+emitted with the static site.

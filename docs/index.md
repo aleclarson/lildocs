@@ -1,30 +1,38 @@
 ---
-title: lildocs Example
+title: lildocs Documentation
 ---
 
-# lildocs Example
+# lildocs Documentation
 
-This example shows the main Markdown features used by the fixture documentation site.
-
-![Small example image](images/example.svg)
-
-## Quickstart
-
-Run the CLI against this folder:
+`lildocs` builds a static, searchable documentation site from Markdown files.
+The default path is intentionally short:
 
 ```bash
 lildocs ./docs
 ```
 
-Read the [authoring guide](guides/authoring.md) or browse the [CLI reference](reference/cli.md).
+Use this documentation to learn how lildocs resolves input, turns folders into
+site navigation, applies configuration, and prepares output for local preview or
+GitHub Pages.
 
-> [!TIP]
-> Use callouts in your docs to keep important notes scannable.
+## Start Here
 
-## Mermaid
+- [Getting started](getting-started.md) covers installation, the first build, and
+  local development.
+- [Authoring docs](guides/authoring.md) explains Markdown support, page titles,
+  navigation, assets, callouts, Mermaid, and search.
+- [CLI reference](reference/cli.md) lists every command and flag.
 
-```mermaid
-flowchart LR
-  Markdown --> Build
-  Build --> StaticHTML[Static HTML]
-```
+## Configuration And Styling
+
+- [Configuration](reference/configuration.md) documents `config.json`, schema
+  support, and CLI flag mappings.
+- [Themes and styling](reference/theming.md) covers built-in themes, Shiki
+  themes, local `theme.ts`, fonts, backgrounds, and link styling.
+
+## Publishing And Project Work
+
+- [GitHub Pages deployment](guides/github-pages.md) shows how to generate
+  Pages-ready output and optional workflow files.
+- [Contributing](contributing.md) lists the commands used when working on
+  lildocs itself.
