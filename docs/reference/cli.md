@@ -49,6 +49,7 @@ lildocs deploy <path>
 {
   "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
   "theme": "github-dark",
+  "favicon": "./images/favicon.svg",
   "font": {
     "heading": "Inter",
     "body": "Source Sans 3",
@@ -70,6 +71,8 @@ lildocs deploy <path>
 ```
 
 `theme` accepts `default`, `minimal`, or a bundled Shiki theme name. CLI flags override config values.
+
+Favicons support `favicon` with URL, data URL, absolute URL path, or docs-relative file values.
 
 Backgrounds support `background.image`, `background.gradient`, and `background.blendMode`.
 Image values can be URLs, `url(...)` values, or docs-relative file paths.

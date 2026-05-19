@@ -30,6 +30,7 @@ export type BuildOptions = {
   cwd: string;
   theme?: string;
   fonts?: FontOverrides;
+  favicon?: string;
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
@@ -52,6 +53,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     config: await readDocsConfig(input.docsRoot),
     theme: options.theme,
     fonts: options.fonts,
+    favicon: options.favicon,
     logo: options.logo,
     background: options.background,
     link: options.link,
@@ -84,6 +86,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     docsRoot: input.docsRoot,
     outDir,
     logo: configOptions.logo,
+    favicon: configOptions.favicon,
   });
   const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
   const assets: AssetCopy[] = [
@@ -127,6 +130,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           css,
           searchIndexJson,
           logoResolution.logo,
+          logoResolution.favicon,
           repositoryUrl,
           options.dev,
         );

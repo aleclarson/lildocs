@@ -18,6 +18,7 @@ export type LogoResolution = {
   assets: AssetCopy[];
   css: string;
   logo: ResolvedLogo;
+  favicon?: string;
 };
 
 export async function resolveLogoOptions(options: {
@@ -25,6 +26,7 @@ export async function resolveLogoOptions(options: {
   docsRoot: string;
   outDir: string;
   logo?: LogoOptions;
+  favicon?: string;
 }): Promise<LogoResolution> {
   const assets: AssetCopy[] = [];
   const css: string[] = [];
@@ -33,7 +35,7 @@ export async function resolveLogoOptions(options: {
   };
 
   if (options.logo?.image) {
-    logo.image = logoImageValue(options.logo.image, options, assets);
+    logo.image = imageAssetValue(options.logo.image, options, assets);
   }
 
   if (options.logo?.font) {
@@ -64,10 +66,11 @@ export async function resolveLogoOptions(options: {
     assets,
     css: css.length > 0 ? `${css.join("\n")}\n` : "",
     logo,
+    favicon: options.favicon ? imageAssetValue(options.favicon, options, assets) : undefined,
   };
 }
 
-function logoImageValue(
+function imageAssetValue(
   value: string,
   options: {
     docsRoot: string;

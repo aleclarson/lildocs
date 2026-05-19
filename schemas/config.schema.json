@@ -88,6 +88,11 @@
         }
       ]
     },
+    "favicon": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Favicon URL, data URL, absolute URL path, or docs-relative image path."
+    },
     "font": {
       "type": "object",
       "additionalProperties": false,

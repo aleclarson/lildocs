@@ -162,6 +162,42 @@ test("copies local logo fonts from docs config", async () => {
   await access(path.join(outDir, "assets", "fonts", "logo.woff2"));
 });
 
+test("loads favicon from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "images/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      favicon: "images/favicon.svg",
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /<link rel="icon" href="\.\/assets\/images\/favicon\.svg"\/>/);
+  await access(path.join(outDir, "assets", "images", "favicon.svg"));
+});
+
+test("loads remote favicon from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      favicon: "https://example.com/favicon.ico",
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /<link rel="icon" href="https:\/\/example\.com\/favicon\.ico"\/>/);
+});
+
 test("loads background gradient from docs config", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

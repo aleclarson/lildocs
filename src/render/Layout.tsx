@@ -12,6 +12,7 @@ export type LayoutProps = {
   css: string;
   searchIndexJson: string;
   logo: ResolvedLogo;
+  favicon?: string;
   repositoryUrl?: string;
   dev?: {
     clientScriptPath: string;
@@ -25,6 +26,7 @@ export function Layout({
   css,
   searchIndexJson,
   logo,
+  favicon,
   repositoryUrl,
   dev,
 }: LayoutProps) {
@@ -34,6 +36,7 @@ export function Layout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{page.title}</title>
+        {favicon ? <link rel="icon" href={assetSrc(page.route, favicon)} /> : null}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&display=block"
@@ -45,7 +48,7 @@ export function Layout({
           <header className="siteHeader">
             <a className="brand" href={relativeUrl(page.route, "index.html")}>
               {logo.image ? (
-                <img className="brandLogo" src={logoSrc(page.route, logo.image)} alt="" />
+                <img className="brandLogo" src={assetSrc(page.route, logo.image)} alt="" />
               ) : null}
               <span>{logo.text}</span>
             </a>
@@ -109,7 +112,7 @@ export function Layout({
   );
 }
 
-function logoSrc(pageRoute: string, image: string) {
+function assetSrc(pageRoute: string, image: string) {
   if (/^(?:[a-z]+:)?\/\//i.test(image) || image.startsWith("data:") || image.startsWith("/")) {
     return image;
   }

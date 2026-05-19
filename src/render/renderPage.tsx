@@ -22,6 +22,7 @@ export function renderPage(
   css: string,
   searchIndexJson: string,
   logo: ResolvedLogo,
+  favicon: string | undefined,
   repositoryUrl: string | undefined,
   dev?: {
     clientScriptPath: string;
@@ -35,6 +36,7 @@ export function renderPage(
       css={css}
       searchIndexJson={searchIndexJson}
       logo={logo}
+      favicon={favicon}
       repositoryUrl={repositoryUrl}
       dev={dev}
     />,

@@ -40,3 +40,10 @@ test("config schema supports logo options", async () => {
   assert.equal(schema.properties.logo.properties.font.$ref, "#/$defs/fontValue");
   assert.equal(schema.properties.logo.additionalProperties, false);
 });
+
+test("config schema supports favicon", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.equal(schema.properties.favicon.type, "string");
+  assert.equal(schema.properties.favicon.minLength, 1);
+});

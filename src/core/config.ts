@@ -8,6 +8,7 @@ export type DocsConfig = {
   $schema?: string;
   theme?: string;
   font?: FontOverrides;
+  favicon?: string;
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
@@ -40,6 +41,7 @@ export function mergeConfigOptions(options: {
   config: DocsConfig;
   theme?: string;
   fonts?: FontOverrides;
+  favicon?: string;
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
@@ -51,6 +53,7 @@ export function mergeConfigOptions(options: {
       body: options.fonts?.body ?? options.config.font?.body,
       code: options.fonts?.code ?? options.config.font?.code,
     },
+    favicon: options.favicon ?? options.config.favicon,
     logo: {
       image: options.logo?.image ?? options.config.logo?.image,
       text: options.logo?.text ?? options.config.logo?.text,
@@ -75,6 +78,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   const config = value as DocsConfig;
   assertOptionalString(config.$schema, "$schema", configPath);
   assertOptionalString(config.theme, "theme", configPath);
+  assertOptionalString(config.favicon, "favicon", configPath);
 
   if (config.font !== undefined) {
     if (!config.font || typeof config.font !== "object" || Array.isArray(config.font)) {
@@ -121,6 +125,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
 
   return {
     theme: config.theme,
+    favicon: config.favicon,
     font: config.font
       ? {
           heading: config.font.heading,

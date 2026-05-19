@@ -130,6 +130,7 @@ This writes `.github/workflows/lildocs-pages.yml` if it does not already exist. 
 {
   "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
   "theme": "github-dark",
+  "favicon": "./images/favicon.svg",
   "font": {
     "heading": "Inter",
     "body": "Source Sans 3",
@@ -184,6 +185,18 @@ Theme resolution order is:
 2. `theme` from `config.json`
 3. `theme.ts` in the docs root
 4. the built-in default theme
+
+### `favicon`
+
+`favicon` configures the generated site's browser icon.
+
+```json
+{
+  "favicon": "./images/favicon.svg"
+}
+```
+
+The value can be a URL, data URL, absolute URL path, or docs-relative image file. Local image files are copied into the generated site's assets.
 
 ### `font`
 
