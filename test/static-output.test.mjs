@@ -76,9 +76,15 @@ test("renders github-style callouts", async () => {
   const html = await readFile(path.join(outDir, "callouts.html"), "utf8");
   assert.match(html, /<div class="markdown-alert markdown-alert-note">/);
   assert.match(html, /<p class="markdown-alert-title">/);
+  assert.match(html, /<span class="material-symbols-rounded markdown-alert-icon" aria-hidden="true">info<\/span>/);
   assert.match(html, /Useful context\./);
   assert.match(html, /<div class="markdown-alert markdown-alert-warning">/);
+  assert.match(
+    html,
+    /<span class="material-symbols-rounded markdown-alert-icon" aria-hidden="true">warning<\/span>/,
+  );
   assert.match(html, /Check this first\./);
+  assert.doesNotMatch(html, /octicon/);
 });
 
 test("highlights code blocks with shiki", async () => {

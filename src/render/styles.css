@@ -154,9 +154,8 @@ body {
   font-weight: 700;
 }
 
-.markdown-alert-title svg {
+.markdown-alert-icon {
   flex: 0 0 auto;
-  fill: currentColor;
 }
 
 .markdown-alert-note {

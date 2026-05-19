@@ -1,8 +1,8 @@
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { Marked, Renderer, parser } from "marked";
-import markedAlert from "marked-alert";
 import markedShiki from "marked-shiki";
+import { markedAlert } from "../vendor/marked-alert/index.js";
 import { codeToHtml } from "shiki";
 import type { ContentModel, Heading, Page } from "./content.js";
 import { LildocsError } from "./errors.js";
