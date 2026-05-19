@@ -10,12 +10,21 @@ export type LayoutProps = {
   pageNavigation?: PageNavigation;
   css: string;
   searchIndexJson: string;
+  repositoryUrl?: string;
   dev?: {
     clientScriptPath: string;
   };
 };
 
-export function Layout({ page, nav, pageNavigation, css, searchIndexJson, dev }: LayoutProps) {
+export function Layout({
+  page,
+  nav,
+  pageNavigation,
+  css,
+  searchIndexJson,
+  repositoryUrl,
+  dev,
+}: LayoutProps) {
   return (
     <html lang="en">
       <head>
@@ -34,17 +43,31 @@ export function Layout({ page, nav, pageNavigation, css, searchIndexJson, dev }:
             <a className="brand" href={relativeUrl(page.route, "index.html")}>
               Docs
             </a>
-            <div className="searchBox">
-              <span className="searchIcon material-symbols-rounded" aria-hidden="true">
-                search
-              </span>
-              <input
-                id="lildocs-search-input"
-                type="search"
-                placeholder="Search docs"
-                aria-label="Search docs"
-              />
-              <div id="lildocs-search-results" className="searchResults" />
+            <div className="headerActions">
+              {repositoryUrl ? (
+                <a
+                  className="repoButton"
+                  href={repositoryUrl}
+                  aria-label="View repository on GitHub"
+                  title="View repository on GitHub"
+                >
+                  <span className="material-symbols-rounded" aria-hidden="true">
+                    github
+                  </span>
+                </a>
+              ) : null}
+              <div className="searchBox">
+                <span className="searchIcon material-symbols-rounded" aria-hidden="true">
+                  search
+                </span>
+                <input
+                  id="lildocs-search-input"
+                  type="search"
+                  placeholder="Search docs"
+                  aria-label="Search docs"
+                />
+                <div id="lildocs-search-results" className="searchResults" />
+              </div>
             </div>
           </header>
           <div className="contentGrid">

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -55,6 +56,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
   const model = await buildContentModel(input, outDirName);
+  const repositoryUrl = await resolveRepositoryUrl(input.docsRoot, options.cwd);
   const theme = await resolveTheme({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
@@ -111,6 +113,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           pageNavigation.get(page.route),
           css,
           searchIndexJson,
+          repositoryUrl,
           options.dev,
         );
         const outputPath = path.join(outDir, page.outputPath);
@@ -131,6 +134,83 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     outDir,
     pages: model.pages,
   };
+}
+
+async function resolveRepositoryUrl(docsRoot: string, cwd: string): Promise<string | undefined> {
+  const envRepository = process.env.GITHUB_REPOSITORY?.trim();
+  if (envRepository) {
+    return `https://github.com/${envRepository}`;
+  }
+
+  const packagePath = await findNearestPackageJson(docsRoot, cwd);
+  if (!packagePath) {
+    return undefined;
+  }
+
+  const packageJson = JSON.parse(await readFile(packagePath, "utf8")) as {
+    repository?: unknown;
+  };
+  return normalizePackageRepository(packageJson.repository);
+}
+
+async function findNearestPackageJson(start: string, stop: string): Promise<string | undefined> {
+  let current = path.resolve(start);
+  const root = path.parse(current).root;
+  const stopDir = path.resolve(stop);
+
+  while (true) {
+    const packagePath = path.join(current, "package.json");
+    if (existsSync(packagePath)) {
+      return packagePath;
+    }
+
+    if (current === stopDir || current === root) {
+      return undefined;
+    }
+
+    current = path.dirname(current);
+  }
+}
+
+function normalizePackageRepository(repository: unknown): string | undefined {
+  if (typeof repository === "string") {
+    return normalizeGitHubRepository(repository);
+  }
+
+  if (repository && typeof repository === "object" && "url" in repository) {
+    const { url } = repository as { url?: unknown };
+    if (typeof url === "string") {
+      return normalizeGitHubRepository(url);
+    }
+  }
+
+  return undefined;
+}
+
+function normalizeGitHubRepository(value: string): string | undefined {
+  const repository = value.trim();
+  if (!repository) {
+    return undefined;
+  }
+
+  const shorthandMatch = /^(?:github:)?([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)$/.exec(repository);
+  if (shorthandMatch?.[1]) {
+    return `https://github.com/${shorthandMatch[1].replace(/\.git$/, "")}`;
+  }
+
+  const sshMatch = /^git@github\.com:([^/]+\/[^/]+?)(?:\.git)?$/.exec(repository);
+  if (sshMatch?.[1]) {
+    return `https://github.com/${sshMatch[1]}`;
+  }
+
+  const urlMatch = /^(?:git\+)?https:\/\/github\.com\/([^/]+\/[^/#?]+?)(?:\.git)?(?:[#?].*)?$/.exec(
+    repository,
+  );
+  if (urlMatch?.[1]) {
+    return `https://github.com/${urlMatch[1]}`;
+  }
+
+  return undefined;
 }
 
 async function readRenderAsset(name: string) {

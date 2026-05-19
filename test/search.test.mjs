@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
@@ -32,6 +32,51 @@ test("emits search UI and static search script", async () => {
   assert.match(html, />search<\/span>/);
   assert.match(searchScript, /scoreEntry/);
   assert.match(searchScript, /embeddedIndex/);
+});
+
+test("emits GitHub repository button from nearest package metadata", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(
+    path.join(workspace, "package.json"),
+    JSON.stringify({
+      repository: {
+        type: "git",
+        url: "git+https://github.com/example/project.git",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /class="repoButton"/);
+  assert.match(html, /<span class="material-symbols-rounded" aria-hidden="true">github<\/span>/);
+  assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
+  assert.match(html, /aria-label="View repository on GitHub"/);
+  assert.ok(html.indexOf('class="repoButton"') < html.indexOf('class="searchBox"'));
+});
+
+test("prefers GITHUB_REPOSITORY over package metadata for repository button", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(
+    path.join(workspace, "package.json"),
+    JSON.stringify({
+      repository: "github:package-owner/package-repo",
+    }),
+  );
+
+  await runCli([docs, "--out", outDir], {
+    env: {
+      ...process.env,
+      GITHUB_REPOSITORY: "env-owner/env-repo",
+    },
+  });
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /href="https:\/\/github\.com\/env-owner\/env-repo"/);
+  assert.doesNotMatch(html, /package-owner\/package-repo/);
 });
 
 test("search script preloads links and supports keyboard result selection", async () => {

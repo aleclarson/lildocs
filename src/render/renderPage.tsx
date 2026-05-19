@@ -20,6 +20,7 @@ export function renderPage(
   pageNavigation: PageNavigation | undefined,
   css: string,
   searchIndexJson: string,
+  repositoryUrl: string | undefined,
   dev?: {
     clientScriptPath: string;
   },
@@ -31,6 +32,7 @@ export function renderPage(
       pageNavigation={pageNavigation}
       css={css}
       searchIndexJson={searchIndexJson}
+      repositoryUrl={repositoryUrl}
       dev={dev}
     />,
   )}`;
