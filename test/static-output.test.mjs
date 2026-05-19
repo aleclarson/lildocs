@@ -220,6 +220,19 @@ test("renders previous and next page links in generated navigation order", async
   assert.doesNotMatch(lastHtml, /rel="next"/);
 });
 
+test("renders sidebar folder names as labels instead of links", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /<span class="navFolder">Nested<\/span>/);
+  assert.doesNotMatch(html, /<a[^>]+href="\.\/nested\/page\.html"[^>]*>\s*Nested\s*<\/a>/);
+  assert.match(html, /<a href="\.\/nested\/page\.html">Nested Page<\/a>/);
+});
+
 test("omits previous and next navigation for single page sites", async () => {
   const { workspace } = await fixtureWorkspace();
   const docs = path.join(workspace, "single");

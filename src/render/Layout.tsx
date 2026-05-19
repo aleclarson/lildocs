@@ -141,12 +141,16 @@ function NavList({
     <ul className="navList">
       {items.map((item) => (
         <li>
-          <a
-            className={item.route === currentRoute ? "active" : undefined}
-            href={relativeUrl(pageRoute, navTarget(item))}
-          >
-            {item.title}
-          </a>
+          {item.children.length > 0 ? (
+            <span className="navFolder">{item.title}</span>
+          ) : (
+            <a
+              className={item.route === currentRoute ? "active" : undefined}
+              href={relativeUrl(pageRoute, item.route)}
+            >
+              {item.title}
+            </a>
+          )}
           {item.children.length > 0 ? (
             <NavList items={item.children} currentRoute={currentRoute} pageRoute={pageRoute} />
           ) : null}
@@ -154,14 +158,6 @@ function NavList({
       ))}
     </ul>
   );
-}
-
-function navTarget(item: NavItem): string {
-  if (item.children.length === 0) {
-    return item.route;
-  }
-
-  return item.children[0]?.route ?? item.route;
 }
 
 function Toc({ headings }: { headings: Heading[] }) {

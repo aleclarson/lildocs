@@ -104,11 +104,15 @@ body {
   padding-left: 16px;
 }
 
-.navList a {
+.navList a,
+.navFolder {
   display: block;
   padding: 6px 8px;
   border-radius: 6px;
   color: var(--ld-color-muted-text);
+}
+
+.navList a {
   text-decoration: none;
 }
 
