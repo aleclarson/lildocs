@@ -135,6 +135,11 @@ This writes `.github/workflows/lildocs-pages.yml` if it does not already exist. 
     "body": "Source Sans 3",
     "code": "Roboto Mono"
   },
+  "logo": {
+    "image": "./images/logo.svg",
+    "text": "Acme Docs",
+    "font": "Onest"
+  },
   "background": {
     "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
     "blendMode": "screen"
@@ -207,6 +212,26 @@ Font values can be Google Fonts family names or local `.woff2`, `.woff`, `.ttf`,
 #### `font.code`
 
 `font.code` sets the font used for inline code and fenced code blocks.
+
+### `logo`
+
+`logo` configures the generated site's header brand.
+
+```json
+{
+  "logo": {
+    "image": "./images/logo.svg",
+    "text": "Acme Docs",
+    "font": "Onest"
+  }
+}
+```
+
+`logo.image` can be a URL, data URL, absolute URL path, or docs-relative image file. Local image files are copied into the generated site's assets.
+
+`logo.text` sets the visible brand text. It defaults to `Docs`.
+
+`logo.font` sets the brand text font. Values can be Google Fonts family names or local `.woff2`, `.woff`, `.ttf`, or `.otf` file paths.
 
 ### `background`
 

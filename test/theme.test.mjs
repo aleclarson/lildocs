@@ -111,6 +111,57 @@ test("reports invalid docs config", async () => {
   await assert.rejects(() => runCli([docs]), /Invalid docs config JSON/);
 });
 
+test("loads logo image text and font from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "images/logo.svg", '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      logo: {
+        image: "images/logo.svg",
+        text: "Acme Docs",
+        font: "Onest",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(css, /family=Onest:wght@400;500;600;700&display=swap/);
+  assert.match(css, /--ld-font-logo: "Onest"/);
+  assert.match(html, /class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt/);
+  assert.match(html, /<span>Acme Docs<\/span>/);
+  await access(path.join(outDir, "assets", "images", "logo.svg"));
+});
+
+test("copies local logo fonts from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "fonts/logo.woff2", "fake font bytes");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      logo: {
+        text: "Local Font Docs",
+        font: "fonts/logo.woff2",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /font-family: "Lildocs Logo Font"/);
+  assert.match(css, /src: url\("\.\/fonts\/logo\.woff2"\) format\("woff2"\)/);
+  assert.match(css, /--ld-font-logo: "Lildocs Logo Font"/);
+  await access(path.join(outDir, "assets", "fonts", "logo.woff2"));
+});
+
 test("loads background gradient from docs config", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

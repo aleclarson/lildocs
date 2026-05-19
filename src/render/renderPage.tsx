@@ -1,6 +1,7 @@
 import { h } from "preact";
 import { render } from "preact-render-to-string";
 import type { Page } from "../core/content.js";
+import type { ResolvedLogo } from "../core/logo.js";
 import type { NavItem } from "../core/nav.js";
 import { Layout } from "./Layout.js";
 
@@ -20,6 +21,7 @@ export function renderPage(
   pageNavigation: PageNavigation | undefined,
   css: string,
   searchIndexJson: string,
+  logo: ResolvedLogo,
   repositoryUrl: string | undefined,
   dev?: {
     clientScriptPath: string;
@@ -32,6 +34,7 @@ export function renderPage(
       pageNavigation={pageNavigation}
       css={css}
       searchIndexJson={searchIndexJson}
+      logo={logo}
       repositoryUrl={repositoryUrl}
       dev={dev}
     />,

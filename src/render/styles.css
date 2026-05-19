@@ -26,9 +26,21 @@ body {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--ld-color-text);
+  font-family: var(--ld-font-logo);
   font-weight: 700;
   text-decoration: none;
+}
+
+.brandLogo {
+  display: block;
+  width: auto;
+  max-width: 120px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .contentGrid {

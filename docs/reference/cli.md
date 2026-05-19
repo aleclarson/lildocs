@@ -54,6 +54,11 @@ lildocs deploy <path>
     "body": "Source Sans 3",
     "code": "Roboto Mono"
   },
+  "logo": {
+    "image": "./images/logo.svg",
+    "text": "Acme Docs",
+    "font": "Onest"
+  },
   "background": {
     "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
     "blendMode": "screen"
@@ -68,6 +73,9 @@ lildocs deploy <path>
 
 Backgrounds support `background.image`, `background.gradient`, and `background.blendMode`.
 Image values can be URLs, `url(...)` values, or docs-relative file paths.
+
+Logos support `logo.image`, `logo.text`, and `logo.font`.
+Image values can be URLs, data URLs, absolute URL paths, or docs-relative file paths.
 
 ## Repository Link
 

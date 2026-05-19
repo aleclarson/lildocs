@@ -1,5 +1,6 @@
 import { h } from "preact";
 import type { Heading, Page } from "../core/content.js";
+import type { ResolvedLogo } from "../core/logo.js";
 import type { NavItem } from "../core/nav.js";
 import { relativeUrl, rootRelativeUrl } from "../core/paths.js";
 import type { PageNavigation } from "./renderPage.js";
@@ -10,6 +11,7 @@ export type LayoutProps = {
   pageNavigation?: PageNavigation;
   css: string;
   searchIndexJson: string;
+  logo: ResolvedLogo;
   repositoryUrl?: string;
   dev?: {
     clientScriptPath: string;
@@ -22,6 +24,7 @@ export function Layout({
   pageNavigation,
   css,
   searchIndexJson,
+  logo,
   repositoryUrl,
   dev,
 }: LayoutProps) {
@@ -41,7 +44,10 @@ export function Layout({
         <div className="pageShell">
           <header className="siteHeader">
             <a className="brand" href={relativeUrl(page.route, "index.html")}>
-              Docs
+              {logo.image ? (
+                <img className="brandLogo" src={logoSrc(page.route, logo.image)} alt="" />
+              ) : null}
+              <span>{logo.text}</span>
             </a>
             <div className="headerActions">
               {repositoryUrl ? (
@@ -101,6 +107,14 @@ export function Layout({
       </body>
     </html>
   );
+}
+
+function logoSrc(pageRoute: string, image: string) {
+  if (/^(?:[a-z]+:)?\/\//i.test(image) || image.startsWith("data:") || image.startsWith("/")) {
+    return image;
+  }
+
+  return rootRelativeUrl(pageRoute, image);
 }
 
 function PageNav({ pageNavigation }: { pageNavigation?: PageNavigation }) {

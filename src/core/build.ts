@@ -8,6 +8,7 @@ import { resolveInput } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
 import { createMermaidRenderer } from "./mermaid.js";
 import { buildNavigation } from "./nav.js";
+import { resolveLogoOptions, type LogoOptions } from "./logo.js";
 import { relativeUrl } from "./paths.js";
 import { buildSearchIndex } from "./search.js";
 import {
@@ -29,6 +30,7 @@ export type BuildOptions = {
   cwd: string;
   theme?: string;
   fonts?: FontOverrides;
+  logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
   dev?: {
@@ -50,6 +52,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     config: await readDocsConfig(input.docsRoot),
     theme: options.theme,
     fonts: options.fonts,
+    logo: options.logo,
     background: options.background,
     link: options.link,
   });
@@ -76,8 +79,18 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     outDir,
     background: configOptions.background,
   });
-  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link)}\n${backgroundResolution.css}${baseCss}`;
-  const assets: AssetCopy[] = [...fontResolution.assets, ...backgroundResolution.assets];
+  const logoResolution = await resolveLogoOptions({
+    cwd: options.cwd,
+    docsRoot: input.docsRoot,
+    outDir,
+    logo: configOptions.logo,
+  });
+  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
+  const assets: AssetCopy[] = [
+    ...fontResolution.assets,
+    ...backgroundResolution.assets,
+    ...logoResolution.assets,
+  ];
   const mermaid = await createMermaidRenderer({
     themeConfig: themeToMermaidConfig(theme, fontResolution.themeFonts),
   });
@@ -113,6 +126,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           pageNavigation.get(page.route),
           css,
           searchIndexJson,
+          logoResolution.logo,
           repositoryUrl,
           options.dev,
         );

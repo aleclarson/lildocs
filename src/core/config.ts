@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import type { LogoOptions } from "./logo.js";
 import type { BackgroundOptions, FontOverrides, LinkOptions } from "./theme.js";
 import { LildocsError } from "./errors.js";
 
@@ -7,6 +8,7 @@ export type DocsConfig = {
   $schema?: string;
   theme?: string;
   font?: FontOverrides;
+  logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
 };
@@ -38,6 +40,7 @@ export function mergeConfigOptions(options: {
   config: DocsConfig;
   theme?: string;
   fonts?: FontOverrides;
+  logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
 }) {
@@ -47,6 +50,11 @@ export function mergeConfigOptions(options: {
       heading: options.fonts?.heading ?? options.config.font?.heading,
       body: options.fonts?.body ?? options.config.font?.body,
       code: options.fonts?.code ?? options.config.font?.code,
+    },
+    logo: {
+      image: options.logo?.image ?? options.config.logo?.image,
+      text: options.logo?.text ?? options.config.logo?.text,
+      font: options.logo?.font ?? options.config.logo?.font,
     },
     background: {
       image: options.background?.image ?? options.config.background?.image,
@@ -75,6 +83,15 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     assertOptionalString(config.font.heading, "font.heading", configPath);
     assertOptionalString(config.font.body, "font.body", configPath);
     assertOptionalString(config.font.code, "font.code", configPath);
+  }
+
+  if (config.logo !== undefined) {
+    if (!config.logo || typeof config.logo !== "object" || Array.isArray(config.logo)) {
+      throw new LildocsError(`Docs config "logo" must be an object: ${configPath}`);
+    }
+    assertOptionalString(config.logo.image, "logo.image", configPath);
+    assertOptionalString(config.logo.text, "logo.text", configPath);
+    assertOptionalString(config.logo.font, "logo.font", configPath);
   }
 
   if (config.background !== undefined) {
@@ -109,6 +126,13 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
           heading: config.font.heading,
           body: config.font.body,
           code: config.font.code,
+        }
+      : undefined,
+    logo: config.logo
+      ? {
+          image: config.logo.image,
+          text: config.logo.text,
+          font: config.logo.font,
         }
       : undefined,
     background: config.background

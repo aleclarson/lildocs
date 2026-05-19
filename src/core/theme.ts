@@ -219,6 +219,7 @@ export function themeToCssVariables(
   --ld-font-heading: ${fonts.heading};
   --ld-font-body: ${fonts.body};
   --ld-font-code: ${fonts.code};
+  --ld-font-logo: var(--ld-font-heading);
   --ld-link-text-decoration: ${linkDecoration.default};
   --ld-link-hover-text-decoration: ${linkDecoration.hover};
 }`;

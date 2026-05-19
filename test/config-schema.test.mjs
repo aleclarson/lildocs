@@ -32,3 +32,11 @@ test("config schema supports link underline options", async () => {
   assert.deepEqual(schema.properties.link.properties.underline.enum, ["always", "hover", "none"]);
   assert.equal(schema.properties.link.additionalProperties, false);
 });
+
+test("config schema supports logo options", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.deepEqual(Object.keys(schema.properties.logo.properties), ["image", "text", "font"]);
+  assert.equal(schema.properties.logo.properties.font.$ref, "#/$defs/fontValue");
+  assert.equal(schema.properties.logo.additionalProperties, false);
+});
