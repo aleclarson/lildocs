@@ -1,3 +1,38 @@
+:where(*, *::before, *::after) {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+}
+
+:where(img, picture, video, canvas, svg) {
+  display: block;
+  max-width: 100%;
+}
+
+:where(input, button, textarea, select) {
+  font: inherit;
+}
+
+:where(p, h1, h2, h3, h4, h5, h6) {
+  overflow-wrap: break-word;
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+
+:target {
+  scroll-margin-block: 2rem;
+}
+
 .pageShell {
   width: 92vw;
   max-width: 1280px;
@@ -7,7 +42,6 @@
 }
 
 body {
-  margin: 0;
   background-color: var(--ld-color-background);
   background-image: var(--ld-background-image);
   background-blend-mode: var(--ld-background-blend-mode);
@@ -162,6 +196,12 @@ html.is-animating .transition-fade {
   padding: 14px 52px 14px 14px;
   border-radius: 8px;
   background: var(--ld-color-code-background);
+  white-space: pre;
+}
+
+.content pre code {
+  display: block;
+  white-space: inherit;
 }
 
 .content code {

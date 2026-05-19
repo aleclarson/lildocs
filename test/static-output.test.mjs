@@ -163,6 +163,19 @@ test("emits code block styles without css borders", async () => {
   assert.doesNotMatch(codeBlockRule, /border:/);
 });
 
+test("emits reset and whitespace-preserving code styles", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /:where\(\*, \*::before, \*::after\) \{[^}]*box-sizing: border-box/);
+  assert.match(css, /:where\(input, button, textarea, select\) \{[^}]*font: inherit/);
+  assert.match(css, /\.content pre \{[^}]*white-space: pre/);
+  assert.match(css, /\.content pre code \{[^}]*white-space: inherit/);
+});
+
 test("uses the local theme shiki theme for code blocks", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
