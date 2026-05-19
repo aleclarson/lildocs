@@ -26,6 +26,9 @@ importers:
       marked:
         specifier: ^18.0.3
         version: 18.0.3
+      marked-alert:
+        specifier: 2.1.2
+        version: 2.1.2(marked@18.0.3)
       marked-shiki:
         specifier: ^1.2.1
         version: 1.2.1(marked@18.0.3)(shiki@4.0.2)
@@ -675,6 +678,11 @@ packages:
   kind-of@6.0.3:
     resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
     engines: {node: '>=0.10.0'}
+
+  marked-alert@2.1.2:
+    resolution: {integrity: sha512-EFNRZ08d8L/iEIPLTlQMDjvwIsj03gxWCczYTht6DCiHJIZhMk4NK5gtPY9UqAYb09eV5VGT+jD4lp396E0I+w==}
+    peerDependencies:
+      marked: '>=7.0.0'
 
   marked-shiki@1.2.1:
     resolution: {integrity: sha512-yHxYQhPY5oYaIRnROn98foKhuClark7M373/VpLxiy5TrDu9Jd/LsMwo8w+U91Up4oDb9IXFrP0N1MFRz8W/DQ==}
@@ -1357,6 +1365,10 @@ snapshots:
   jsesc@3.1.0: {}
 
   kind-of@6.0.3: {}
+
+  marked-alert@2.1.2(marked@18.0.3):
+    dependencies:
+      marked: 18.0.3
 
   marked-shiki@1.2.1(marked@18.0.3)(shiki@4.0.2):
     dependencies:

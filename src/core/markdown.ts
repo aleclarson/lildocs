@@ -1,6 +1,7 @@
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { Marked, Renderer, parser } from "marked";
+import markedAlert from "marked-alert";
 import markedShiki from "marked-shiki";
 import { codeToHtml } from "shiki";
 import type { ContentModel, Heading, Page } from "./content.js";
@@ -61,6 +62,7 @@ export async function renderMarkdownPage(
     gfm: true,
     renderer,
   }).use(
+    markedAlert(),
     markedShiki({
       async highlight(code, lang, props) {
         if (lang?.toLowerCase() === "mermaid") {

@@ -294,7 +294,7 @@ export default {
 
 ## Markdown Support
 
-Pages can use standard Markdown, GitHub-flavored Markdown, frontmatter, fenced code blocks, relative Markdown links, images, and Mermaid diagrams.
+Pages can use standard Markdown, GitHub-flavored Markdown, GitHub-style callouts, frontmatter, fenced code blocks, relative Markdown links, images, and Mermaid diagrams.
 
 Page titles are inferred from frontmatter first, then the first `h1`, then the filename. Navigation is generated from the folder structure, nested folders are supported, and hidden or system files are ignored.
 

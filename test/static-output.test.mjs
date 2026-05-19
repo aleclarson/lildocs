@@ -62,6 +62,25 @@ test("renders gfm tables task lists and strikethrough", async () => {
   assert.match(html, /<del>Removed copy<\/del>/);
 });
 
+test("renders github-style callouts", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "callouts.md",
+    "# Callouts\n\n> [!NOTE]\n> Useful context.\n\n> [!WARNING]\n> Check this first.\n",
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "callouts.html"), "utf8");
+  assert.match(html, /<div class="markdown-alert markdown-alert-note">/);
+  assert.match(html, /<p class="markdown-alert-title">/);
+  assert.match(html, /Useful context\./);
+  assert.match(html, /<div class="markdown-alert markdown-alert-warning">/);
+  assert.match(html, /Check this first\./);
+});
+
 test("highlights code blocks with shiki", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

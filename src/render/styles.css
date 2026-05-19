@@ -135,6 +135,50 @@ body {
   border-collapse: collapse;
 }
 
+.markdown-alert {
+  margin-block: 18px;
+  padding: 8px 16px;
+  border-left: 4px solid var(--ld-alert-color);
+  background: color-mix(in srgb, var(--ld-alert-color) 8%, transparent);
+}
+
+.markdown-alert p {
+  margin-block: 8px;
+}
+
+.markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ld-alert-color);
+  font-weight: 700;
+}
+
+.markdown-alert-title svg {
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+.markdown-alert-note {
+  --ld-alert-color: #0969da;
+}
+
+.markdown-alert-tip {
+  --ld-alert-color: #1a7f37;
+}
+
+.markdown-alert-important {
+  --ld-alert-color: #8250df;
+}
+
+.markdown-alert-warning {
+  --ld-alert-color: #9a6700;
+}
+
+.markdown-alert-caution {
+  --ld-alert-color: #cf222e;
+}
+
 .content th,
 .content td {
   padding: 8px;

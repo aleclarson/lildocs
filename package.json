@@ -25,6 +25,7 @@
     "gray-matter": "^4.0.3",
     "jiti": "^2.7.0",
     "marked": "^18.0.3",
+    "marked-alert": "2.1.2",
     "marked-shiki": "^1.2.1",
     "preact": "^10.29.2",
     "preact-render-to-string": "^6.7.0",
