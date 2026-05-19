@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify release version
+        if: github.ref_type == 'tag'
+        run: |
+          set -euo pipefail
+          package_version="$(node -p "require('./package.json').version")"
+          tag_version="${GITHUB_REF_NAME#v}"
+
+          if [ "$package_version" != "$tag_version" ]; then
+            echo "package.json version $package_version does not match tag $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+
+      - name: Verify release candidate
+        run: |
+          pnpm run format:check
+          pnpm run typecheck
+          pnpm run lint
+          pnpm test
+          pnpm run build
+
+      - name: Check package contents
+        run: npm publish --dry-run
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public

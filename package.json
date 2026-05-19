@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "A lightweight CLI that turns Markdown docs into a static searchable documentation site.",
   "bin": {
-    "lildocs": "./dist/cli.mjs"
+    "lildocs": "dist/cli.mjs"
   },
   "files": [
     "dist"
