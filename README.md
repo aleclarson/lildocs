@@ -60,26 +60,10 @@ pnpm dlx lildocs build ./docs
 `build` does the same generation work as the bare `lildocs <path>` form, but it is clearer in package scripts and CI configuration:
 
 ```bash
-pnpm lildocs build ./docs --out ./site
+pnpm lildocs build ./docs
 ```
 
 The output is self-contained. Page links are relative, local assets are copied into the output folder, and `search-index.json` is generated next to the HTML files.
-
-Use `--out` to choose a destination:
-
-```bash
-pnpm lildocs build ./docs --out ./dist/docs
-```
-
-Use theme and font flags to override docs configuration for a single build:
-
-```bash
-pnpm lildocs build ./docs \
-  --theme minimal \
-  --font.heading Inter \
-  --font.body "Source Sans 3" \
-  --font.code "Roboto Mono"
-```
 
 ### `lildocs dev <path>`
 
@@ -161,25 +145,133 @@ This writes `.github/workflows/lildocs-pages.yml` if it does not already exist. 
 
 CLI flags override `config.json` values.
 
-### Common Flags
+### `$schema`
 
-`--out <dir>` sets the generated site directory. Build and deploy default to `dist`; dev defaults to `.lildocs`.
+`$schema` points editors and language servers at the lildocs JSON schema.
 
-`--theme <name>` selects a theme. Use `default`, `minimal`, or any bundled Shiki theme name, such as `github-light` or `github-dark`.
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json"
+}
+```
 
-`--font.heading <name-or-file>`, `--font.body <name-or-file>`, and `--font.code <name-or-file>` set the heading, body, and code fonts. Values can be Google Fonts family names or local `.woff2`, `.woff`, `.ttf`, or `.otf` files.
+This field is optional and does not change build behavior.
 
-`--background.image <url-or-file>` adds a background image from a URL or docs-relative file path.
+### `theme`
 
-`--background.gradient <gradient>` adds a CSS background gradient.
+`theme` selects the visual theme and syntax highlighting theme.
 
-`--background.blendMode <mode>` sets `background-blend-mode` for the theme color and configured background layers.
+```json
+{
+  "theme": "github-dark"
+}
+```
 
-`--link.underline always|hover|none` controls generated content link underlines.
+Use `default`, `minimal`, or any bundled Shiki theme name, such as `github-light` or `github-dark`.
+
+If the docs root contains `theme.ts`, lildocs loads it when `theme` is not set and no `--theme` flag is provided.
+
+Theme resolution order is:
+
+1. `--theme`
+2. `theme` from `config.json`
+3. `theme.ts` in the docs root
+4. the built-in default theme
+
+### `font`
+
+`font` configures the generated site's font families.
+
+```json
+{
+  "font": {
+    "heading": "Inter",
+    "body": "Source Sans 3",
+    "code": "Roboto Mono"
+  }
+}
+```
+
+Font values can be Google Fonts family names or local `.woff2`, `.woff`, `.ttf`, or `.otf` file paths.
+
+#### `font.heading`
+
+`font.heading` sets the font used for page titles and headings.
+
+#### `font.body`
+
+`font.body` sets the font used for normal text and interface text.
+
+#### `font.code`
+
+`font.code` sets the font used for inline code and fenced code blocks.
+
+### `background`
+
+`background` configures optional page background layers.
+
+```json
+{
+  "background": {
+    "image": "./images/background.svg",
+    "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
+    "blendMode": "screen"
+  }
+}
+```
+
+#### `background.image`
+
+`background.image` adds a background image from a URL or docs-relative file path. Local image files are copied into the generated site's assets.
+
+#### `background.gradient`
+
+`background.gradient` adds a CSS background gradient.
+
+#### `background.blendMode`
+
+`background.blendMode` sets `background-blend-mode` for the theme color and configured background layers.
+
+### `link`
+
+`link` configures link presentation in generated Markdown content.
+
+```json
+{
+  "link": {
+    "underline": "hover"
+  }
+}
+```
+
+#### `link.underline`
+
+`link.underline` controls generated content link underlines. Use `always`, `hover`, or `none`.
+
+### CLI Flag Mappings
+
+CLI flags override their matching `config.json` values for one command run.
+
+| Flag | JSON config |
+| --- | --- |
+| `--theme <name>` | `theme` |
+| `--font.heading <name-or-file>` | `font.heading` |
+| `--font.body <name-or-file>` | `font.body` |
+| `--font.code <name-or-file>` | `font.code` |
+| `--background.image <url-or-file>` | `background.image` |
+| `--background.gradient <gradient>` | `background.gradient` |
+| `--background.blendMode <mode>` | `background.blendMode` |
+| `--link.underline always\|hover\|none` | `link.underline` |
+
+`--out <dir>` has no JSON config equivalent. It sets the generated site directory for the current command. Build and deploy default to `dist`; dev defaults to `.lildocs`.
+
+`--host <address>` and `--port <number>` are dev-only server options and have no JSON config equivalent.
+
+`--base <path>` and `--workflow` are deploy-only options and have no JSON config equivalent.
 
 ### Local Theme Files
 
-If the docs root contains `theme.ts`, lildocs loads it when no `--theme` flag is provided.
+Create `theme.ts` in the docs root when you need a local theme object instead of a named built-in or Shiki theme.
 
 ```ts
 export default {
@@ -197,13 +289,6 @@ export default {
   },
 };
 ```
-
-Theme resolution order is:
-
-1. `--theme`
-2. `theme` from `config.json`
-3. `theme.ts` in the docs root
-4. the built-in default theme
 
 ## Markdown Support
 
