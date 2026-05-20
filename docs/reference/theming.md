@@ -107,7 +107,8 @@ file. Local image files are copied into the generated site's assets.
 `logo.image` can be a URL, data URL, absolute URL path, or docs-relative image
 file. Local image files are copied into the generated site's assets.
 
-`logo.text` sets the visible brand text. It defaults to `Docs`.
+`logo.text` sets the visible brand text. When omitted, no brand text is
+rendered.
 
 `logo.font` sets the brand text font. Values can be Google Fonts family names or
 local `.woff2`, `.woff`, `.ttf`, or `.otf` file paths.

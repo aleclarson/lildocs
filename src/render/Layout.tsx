@@ -50,7 +50,7 @@ export function Layout({
               {logo.image ? (
                 <img className="brandLogo" src={assetSrc(page.route, logo.image)} alt="" />
               ) : null}
-              <span>{logo.text}</span>
+              {logo.text ? <span>{logo.text}</span> : null}
             </a>
             <div className="headerActions">
               {repositoryUrl ? (

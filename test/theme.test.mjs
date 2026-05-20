@@ -138,6 +138,27 @@ test("loads logo image text and font from docs config", async () => {
   await access(path.join(outDir, "assets", "images", "logo.svg"));
 });
 
+test("does not render default logo text when logo text is omitted", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "images/logo.svg", '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      logo: {
+        image: "images/logo.svg",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt/);
+  assert.doesNotMatch(html, /<span>Docs<\/span>/);
+});
+
 test("copies local logo fonts from docs config", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

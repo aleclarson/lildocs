@@ -11,7 +11,7 @@ export type LogoOptions = {
 
 export type ResolvedLogo = {
   image?: string;
-  text: string;
+  text?: string;
 };
 
 export type LogoResolution = {
@@ -30,9 +30,11 @@ export async function resolveLogoOptions(options: {
 }): Promise<LogoResolution> {
   const assets: AssetCopy[] = [];
   const css: string[] = [];
-  const logo: ResolvedLogo = {
-    text: options.logo?.text ?? "Docs",
-  };
+  const logo: ResolvedLogo = {};
+
+  if (options.logo?.text) {
+    logo.text = options.logo.text;
+  }
 
   if (options.logo?.image) {
     logo.image = imageAssetValue(options.logo.image, options, assets);
