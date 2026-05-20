@@ -486,7 +486,7 @@ function ensureBackgroundContrast(options: {
   background: string;
   candidate: string;
   isDark: boolean;
-}) {
+}): string {
   const background = parse(options.background);
   const candidate = parse(options.candidate);
   if (!background || !candidate) {
@@ -516,7 +516,12 @@ function ensureBackgroundContrast(options: {
           ? Math.min(candidateOklch.c, MAX_BACKGROUND_CHROMA)
           : candidateOklch.c,
     };
-    const adjustedColor = formatHex(clampToRgb(adjusted));
+    const clampedColor = clampToRgb(adjusted);
+    if (!clampedColor) {
+      continue;
+    }
+
+    const adjustedColor = formatHex(clampedColor);
     const adjustedParsedColor = parse(adjustedColor);
     if (!adjustedParsedColor) {
       continue;

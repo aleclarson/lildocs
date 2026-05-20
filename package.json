@@ -32,6 +32,7 @@
     "swup": "^4.9.0"
   },
   "devDependencies": {
+    "@types/culori": "^4.0.1",
     "@types/node": "^24.0.0",
     "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
