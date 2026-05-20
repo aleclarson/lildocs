@@ -178,10 +178,6 @@ html.is-animating .transition-scale {
   padding-left: 0;
 }
 
-.navList .navList {
-  padding-left: 16px;
-}
-
 .navList a,
 .navFolder {
   display: block;
@@ -198,7 +194,6 @@ html.is-animating .transition-scale {
   color: color-mix(in srgb, var(--ld-color-muted-text) 72%, var(--ld-color-sidebar-background));
   font-size: 0.78rem;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .navList a.active {

@@ -63,5 +63,5 @@ function nestNavItems(items: NavItem[]) {
 }
 
 function titleFromDir(dir: string) {
-  return dir.replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return dir.replace(/[-_]+/g, " ");
 }

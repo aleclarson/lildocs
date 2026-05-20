@@ -301,17 +301,29 @@ test("renders previous and next page links in generated navigation order", async
   assert.doesNotMatch(lastHtml, /rel="next"/);
 });
 
-test("renders sidebar folder names as labels instead of links", async () => {
+test("renders sidebar folder names as labels instead of links without uppercasing", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested-section/page.md", "# Nested Page\n\nNested content.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /<span class="navFolder">nested section<\/span>/);
+  assert.doesNotMatch(html, /<span class="navFolder">Nested Section<\/span>/);
+  assert.doesNotMatch(html, /<a[^>]+href="\.\/nested-section\/page\.html"[^>]*>\s*nested section\s*<\/a>/);
+  assert.match(html, /<a href="\.\/nested-section\/page\.html">Nested Page<\/a>/);
+});
+
+test("does not indent nested sidebar pages", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
   await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /<span class="navFolder">Nested<\/span>/);
-  assert.doesNotMatch(html, /<a[^>]+href="\.\/nested\/page\.html"[^>]*>\s*Nested\s*<\/a>/);
-  assert.match(html, /<a href="\.\/nested\/page\.html">Nested Page<\/a>/);
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
 });
 
 test("omits previous and next navigation for single page sites", async () => {
