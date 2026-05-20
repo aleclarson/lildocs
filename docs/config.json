@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
+  "$schema": "../schemas/config.schema.json",
   "theme": "gruvbox-light-hard",
   "font": {
     "heading": "Onest",
@@ -12,5 +12,9 @@
   },
   "link": {
     "underline": "hover"
+  },
+  "favicon": "./assets/favicon.svg",
+  "logo": {
+    "image": "./assets/logo.svg"
   }
 }
