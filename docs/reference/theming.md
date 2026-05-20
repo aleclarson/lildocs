@@ -152,7 +152,7 @@ configured background layers.
 
 ## Navigation
 
-`navigation` configures the feel of enhanced page navigation:
+These `navigation` fields configure the feel of enhanced page navigation:
 
 ```json
 {

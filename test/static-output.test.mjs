@@ -303,6 +303,71 @@ test("renders previous and next page links in generated navigation order", async
   assert.doesNotMatch(lastHtml, /rel="next"/);
 });
 
+test("uses docs config navigation order for pages folders and page links", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      navigation: {
+        order: ["quickstart.md", "nested/", "guide.md", "index.md"],
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const quickstartHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
+  assert.doesNotMatch(quickstartHtml, /rel="prev"/);
+  assert.match(quickstartHtml, /rel="next" href=".\/nested\/page.html"/);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(
+    homeHtml,
+    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a class="active" href="\.\/index\.html">Fixture Home<\/a>/,
+  );
+  assert.match(homeHtml, /rel="prev" href=".\/guide.html"/);
+  assert.doesNotMatch(homeHtml, /rel="next"/);
+});
+
+test("reports unmatched docs config navigation order entries", async () => {
+  const { docs } = await fixtureWorkspace();
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      navigation: {
+        order: ["missing.md"],
+      },
+    }),
+  );
+
+  await assert.rejects(
+    () => runCli([docs]),
+    /Docs config "navigation\.order\[0\]" does not match a page or folder/,
+  );
+});
+
+test("reports duplicate docs config navigation order entries", async () => {
+  const { docs } = await fixtureWorkspace();
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      navigation: {
+        order: ["./guide.md", "guide.md"],
+      },
+    }),
+  );
+
+  await assert.rejects(
+    () => runCli([docs]),
+    /Docs config "navigation\.order\[1\]" duplicates "navigation\.order\[0\]"/,
+  );
+});
+
 test("renders sidebar folder names as labels instead of links without uppercasing", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

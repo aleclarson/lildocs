@@ -36,6 +36,9 @@ test("config schema supports link underline options", async () => {
 test("config schema supports navigation feel options", async () => {
   const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
 
+  assert.equal(schema.properties.navigation.properties.order.type, "array");
+  assert.equal(schema.properties.navigation.properties.order.items.type, "string");
+  assert.equal(schema.properties.navigation.properties.order.items.minLength, 1);
   assert.deepEqual(schema.properties.navigation.properties.transition.enum, [
     "fade",
     "slide",

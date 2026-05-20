@@ -66,7 +66,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
-  const model = await buildContentModel(input, outDirName);
+  const model = await buildContentModel(input, outDirName, configOptions.navigation.order);
   const packagePath = await findNearestPackageJson(input.docsRoot, options.cwd);
   const repositoryUrl = await resolveRepositoryUrl(packagePath);
   const projectName = configOptions.projectName ?? (await resolvePackageName(packagePath));

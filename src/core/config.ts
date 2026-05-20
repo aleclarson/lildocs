@@ -13,7 +13,9 @@ export type DocsConfig = {
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
-  navigation?: NavigationOptions;
+  navigation?: NavigationOptions & {
+    order?: string[];
+  };
 };
 
 export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
@@ -75,6 +77,7 @@ export function mergeConfigOptions(options: {
       transition: options.navigation?.transition ?? options.config.navigation?.transition,
       duration: options.navigation?.duration ?? options.config.navigation?.duration,
       easing: options.navigation?.easing ?? options.config.navigation?.easing,
+      order: options.config.navigation?.order,
     },
   };
 }
@@ -149,6 +152,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     );
     assertOptionalNumber(config.navigation.duration, "navigation.duration", configPath);
     assertOptionalString(config.navigation.easing, "navigation.easing", configPath);
+    assertOptionalStringArray(config.navigation.order, "navigation.order", configPath);
   }
 
   return {
@@ -186,6 +190,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
           transition: config.navigation.transition,
           duration: config.navigation.duration,
           easing: config.navigation.easing,
+          order: config.navigation.order,
         }
       : undefined,
   };
@@ -210,6 +215,20 @@ function assertOptionalNumber(value: unknown, name: string, configPath: string) 
     throw new LildocsError(
       `Docs config "${name}" must be a non-negative finite number: ${configPath}`,
     );
+  }
+}
+
+function assertOptionalStringArray(value: unknown, name: string, configPath: string) {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    throw new LildocsError(`Docs config "${name}" must be an array: ${configPath}`);
+  }
+
+  for (const [index, item] of value.entries()) {
+    assertOptionalString(item, `${name}[${index}]`, configPath);
   }
 }
 

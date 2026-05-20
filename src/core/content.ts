@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
 import { collectMarkdownPaths, type ResolvedInput } from "./input.js";
+import { LildocsError } from "./errors.js";
 import { toPosixPath } from "./paths.js";
 
 export type Heading = {
@@ -35,16 +36,20 @@ export type ContentModel = {
 export async function buildContentModel(
   input: ResolvedInput,
   outDirName: string,
+  navigationOrder: string[] = [],
 ): Promise<ContentModel> {
   const paths = await collectMarkdownPaths(input.docsRoot);
   const pages = await Promise.all(paths.map((sourcePath) => readPage(input, sourcePath)));
+  const orderEntries = normalizeNavigationOrder(navigationOrder);
   const sortedPages = pages
     .filter((page) => !isInsideOutput(page.relativePath, outDirName))
     .toSorted(
       (a, b) =>
+        navigationRank(a, orderEntries) - navigationRank(b, orderEntries) ||
         routeRank(a, input.homePage) - routeRank(b, input.homePage) ||
         a.route.localeCompare(b.route),
     );
+  validateNavigationOrder(orderEntries, sortedPages);
   ensureUniqueRoutes(sortedPages);
 
   return {
@@ -150,6 +155,62 @@ function markdownPathToRoute(relativePath: string) {
 
 function routeRank(page: Page, homePage: string) {
   return page.sourcePath === homePage ? -1 : 0;
+}
+
+type NavigationOrderEntry = {
+  value: string;
+  index: number;
+  kind: "file" | "directory";
+};
+
+function normalizeNavigationOrder(order: string[]): NavigationOrderEntry[] {
+  const seen = new Map<string, number>();
+
+  return order.map((value, index) => {
+    const normalized = normalizeNavigationOrderPath(value);
+    const previous = seen.get(normalized);
+    if (previous !== undefined) {
+      throw new LildocsError(
+        `Docs config "navigation.order[${index}]" duplicates "navigation.order[${previous}]"`,
+      );
+    }
+    seen.set(normalized, index);
+
+    return {
+      value: normalized,
+      index,
+      kind: normalized.endsWith("/") ? "directory" : "file",
+    };
+  });
+}
+
+function normalizeNavigationOrderPath(value: string) {
+  return value.replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+function navigationRank(page: Page, order: NavigationOrderEntry[]) {
+  const entry = order.find((item) => navigationOrderEntryMatchesPage(item, page));
+  return entry?.index ?? order.length;
+}
+
+function validateNavigationOrder(order: NavigationOrderEntry[], pages: Page[]) {
+  for (const entry of order) {
+    if (pages.some((page) => navigationOrderEntryMatchesPage(entry, page))) {
+      continue;
+    }
+
+    throw new LildocsError(
+      `Docs config "navigation.order[${entry.index}]" does not match a page or folder`,
+    );
+  }
+}
+
+function navigationOrderEntryMatchesPage(entry: NavigationOrderEntry, page: Page) {
+  if (entry.kind === "directory") {
+    return page.relativePath.startsWith(entry.value);
+  }
+
+  return page.relativePath === entry.value;
 }
 
 function isInsideOutput(relativePath: string, outDirName: string) {
