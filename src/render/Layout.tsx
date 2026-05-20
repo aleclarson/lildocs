@@ -96,7 +96,7 @@ export function Layout({
               <article dangerouslySetInnerHTML={{ __html: page.html ?? "" }} />
               <PageNav pageNavigation={pageNavigation} />
             </main>
-            <aside className="toc">
+            <aside className={`toc transition-${transition}`}>
               <Toc headings={page.headings} />
             </aside>
           </div>

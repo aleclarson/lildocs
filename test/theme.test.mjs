@@ -352,6 +352,7 @@ test("loads navigation feel options from docs config", async () => {
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /<div id="swup" class="contentGrid">/);
   assert.match(html, /<main class="content transition-slide">/);
+  assert.match(html, /<aside class="toc transition-slide">/);
   assert.match(css, /--ld-navigation-duration: 240ms/);
   assert.match(css, /--ld-navigation-easing: cubic-bezier\(0\.16, 1, 0\.3, 1\)/);
 });

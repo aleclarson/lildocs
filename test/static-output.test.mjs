@@ -160,6 +160,7 @@ test("emits swup navigation enhancement assets", async () => {
   const swupScript = await readFile(path.join(outDir, "assets", "swup.umd.js"), "utf8");
   assert.match(html, /<div id="swup" class="contentGrid">/);
   assert.match(html, /<main class="content transition-fade">/);
+  assert.match(html, /<aside class="toc transition-fade">/);
   assert.match(html, /<script src=".\/assets\/swup\.umd\.js"><\/script>/);
   assert.match(html, /<script src=".\/assets\/navigation\.js"><\/script>/);
   assert.match(css, /--ld-navigation-duration: 180ms/);
