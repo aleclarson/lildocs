@@ -125,10 +125,6 @@ html.is-animating .transition-scale {
   padding-block: 24px;
 }
 
-.sidebar {
-  background: var(--ld-color-sidebar-background);
-}
-
 .content {
   min-width: 0;
   padding-block: 28px 64px;
