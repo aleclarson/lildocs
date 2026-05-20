@@ -86,13 +86,13 @@ export function Layout({
               </div>
             </div>
           </header>
-          <div id="swup" className={`contentGrid transition-${transition}`}>
+          <div id="swup" className="contentGrid">
             <aside className="sidebar">
               <nav aria-label="Documentation navigation">
                 <NavList items={nav} currentRoute={page.route} pageRoute={page.route} />
               </nav>
             </aside>
-            <main className="content">
+            <main className={`content transition-${transition}`}>
               <article dangerouslySetInnerHTML={{ __html: page.html ?? "" }} />
               <PageNav pageNavigation={pageNavigation} />
             </main>
