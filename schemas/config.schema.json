@@ -160,6 +160,27 @@
           "description": "Controls when content links are underlined."
         }
       }
+    },
+    "navigation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Enhanced navigation feel options.",
+      "properties": {
+        "transition": {
+          "enum": ["fade", "slide", "scale", "instant"],
+          "description": "Page transition preset used during enhanced navigation."
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Page transition duration in milliseconds."
+        },
+        "easing": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS timing function used by page transitions."
+        }
+      }
     }
   },
   "$defs": {

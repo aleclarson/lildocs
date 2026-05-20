@@ -331,6 +331,49 @@ test("cli link underline options override docs config", async () => {
   assert.match(css, /--ld-link-hover-text-decoration: underline/);
 });
 
+test("loads navigation feel options from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      navigation: {
+        transition: "slide",
+        duration: 240,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(html, /<div id="swup" class="contentGrid transition-slide">/);
+  assert.match(css, /--ld-navigation-duration: 240ms/);
+  assert.match(css, /--ld-navigation-easing: cubic-bezier\(0\.16, 1, 0\.3, 1\)/);
+});
+
+test("reports invalid navigation options from docs config", async () => {
+  const { docs } = await fixtureWorkspace();
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      navigation: {
+        transition: "spin",
+        duration: -1,
+      },
+    }),
+  );
+
+  await assert.rejects(
+    () => runCli([docs]),
+    /Docs config "navigation\.transition" must be one of fade, slide, scale, instant/,
+  );
+});
+
 test("maps shiki theme names to lildocs css variables", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

@@ -149,3 +149,25 @@ configured background layers.
 
 `link.underline` controls generated content link underlines. Use `always`,
 `hover`, or `none`.
+
+## Navigation
+
+`navigation` configures the feel of enhanced page navigation:
+
+```json
+{
+  "navigation": {
+    "transition": "slide",
+    "duration": 160,
+    "easing": "cubic-bezier(0.16, 1, 0.3, 1)"
+  }
+}
+```
+
+`navigation.transition` selects the transition preset. Use `fade`, `slide`,
+`scale`, or `instant`.
+
+`navigation.duration` sets the transition duration in milliseconds.
+
+`navigation.easing` sets the CSS timing function used by transitions. Any valid
+CSS timing function is supported.

@@ -33,6 +33,20 @@ test("config schema supports link underline options", async () => {
   assert.equal(schema.properties.link.additionalProperties, false);
 });
 
+test("config schema supports navigation feel options", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.deepEqual(schema.properties.navigation.properties.transition.enum, [
+    "fade",
+    "slide",
+    "scale",
+    "instant",
+  ]);
+  assert.equal(schema.properties.navigation.properties.duration.minimum, 0);
+  assert.equal(schema.properties.navigation.properties.easing.minLength, 1);
+  assert.equal(schema.properties.navigation.additionalProperties, false);
+});
+
 test("config schema supports logo options", async () => {
   const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
 

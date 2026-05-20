@@ -134,7 +134,11 @@ test("emits swup navigation enhancement assets", async () => {
   assert.match(html, /<div id="swup" class="contentGrid transition-fade">/);
   assert.match(html, /<script src=".\/assets\/swup\.umd\.js"><\/script>/);
   assert.match(html, /<script src=".\/assets\/navigation\.js"><\/script>/);
-  assert.match(css, /html\.is-changing \.transition-fade/);
+  assert.match(css, /--ld-navigation-duration: 180ms/);
+  assert.match(
+    css,
+    /html\.is-changing :where\(\.transition-fade, \.transition-slide, \.transition-scale\)/,
+  );
   assert.match(navigationScript, /window\.location\.protocol === "file:"/);
   assert.match(navigationScript, /new window\.Swup/);
   assert.match(swupScript, /\(t\|\|self\)\.Swup=e\(\)/);

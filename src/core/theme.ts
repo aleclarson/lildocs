@@ -51,6 +51,12 @@ export type LinkOptions = {
   underline?: "always" | "hover" | "none";
 };
 
+export type NavigationOptions = {
+  transition?: "fade" | "slide" | "scale" | "instant";
+  duration?: number;
+  easing?: string;
+};
+
 export type ResolvedBackground = {
   css: string;
   assets: AssetCopy[];
@@ -203,9 +209,11 @@ export function themeToCssVariables(
   theme: Theme,
   fontOverrides: Partial<ThemeFonts> = {},
   linkOptions: LinkOptions = {},
+  navigationOptions: NavigationOptions = {},
 ) {
   const fonts = resolveThemeFonts(theme, fontOverrides);
   const linkDecoration = linkTextDecoration(linkOptions.underline);
+  const navigationDuration = navigationOptions.duration ?? 180;
   return `:root {
   --ld-color-background: ${theme.color.background};
   --ld-background-image: none;
@@ -222,6 +230,8 @@ export function themeToCssVariables(
   --ld-font-logo: var(--ld-font-heading);
   --ld-link-text-decoration: ${linkDecoration.default};
   --ld-link-hover-text-decoration: ${linkDecoration.hover};
+  --ld-navigation-duration: ${navigationDuration}ms;
+  --ld-navigation-easing: ${navigationOptions.easing ?? "ease"};
 }`;
 }
 

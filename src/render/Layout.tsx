@@ -3,6 +3,7 @@ import type { Heading, Page } from "../core/content.js";
 import type { ResolvedLogo } from "../core/logo.js";
 import type { NavItem } from "../core/nav.js";
 import { relativeUrl, rootRelativeUrl } from "../core/paths.js";
+import type { NavigationOptions } from "../core/theme.js";
 import type { PageNavigation } from "./renderPage.js";
 
 export type LayoutProps = {
@@ -14,6 +15,7 @@ export type LayoutProps = {
   logo: ResolvedLogo;
   favicon?: string;
   repositoryUrl?: string;
+  navigation?: NavigationOptions;
   dev?: {
     clientScriptPath: string;
   };
@@ -28,8 +30,10 @@ export function Layout({
   logo,
   favicon,
   repositoryUrl,
+  navigation,
   dev,
 }: LayoutProps) {
+  const transition = navigation?.transition ?? "fade";
   return (
     <html lang="en">
       <head>
@@ -79,7 +83,7 @@ export function Layout({
               </div>
             </div>
           </header>
-          <div id="swup" className="contentGrid transition-fade">
+          <div id="swup" className={`contentGrid transition-${transition}`}>
             <aside className="sidebar">
               <nav aria-label="Documentation navigation">
                 <NavList items={nav} currentRoute={page.route} pageRoute={page.route} />

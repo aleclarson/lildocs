@@ -21,6 +21,7 @@ import {
   type FontOverrides,
   type BackgroundOptions,
   type LinkOptions,
+  type NavigationOptions,
 } from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
 import type { PageNavigation } from "../render/renderPage.js";
@@ -35,6 +36,7 @@ export type BuildOptions = {
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
+  navigation?: NavigationOptions;
   dev?: {
     clientScriptPath: string;
   };
@@ -59,6 +61,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     logo: options.logo,
     background: options.background,
     link: options.link,
+    navigation: options.navigation,
   });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
@@ -93,7 +96,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     logo: configOptions.logo,
     favicon: configOptions.favicon,
   });
-  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
+  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
   const assets: AssetCopy[] = [
     ...fontResolution.assets,
     ...backgroundResolution.assets,
@@ -137,6 +140,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           logoResolution.logo,
           logoResolution.favicon,
           repositoryUrl,
+          configOptions.navigation,
           options.dev,
         );
         const outputPath = path.join(outDir, page.outputPath);

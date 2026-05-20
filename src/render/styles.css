@@ -83,18 +83,35 @@ body {
   gap: 32px;
 }
 
-html.is-changing .transition-fade {
-  transition: opacity 0.18s ease;
+html.is-changing :where(.transition-fade, .transition-slide, .transition-scale) {
+  transition:
+    opacity var(--ld-navigation-duration) var(--ld-navigation-easing),
+    transform var(--ld-navigation-duration) var(--ld-navigation-easing);
   opacity: 1;
+  transform: none;
 }
 
 html.is-animating .transition-fade {
   opacity: 0;
 }
 
+html.is-animating .transition-slide {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+html.is-animating .transition-scale {
+  opacity: 0;
+  transform: scale(0.985);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html.is-changing .transition-fade {
+  html.is-changing :where(.transition-fade, .transition-slide, .transition-scale) {
     transition: none;
+  }
+
+  html.is-animating :where(.transition-slide, .transition-scale) {
+    transform: none;
   }
 }
 

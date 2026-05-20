@@ -3,6 +3,7 @@ import { render } from "preact-render-to-string";
 import type { Page } from "../core/content.js";
 import type { ResolvedLogo } from "../core/logo.js";
 import type { NavItem } from "../core/nav.js";
+import type { NavigationOptions } from "../core/theme.js";
 import { Layout } from "./Layout.js";
 
 export type AdjacentPageLink = {
@@ -24,6 +25,7 @@ export function renderPage(
   logo: ResolvedLogo,
   favicon: string | undefined,
   repositoryUrl: string | undefined,
+  navigation: NavigationOptions | undefined,
   dev?: {
     clientScriptPath: string;
   },
@@ -38,6 +40,7 @@ export function renderPage(
       logo={logo}
       favicon={favicon}
       repositoryUrl={repositoryUrl}
+      navigation={navigation}
       dev={dev}
     />,
   )}`;

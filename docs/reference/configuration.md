@@ -28,6 +28,11 @@ want persistent defaults:
   },
   "link": {
     "underline": "hover"
+  },
+  "navigation": {
+    "transition": "fade",
+    "duration": 160,
+    "easing": "cubic-bezier(0.16, 1, 0.3, 1)"
   }
 }
 ```
@@ -62,6 +67,9 @@ This field is optional and does not change build behavior.
 | `background.gradient` | CSS background gradient. |
 | `background.blendMode` | CSS `background-blend-mode` for the theme color and configured background layers. |
 | `link.underline` | Content link underline behavior: `always`, `hover`, or `none`. |
+| `navigation.transition` | Enhanced navigation transition preset: `fade`, `slide`, `scale`, or `instant`. |
+| `navigation.duration` | Enhanced navigation transition duration in milliseconds. |
+| `navigation.easing` | CSS timing function used by enhanced navigation transitions. |
 
 See [Themes and styling](theming.md) for field-specific examples and theme
 resolution behavior.

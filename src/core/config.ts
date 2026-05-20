@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { LogoOptions } from "./logo.js";
-import type { BackgroundOptions, FontOverrides, LinkOptions } from "./theme.js";
+import type { BackgroundOptions, FontOverrides, LinkOptions, NavigationOptions } from "./theme.js";
 import { LildocsError } from "./errors.js";
 
 export type DocsConfig = {
@@ -12,6 +12,7 @@ export type DocsConfig = {
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
+  navigation?: NavigationOptions;
 };
 
 export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
@@ -45,6 +46,7 @@ export function mergeConfigOptions(options: {
   logo?: LogoOptions;
   background?: BackgroundOptions;
   link?: LinkOptions;
+  navigation?: NavigationOptions;
 }) {
   return {
     theme: options.theme ?? options.config.theme,
@@ -66,6 +68,11 @@ export function mergeConfigOptions(options: {
     },
     link: {
       underline: options.link?.underline ?? options.config.link?.underline,
+    },
+    navigation: {
+      transition: options.navigation?.transition ?? options.config.navigation?.transition,
+      duration: options.navigation?.duration ?? options.config.navigation?.duration,
+      easing: options.navigation?.easing ?? options.config.navigation?.easing,
     },
   };
 }
@@ -123,6 +130,24 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     );
   }
 
+  if (config.navigation !== undefined) {
+    if (
+      !config.navigation ||
+      typeof config.navigation !== "object" ||
+      Array.isArray(config.navigation)
+    ) {
+      throw new LildocsError(`Docs config "navigation" must be an object: ${configPath}`);
+    }
+    assertOptionalEnum(
+      config.navigation.transition,
+      "navigation.transition",
+      ["fade", "slide", "scale", "instant"],
+      configPath,
+    );
+    assertOptionalNumber(config.navigation.duration, "navigation.duration", configPath);
+    assertOptionalString(config.navigation.easing, "navigation.easing", configPath);
+  }
+
   return {
     theme: config.theme,
     favicon: config.favicon,
@@ -152,6 +177,13 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
           underline: config.link.underline,
         }
       : undefined,
+    navigation: config.navigation
+      ? {
+          transition: config.navigation.transition,
+          duration: config.navigation.duration,
+          easing: config.navigation.easing,
+        }
+      : undefined,
   };
 }
 
@@ -165,6 +197,14 @@ function assertOptionalEnum(value: unknown, name: string, allowed: string[], con
   if (value !== undefined && !allowed.includes(String(value))) {
     throw new LildocsError(
       `Docs config "${name}" must be one of ${allowed.join(", ")}: ${configPath}`,
+    );
+  }
+}
+
+function assertOptionalNumber(value: unknown, name: string, configPath: string) {
+  if (value !== undefined && (typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+    throw new LildocsError(
+      `Docs config "${name}" must be a non-negative finite number: ${configPath}`,
     );
   }
 }
