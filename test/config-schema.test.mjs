@@ -61,3 +61,10 @@ test("config schema supports favicon", async () => {
   assert.equal(schema.properties.favicon.type, "string");
   assert.equal(schema.properties.favicon.minLength, 1);
 });
+
+test("config schema supports project name override", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.equal(schema.properties.projectName.type, "string");
+  assert.equal(schema.properties.projectName.minLength, 1);
+});

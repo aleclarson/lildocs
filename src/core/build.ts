@@ -53,8 +53,9 @@ const require = createRequire(import.meta.url);
 
 export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const input = await resolveInput(options.input, options.cwd);
+  const docsConfig = await readDocsConfig(input.docsRoot);
   const configOptions = mergeConfigOptions({
-    config: await readDocsConfig(input.docsRoot),
+    config: docsConfig,
     theme: options.theme,
     fonts: options.fonts,
     favicon: options.favicon,
@@ -66,7 +67,9 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
   const model = await buildContentModel(input, outDirName);
-  const repositoryUrl = await resolveRepositoryUrl(input.docsRoot, options.cwd);
+  const packagePath = await findNearestPackageJson(input.docsRoot, options.cwd);
+  const repositoryUrl = await resolveRepositoryUrl(packagePath);
+  const projectName = configOptions.projectName ?? (await resolvePackageName(packagePath));
   const theme = await resolveTheme({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
@@ -140,6 +143,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           logoResolution.logo,
           logoResolution.favicon,
           repositoryUrl,
+          projectName,
           configOptions.navigation,
           options.dev,
         );
@@ -166,13 +170,12 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   };
 }
 
-async function resolveRepositoryUrl(docsRoot: string, cwd: string): Promise<string | undefined> {
+async function resolveRepositoryUrl(packagePath: string | undefined): Promise<string | undefined> {
   const envRepository = process.env.GITHUB_REPOSITORY?.trim();
   if (envRepository) {
     return `https://github.com/${envRepository}`;
   }
 
-  const packagePath = await findNearestPackageJson(docsRoot, cwd);
   if (!packagePath) {
     return undefined;
   }
@@ -181,6 +184,19 @@ async function resolveRepositoryUrl(docsRoot: string, cwd: string): Promise<stri
     repository?: unknown;
   };
   return normalizePackageRepository(packageJson.repository);
+}
+
+async function resolvePackageName(packagePath: string | undefined): Promise<string | undefined> {
+  if (!packagePath) {
+    return undefined;
+  }
+
+  const packageJson = JSON.parse(await readFile(packagePath, "utf8")) as {
+    name?: unknown;
+  };
+  return typeof packageJson.name === "string" && packageJson.name.trim()
+    ? packageJson.name.trim()
+    : undefined;
 }
 
 async function findNearestPackageJson(start: string, stop: string): Promise<string | undefined> {

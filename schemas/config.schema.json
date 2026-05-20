@@ -9,6 +9,11 @@
       "type": "string",
       "description": "JSON Schema URL for editor validation."
     },
+    "projectName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project name appended to each generated document title. Defaults to the nearest package.json name."
+    },
     "theme": {
       "description": "Built-in lildocs theme or bundled Shiki theme name.",
       "oneOf": [

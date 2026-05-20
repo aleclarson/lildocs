@@ -25,6 +25,7 @@ export function renderPage(
   logo: ResolvedLogo,
   favicon: string | undefined,
   repositoryUrl: string | undefined,
+  projectName: string | undefined,
   navigation: NavigationOptions | undefined,
   dev?: {
     clientScriptPath: string;
@@ -40,6 +41,7 @@ export function renderPage(
       logo={logo}
       favicon={favicon}
       repositoryUrl={repositoryUrl}
+      projectName={projectName}
       navigation={navigation}
       dev={dev}
     />,

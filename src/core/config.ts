@@ -6,6 +6,7 @@ import { LildocsError } from "./errors.js";
 
 export type DocsConfig = {
   $schema?: string;
+  projectName?: string;
   theme?: string;
   font?: FontOverrides;
   favicon?: string;
@@ -49,6 +50,7 @@ export function mergeConfigOptions(options: {
   navigation?: NavigationOptions;
 }) {
   return {
+    projectName: options.config.projectName,
     theme: options.theme ?? options.config.theme,
     fonts: {
       heading: options.fonts?.heading ?? options.config.font?.heading,
@@ -84,6 +86,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
 
   const config = value as DocsConfig;
   assertOptionalString(config.$schema, "$schema", configPath);
+  assertOptionalString(config.projectName, "projectName", configPath);
   assertOptionalString(config.theme, "theme", configPath);
   assertOptionalString(config.favicon, "favicon", configPath);
 
@@ -149,6 +152,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   }
 
   return {
+    projectName: config.projectName,
     theme: config.theme,
     favicon: config.favicon,
     font: config.font

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
@@ -24,6 +24,31 @@ test("rewrites markdown links to generated html routes", async () => {
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(html, /href=".\/guide.html"/);
+});
+
+test("appends nearest package name to document titles", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(path.join(workspace, "package.json"), JSON.stringify({ name: "fixture-docs" }));
+
+  await runCli([docs, "--out", outDir]);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const guideHtml = await readFile(path.join(outDir, "guide.html"), "utf8");
+  assert.match(homeHtml, /<title>Fixture Home • fixture-docs<\/title>/);
+  assert.match(guideHtml, /<title>Frontmatter Title • fixture-docs<\/title>/);
+});
+
+test("uses configured project name in document titles", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(path.join(workspace, "package.json"), JSON.stringify({ name: "fixture-docs" }));
+  await writeFile(path.join(docs, "config.json"), JSON.stringify({ projectName: "Custom Docs" }));
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /<title>Fixture Home • Custom Docs<\/title>/);
 });
 
 test("renders mermaid diagrams to static svg", async () => {

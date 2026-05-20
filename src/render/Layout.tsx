@@ -15,6 +15,7 @@ export type LayoutProps = {
   logo: ResolvedLogo;
   favicon?: string;
   repositoryUrl?: string;
+  projectName?: string;
   navigation?: NavigationOptions;
   dev?: {
     clientScriptPath: string;
@@ -30,16 +31,18 @@ export function Layout({
   logo,
   favicon,
   repositoryUrl,
+  projectName,
   navigation,
   dev,
 }: LayoutProps) {
   const transition = navigation?.transition ?? "fade";
+  const documentTitle = projectName ? `${page.title} • ${projectName}` : page.title;
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{page.title}</title>
+        <title>{documentTitle}</title>
         {favicon ? <link rel="icon" href={assetSrc(page.route, favicon)} /> : null}
         <link
           rel="stylesheet"
