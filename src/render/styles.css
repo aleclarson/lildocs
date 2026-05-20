@@ -175,15 +175,43 @@ html.is-animating .transition-scale {
 }
 
 .navList a,
+.navDisclosure summary,
 .navFolder {
   display: block;
   padding: 6px 8px;
   border-radius: 6px;
 }
 
-.navList a {
+.navList a,
+.navDisclosure summary {
   color: var(--ld-color-muted-text);
   text-decoration: none;
+}
+
+.navDisclosure summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.navDisclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.navDisclosure summary::after {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: "";
+  transform: rotate(-45deg);
+}
+
+.navDisclosure[open] > summary::after {
+  transform: rotate(45deg);
 }
 
 .navFolder {
@@ -192,7 +220,8 @@ html.is-animating .transition-scale {
   font-weight: 600;
 }
 
-.navList a.active {
+.navList a.active,
+.navDisclosure summary.active {
   color: var(--ld-color-text);
   background: var(--ld-color-code-background);
   font-weight: 600;

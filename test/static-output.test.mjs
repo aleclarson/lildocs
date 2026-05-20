@@ -393,6 +393,26 @@ test("does not indent nested sidebar pages", async () => {
   assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
 });
 
+test("renders folders with index pages as expandable page rows", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/index.md", "# Overview\n\nNested landing.");
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(
+    homeHtml,
+    /<details class="navDisclosure"><summary>Nested<\/summary><ul class="navList">/,
+  );
+  assert.doesNotMatch(homeHtml, /<a href="\.\/nested\/index\.html">Nested<\/a>/);
+  assert.match(homeHtml, /<a href="\.\/nested\/page\.html">Nested Page<\/a>/);
+
+  const nestedHtml = await readFile(path.join(outDir, "nested", "index.html"), "utf8");
+  assert.match(nestedHtml, /<details class="navDisclosure" open><summary class="active">Nested<\/summary>/);
+});
+
 test("omits previous and next navigation for single page sites", async () => {
   const { workspace } = await fixtureWorkspace();
   const docs = path.join(workspace, "single");

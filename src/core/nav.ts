@@ -5,6 +5,7 @@ export type NavItem = {
   title: string;
   route: string;
   active: boolean;
+  hasPage: boolean;
   children: NavItem[];
 };
 
@@ -19,6 +20,7 @@ function pageToNavItem(page: Page, activePage: Page): NavItem {
     title: page.title,
     route: page.route,
     active: page.route === activePage.route,
+    hasPage: true,
     children: [],
   };
 }
@@ -46,12 +48,20 @@ function nestNavItems(items: NavItem[]) {
           title: titleFromDir(part),
           route: `${currentPath}/index.html`,
           active: false,
+          hasPage: false,
           children: [],
         };
         byDir.set(currentPath, group);
         currentChildren.push(group);
       }
       currentChildren = group.children;
+    }
+
+    const group = byDir.get(dir);
+    if (group && item.route === group.route) {
+      group.active = item.active;
+      group.hasPage = true;
+      continue;
     }
 
     currentChildren.push(item);

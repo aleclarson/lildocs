@@ -168,7 +168,14 @@ function NavList({
     <ul className="navList">
       {items.map((item) => (
         <li>
-          {item.children.length > 0 ? (
+          {item.children.length > 0 && item.hasPage ? (
+            <details className="navDisclosure" open={isActiveBranch(item, currentRoute)}>
+              <summary className={item.route === currentRoute ? "active" : undefined}>
+                {item.title}
+              </summary>
+              <NavList items={item.children} currentRoute={currentRoute} pageRoute={pageRoute} />
+            </details>
+          ) : item.children.length > 0 ? (
             <span className="navFolder">{item.title}</span>
           ) : (
             <a
@@ -178,12 +185,19 @@ function NavList({
               {item.title}
             </a>
           )}
-          {item.children.length > 0 ? (
+          {item.children.length > 0 && !item.hasPage ? (
             <NavList items={item.children} currentRoute={currentRoute} pageRoute={pageRoute} />
           ) : null}
         </li>
       ))}
     </ul>
+  );
+}
+
+function isActiveBranch(item: NavItem, currentRoute: string): boolean {
+  return (
+    item.route === currentRoute ||
+    item.children.some((child) => isActiveBranch(child, currentRoute))
   );
 }
 
