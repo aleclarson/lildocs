@@ -115,10 +115,12 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   const script = await readFile(path.join(outDir, "assets", "copy-code.js"), "utf8");
   assert.match(html, /<script src=".\/assets\/copy-code\.js"><\/script>/);
   assert.match(css, /\.copyCodeButton \{/);
-  assert.match(css, /\.copyCodeButton svg \{/);
+  assert.match(css, /\.copyCodeIcon \{/);
   assert.match(script, /navigator\.clipboard\?\.writeText/);
   assert.match(script, /const copyText = block\.textContent \?\? ""/);
   assert.match(script, /innerHTML = icons\.copy/);
+  assert.match(script, /material-symbols-rounded copyCodeIcon/);
+  assert.match(script, /content_copy/);
 });
 
 test("emits swup navigation enhancement assets", async () => {
