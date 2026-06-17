@@ -410,6 +410,9 @@ test("does not indent nested sidebar pages", async () => {
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
   assert.match(css, /\.navList > \.navGroup \{[^}]*margin-top: 12px/);
+  assert.match(css, /\.sidebar \{[^}]*overscroll-behavior: contain/);
+  assert.match(css, /padding-bottom: calc\(24px \+ 40vh\)/);
+  assert.match(css, /@media \(max-width: 860px\) \{[\s\S]*\.sidebar \{[^}]*padding-bottom: 24px/);
 });
 
 test("renders folders with index pages as expandable page rows", async () => {

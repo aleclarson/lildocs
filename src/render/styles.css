@@ -125,6 +125,11 @@ html.is-animating .transition-scale {
   padding-block: 24px;
 }
 
+.sidebar {
+  overscroll-behavior: contain;
+  padding-bottom: calc(24px + 40vh);
+}
+
 .content {
   min-width: 0;
   padding-block: 28px 64px;
@@ -577,6 +582,10 @@ html.is-animating .transition-scale {
     position: static;
     max-height: none;
     border-bottom: 1px solid var(--ld-color-border);
+  }
+
+  .sidebar {
+    padding-bottom: 24px;
   }
 
   .pageNav {
