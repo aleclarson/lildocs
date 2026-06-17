@@ -145,6 +145,23 @@ html.is-animating .transition-scale {
   height: auto;
 }
 
+.content blockquote {
+  margin: 20px 0;
+  padding: 10px 16px;
+  border-left: 4px solid var(--ld-color-border);
+  border-radius: 0 6px 6px 0;
+  background: color-mix(in srgb, var(--ld-color-code-background) 72%, transparent);
+  color: var(--ld-color-muted-text);
+}
+
+.content blockquote > :first-child {
+  margin-top: 0;
+}
+
+.content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
 .mermaidDiagram {
   overflow-x: auto;
 }

@@ -112,6 +112,22 @@ test("renders github-style callouts", async () => {
   assert.doesNotMatch(html, /octicon/);
 });
 
+test("styles regular blockquotes", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "quotes.md", "# Quotes\n\n> A quoted note.\n");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "quotes.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(html, /<blockquote>\s*<p>A quoted note\.<\/p>\s*<\/blockquote>/);
+  assert.match(css, /\.content blockquote \{[^}]*border-left: 4px solid var\(--ld-color-border\)/);
+  assert.match(css, /\.content blockquote \{[^}]*background: color-mix/);
+  assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
+  assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);
+});
+
 test("highlights code blocks with shiki", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
