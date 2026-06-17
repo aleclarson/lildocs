@@ -30,8 +30,11 @@ test("emits search UI and static search script", async () => {
   assert.match(html, /fonts\.googleapis\.com\/css2\?family=Material\+Symbols\+Rounded/);
   assert.match(html, /class="searchIcon material-symbols-rounded"/);
   assert.match(html, />search<\/span>/);
+  assert.match(html, /id="lildocs-overlay-root"/);
+  assert.match(html, /<script type="module" src=".\/assets\/search\.js"><\/script>/);
   assert.match(searchScript, /scoreEntry/);
   assert.match(searchScript, /embeddedIndex/);
+  assert.match(searchScript, /setOverlayPortalRoots/);
 });
 
 test("emits GitHub repository button from nearest package metadata", async () => {
@@ -92,7 +95,8 @@ test("search script preloads links and supports keyboard result selection", asyn
   assert.match(searchScript, /event\.key === "ArrowUp"/);
   assert.match(searchScript, /event\.key === "Enter"/);
   assert.match(searchScript, /selected\.click\(\)/);
-  assert.match(searchScript, /preloadRelativeUrl\(selected\?\.getAttribute\("href"\)\)/);
+  assert.match(searchScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
+  assert.match(searchScript, /onClick: clearSearch/);
 });
 
 test("uses theme colors for search input placeholder and focus styles", async () => {

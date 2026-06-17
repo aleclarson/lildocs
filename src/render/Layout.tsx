@@ -72,7 +72,7 @@ export function Layout({
                   </span>
                 </a>
               ) : null}
-              <div className="searchBox">
+              <div id="lildocs-search-root" className="searchBox">
                 <span className="searchIcon material-symbols-rounded" aria-hidden="true">
                   search
                 </span>
@@ -82,7 +82,6 @@ export function Layout({
                   placeholder="Search docs"
                   aria-label="Search docs"
                 />
-                <div id="lildocs-search-results" className="searchResults" />
               </div>
             </div>
           </header>
@@ -111,7 +110,8 @@ export function Layout({
           id="lildocs-search-index"
           dangerouslySetInnerHTML={{ __html: searchIndexJson }}
         />
-        <script src={rootRelativeUrl(page.route, "assets/search.js")} />
+        <div id="lildocs-overlay-root" />
+        <script type="module" src={rootRelativeUrl(page.route, "assets/search.js")} />
         <script src={rootRelativeUrl(page.route, "assets/copy-code.js")} />
         <script src={rootRelativeUrl(page.route, "assets/swup.umd.js")} />
         <script src={rootRelativeUrl(page.route, "assets/navigation.js")} />

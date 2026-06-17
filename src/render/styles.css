@@ -479,11 +479,7 @@ html.is-animating .transition-scale {
 }
 
 .searchResults {
-  position: absolute;
   z-index: 10;
-  top: calc(100% + 6px);
-  right: 0;
-  display: none;
   width: min(420px, 88vw);
   max-height: 56vh;
   overflow: auto;
@@ -491,10 +487,6 @@ html.is-animating .transition-scale {
   border-radius: 8px;
   background: var(--ld-color-background);
   box-shadow: 0 12px 30px rgb(0 0 0 / 12%);
-}
-
-.searchResults.open {
-  display: block;
 }
 
 .searchResults a,
