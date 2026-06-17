@@ -487,6 +487,9 @@ html.is-animating .transition-scale {
   border-radius: 8px;
   background: var(--ld-color-background);
   box-shadow: 0 12px 30px rgb(0 0 0 / 12%);
+  color: var(--ld-color-text);
+  font-family: var(--ld-font-body);
+  line-height: 1.4;
 }
 
 .searchResults a,
