@@ -71,5 +71,7 @@ function nestNavItems(items: NavItem[]) {
 }
 
 function titleFromDir(dir: string) {
-  return dir.replace(/[-_]+/g, " ");
+  return dir
+    .replace(/[-_]+/g, " ")
+    .replace(/\S+/g, (word) => `${word[0]?.toLocaleUpperCase() ?? ""}${word.slice(1)}`);
 }

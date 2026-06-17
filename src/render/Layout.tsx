@@ -167,7 +167,7 @@ function NavList({
   return (
     <ul className="navList">
       {items.map((item) => (
-        <li>
+        <li className={item.children.length > 0 ? "navGroup" : undefined}>
           {item.children.length > 0 && item.hasPage ? (
             <details className="navDisclosure" open={isActiveBranch(item, currentRoute)}>
               <summary className={item.route === currentRoute ? "active" : undefined}>

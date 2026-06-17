@@ -286,10 +286,12 @@ test("renders previous and next page links in generated navigation order", async
   await runCli([docs, "--out", outDir]);
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(homeHtml, /<nav class="pageNav" aria-label="Page navigation">/);
   assert.doesNotMatch(homeHtml, /rel="prev"/);
   assert.match(homeHtml, /rel="next" href=".\/guide.html"/);
   assert.match(homeHtml, /Frontmatter Title/);
+  assert.match(css, /\.content \.pageNavLink,\n\.content \.pageNavLink:hover \{[^}]*text-decoration: none/);
 
   const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
   assert.match(nestedHtml, /rel="prev" href="..\/guide.html"/);
@@ -326,7 +328,7 @@ test("uses docs config navigation order for pages folders and page links", async
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(
     homeHtml,
-    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a class="active" href="\.\/index\.html">Fixture Home<\/a>/,
+    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a class="active" href="\.\/index\.html">Fixture Home<\/a>/,
   );
   assert.match(homeHtml, /rel="prev" href=".\/guide.html"/);
   assert.doesNotMatch(homeHtml, /rel="next"/);
@@ -368,7 +370,7 @@ test("reports duplicate docs config navigation order entries", async () => {
   );
 });
 
-test("renders sidebar folder names as labels instead of links without uppercasing", async () => {
+test("renders sidebar folder names as title-cased labels instead of links", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
   await writeDocFile(docs, "nested-section/page.md", "# Nested Page\n\nNested content.");
@@ -376,8 +378,8 @@ test("renders sidebar folder names as labels instead of links without uppercasin
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /<span class="navFolder">nested section<\/span>/);
-  assert.doesNotMatch(html, /<span class="navFolder">Nested Section<\/span>/);
+  assert.match(html, /<span class="navFolder">Nested Section<\/span>/);
+  assert.doesNotMatch(html, /<span class="navFolder">nested section<\/span>/);
   assert.doesNotMatch(html, /<a[^>]+href="\.\/nested-section\/page\.html"[^>]*>\s*nested section\s*<\/a>/);
   assert.match(html, /<a href="\.\/nested-section\/page\.html">Nested Page<\/a>/);
 });
@@ -391,6 +393,7 @@ test("does not indent nested sidebar pages", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
+  assert.match(css, /\.navList > \.navGroup \{[^}]*margin-top: 12px/);
 });
 
 test("renders folders with index pages as expandable page rows", async () => {
