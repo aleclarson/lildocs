@@ -150,6 +150,10 @@ html.is-animating .transition-scale {
   height: auto;
 }
 
+.content article li {
+  margin-bottom: 8px;
+}
+
 .content blockquote {
   margin: 20px 0;
   padding: 10px 16px;
