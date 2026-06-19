@@ -385,6 +385,7 @@ html.is-animating .transition-scale {
   border: 1px solid var(--ld-color-border);
   border-radius: 8px;
   color: var(--ld-color-link);
+  line-height: 1.25;
   text-decoration: none;
 }
 
@@ -426,8 +427,14 @@ html.is-animating .transition-scale {
 }
 
 .toc ul {
+  display: grid;
+  gap: 6px;
   list-style: none;
   padding-left: 0;
+}
+
+.toc a {
+  text-decoration: none;
 }
 
 .tocDepth3 {
