@@ -67,6 +67,7 @@ lildocs dev ./docs
 
 The dev server writes generated files to `.lildocs` by default, serves them from
 `127.0.0.1:3000`, and injects a small live-reload client while developing.
+Add `--open` to launch the preview in your default browser.
 
 Choose a different output folder when you want to inspect the generated files:
 

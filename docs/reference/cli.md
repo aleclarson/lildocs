@@ -66,6 +66,7 @@ lildocs dev ./docs
 
 The dev server writes generated files to `.lildocs` by default, serves them from
 `127.0.0.1:3000`, and injects a small live-reload client while developing.
+Add `--open` to launch the preview in your default browser.
 
 Choose a different output folder when you want to inspect generated files:
 
@@ -109,6 +110,7 @@ workflow.
 | `--link.underline <style>` | build, dev, deploy | Content link underline behavior: `always`, `hover`, or `none`. |
 | `--host <address>` | dev | Host address for the local development server. |
 | `--port <number>` | dev | Port for the local development server. |
+| `--open` | dev | Open the local development server in the default browser. |
 | `--base <path>` | deploy | GitHub Pages base path, such as `/repo/` for project pages. |
 | `--workflow` | deploy | Create a GitHub Actions workflow for GitHub Pages deployment. |
 

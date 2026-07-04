@@ -95,8 +95,8 @@ resolution behavior.
 directory for the current command. Build and deploy default to `dist`; dev
 defaults to `.lildocs`.
 
-`--host <address>` and `--port <number>` are dev-only server options and have no
-JSON config equivalent.
+`--host <address>`, `--port <number>`, and `--open` are dev-only server options
+and have no JSON config equivalent.
 
 `--base <path>` and `--workflow` are deploy-only options and have no JSON config
 equivalent.

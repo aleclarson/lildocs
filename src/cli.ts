@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { spawn } from "node:child_process";
 import { command, flag, option, optional, positional, run, string, subcommands } from "cmd-ts";
 import { buildSite } from "./core/build.js";
 import { startDevServer } from "./core/dev.js";
@@ -19,6 +20,7 @@ export type CliOptions = {
   host?: string;
   port?: string;
   base?: string;
+  open?: boolean;
   workflow?: boolean;
 };
 
@@ -86,6 +88,11 @@ const portOption = option({
   type: optional(string),
   long: "port",
   description: "Port for the local development server.",
+});
+
+const openOption = flag({
+  long: "open",
+  description: "Open the local development server in the default browser.",
 });
 
 const baseOption = option({
@@ -197,10 +204,11 @@ const devCommand = command({
     linkUnderline: linkUnderlineOption,
     host: hostOption,
     port: portOption,
+    open: openOption,
   },
   handler: async (options) => {
     const port = parsePort(options.port ?? "3000");
-    await startDevServer({
+    const server = await startDevServer({
       input: options.input,
       outDir: options.out ?? ".lildocs",
       theme: options.theme,
@@ -221,6 +229,9 @@ const devCommand = command({
       host: options.host ?? "127.0.0.1",
       port,
     });
+    if (options.open) {
+      await openBrowser(server.url);
+    }
     await new Promise(() => {});
   },
 });
@@ -238,6 +249,33 @@ function parseLinkUnderline(value: string | undefined): "always" | "hover" | "no
     return value;
   }
   throw new Error(`Invalid link underline style: ${value}`);
+}
+
+async function openBrowser(url: string) {
+  const [opener, args] = browserOpenCommand(url);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(opener, args, { detached: true, stdio: "ignore" });
+      child.once("error", reject);
+      child.once("spawn", () => {
+        child.unref();
+        resolve();
+      });
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`lildocs: failed to open browser: ${message}`);
+  }
+}
+
+function browserOpenCommand(url: string): [string, string[]] {
+  if (process.platform === "darwin") {
+    return ["open", [url]];
+  }
+  if (process.platform === "win32") {
+    return ["cmd", ["/c", "start", "", url]];
+  }
+  return ["xdg-open", [url]];
 }
 
 const deployCommand = command({

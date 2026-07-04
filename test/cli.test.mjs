@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
@@ -45,6 +46,35 @@ test("dev command serves and rebuilds the generated site", async () => {
   }
 });
 
+test("dev command opens the generated site when requested", { skip: process.platform === "win32" }, async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, ".dev-site");
+  const binDir = path.join(workspace, "bin");
+  const openLog = path.join(workspace, "opened.txt");
+  const openerName = process.platform === "darwin" ? "open" : "xdg-open";
+  await mkdir(binDir);
+  await writeFile(
+    path.join(binDir, openerName),
+    "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$LILDOCS_OPEN_LOG\"\n",
+    { mode: 0o755 },
+  );
+
+  const server = await startDevCli(["dev", docs, "--out", outDir, "--port", "0", "--open"], {
+    env: {
+      ...process.env,
+      LILDOCS_OPEN_LOG: openLog,
+      PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ""}`,
+    },
+  });
+
+  try {
+    const openedUrl = await waitFor(async () => (await readFile(openLog, "utf8")).trim());
+    assert.equal(openedUrl, server.url);
+  } finally {
+    await server.close();
+  }
+});
+
 test("unknown commands report usage errors", async () => {
   await assert.rejects(() => runCli(["publish", "./docs"]), /Unknown arguments|Not a valid subcommand/);
 });
@@ -55,10 +85,11 @@ test("unsupported options report usage errors", async () => {
   await assert.rejects(() => runCli([docs, "--wat"]), /Unknown option|Unknown argument/);
 });
 
-async function startDevCli(args) {
+async function startDevCli(args, options = {}) {
   const child = spawn(process.execPath, [path.resolve("dist/cli.mjs"), ...args], {
     cwd: process.cwd(),
     stdio: ["ignore", "pipe", "pipe"],
+    ...options,
   });
   let stdout = "";
   let stderr = "";
