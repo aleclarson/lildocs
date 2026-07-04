@@ -66,8 +66,12 @@ export async function writeDocFile(docs, relativePath, contents) {
 }
 
 export async function runCli(args, options = {}) {
+  const env = { ...process.env };
+  delete env.GITHUB_REPOSITORY;
+
   return execFileAsync(process.execPath, [cliPath, ...args], {
     cwd: process.cwd(),
+    env,
     ...options,
   });
 }
