@@ -1,6 +1,9 @@
 {
   "$schema": "../schemas/config.schema.json",
-  "theme": "one-dark-pro",
+  "theme": {
+    "light": "github-light",
+    "dark": "github-dark"
+  },
   "font": {
     "heading": "Onest",
     "body": "Geist",
