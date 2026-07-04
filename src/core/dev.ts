@@ -35,7 +35,9 @@ events.onerror = () => console.debug("[lildocs] live reload disconnected");
 `;
 
 export async function startDevServer(options: DevOptions): Promise<DevServer> {
-  const input = await resolveInput(options.input, options.cwd);
+  const input = await resolveInput(options.input, options.cwd, {
+    homePagePreference: "readme-first",
+  });
   const outDir = path.resolve(options.cwd, options.outDir);
   validateDevOutDir(options.cwd, input.docsRoot, outDir, options.outDir);
 
@@ -63,6 +65,7 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
         fonts: options.fonts,
         background: options.background,
         link: options.link,
+        homePagePreference: "readme-first",
         dev: {
           clientScriptPath: DEV_CLIENT_PATH,
         },

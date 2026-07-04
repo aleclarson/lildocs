@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeConfigOptions, readDocsConfig } from "./config.js";
 import { buildContentModel, type Page } from "./content.js";
-import { resolveInput } from "./input.js";
+import { resolveInput, type HomePagePreference } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
 import { createMermaidRenderer } from "./mermaid.js";
 import { buildNavigation } from "./nav.js";
@@ -37,6 +37,7 @@ export type BuildOptions = {
   background?: BackgroundOptions;
   link?: LinkOptions;
   navigation?: NavigationOptions;
+  homePagePreference?: HomePagePreference;
   dev?: {
     clientScriptPath: string;
   };
@@ -52,7 +53,9 @@ const sourceDir = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
 export async function buildSite(options: BuildOptions): Promise<BuildResult> {
-  const input = await resolveInput(options.input, options.cwd);
+  const input = await resolveInput(options.input, options.cwd, {
+    homePagePreference: options.homePagePreference,
+  });
   const docsConfig = await readDocsConfig(input.docsRoot);
   const configOptions = mergeConfigOptions({
     config: docsConfig,

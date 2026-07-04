@@ -13,12 +13,27 @@ const HOME_PAGE_CANDIDATES = [
   "README.md",
 ];
 
+const README_FIRST_HOME_PAGE_CANDIDATES = [
+  "README.md",
+  ...HOME_PAGE_CANDIDATES.filter((candidate) => candidate !== "README.md"),
+];
+
+export type HomePagePreference = "default" | "readme-first";
+
+type ResolveInputOptions = {
+  homePagePreference?: HomePagePreference;
+};
+
 export type ResolvedInput = {
   docsRoot: string;
   homePage: string;
 };
 
-export async function resolveInput(input: string, cwd: string): Promise<ResolvedInput> {
+export async function resolveInput(
+  input: string,
+  cwd: string,
+  options: ResolveInputOptions = {},
+): Promise<ResolvedInput> {
   const inputPath = path.resolve(cwd, input);
   let inputStat;
 
@@ -43,7 +58,7 @@ export async function resolveInput(input: string, cwd: string): Promise<Resolved
     throw new LildocsError(`Input path must be a Markdown file or directory: ${input}`);
   }
 
-  const homePage = await findHomePage(inputPath);
+  const homePage = await findHomePage(inputPath, options.homePagePreference);
   if (!homePage) {
     throw new LildocsError(`No Markdown files found in docs directory: ${input}`);
   }
@@ -54,9 +69,11 @@ export async function resolveInput(input: string, cwd: string): Promise<Resolved
   };
 }
 
-async function findHomePage(docsRoot: string) {
+async function findHomePage(docsRoot: string, preference: HomePagePreference = "default") {
+  const homePageCandidates =
+    preference === "readme-first" ? README_FIRST_HOME_PAGE_CANDIDATES : HOME_PAGE_CANDIDATES;
   const candidates = await Promise.all(
-    HOME_PAGE_CANDIDATES.map(async (candidate) => {
+    homePageCandidates.map(async (candidate) => {
       const candidatePath = path.join(docsRoot, candidate);
       try {
         const candidateStat = await stat(candidatePath);

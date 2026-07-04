@@ -75,6 +75,23 @@ test("dev command opens the generated site when requested", { skip: process.plat
   }
 });
 
+test("dev command prefers README.md when serving a directory", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, ".dev-site");
+  await writeDocFile(docs, "README.md", "# Readme Home\n\nPreferred in dev.");
+
+  const server = await startDevCli(["dev", docs, "--out", outDir, "--port", "0"]);
+
+  try {
+    const home = await fetchText(server.url);
+    assert.match(home, /<title>Readme Home<\/title>/);
+    assert.match(home, /Readme Home/);
+    assert.match(home, /Preferred in dev\./);
+  } finally {
+    await server.close();
+  }
+});
+
 test("unknown commands report usage errors", async () => {
   await assert.rejects(() => runCli(["publish", "./docs"]), /Unknown arguments|Not a valid subcommand/);
 });
