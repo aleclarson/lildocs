@@ -54,7 +54,8 @@ test("emits GitHub repository button from nearest package metadata", async () =>
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(html, /class="repoButton"/);
-  assert.match(html, /<span class="material-symbols-rounded" aria-hidden="true">github<\/span>/);
+  assert.match(html, /<svg class="repoIcon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">/);
+  assert.match(html, /fill="currentColor"/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
   assert.ok(html.indexOf('class="repoButton"') < html.indexOf('class="searchBox"'));
