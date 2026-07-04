@@ -320,17 +320,29 @@ export function themeToMermaidConfig(
 
 function themeToCssVariableBlock(theme: Theme, fontOverrides: Partial<ThemeFonts>) {
   const fonts = resolveThemeFonts(theme, fontOverrides);
-  return `  --ld-color-background: ${theme.color.background};
-  --ld-color-text: ${theme.color.text};
-  --ld-color-muted-text: ${theme.color.mutedText};
-  --ld-color-border: ${theme.color.border};
-  --ld-color-link: ${theme.color.link};
-  --ld-color-code-background: ${theme.color.codeBackground};
-  --ld-color-sidebar-background: ${theme.color.sidebarBackground ?? theme.color.background};
+  const color = normalizeThemeColors(theme.color);
+  return `  --ld-color-background: ${color.background};
+  --ld-color-text: ${color.text};
+  --ld-color-muted-text: ${color.mutedText};
+  --ld-color-border: ${color.border};
+  --ld-color-link: ${color.link};
+  --ld-color-code-background: ${color.codeBackground};
+  --ld-color-sidebar-background: ${color.sidebarBackground ?? color.background};
   --ld-font-heading: ${fonts.heading};
   --ld-font-body: ${fonts.body};
   --ld-font-code: ${fonts.code};
 `;
+}
+
+function normalizeThemeColors(color: Theme["color"]): Theme["color"] {
+  return {
+    ...color,
+    border: ensureDarkBorderLightness({
+      background: color.background,
+      text: color.text,
+      candidate: color.border,
+    }),
+  };
 }
 
 function validateTheme(value: unknown, themePath: string): Theme {
@@ -592,6 +604,72 @@ function ensureBackgroundContrast(options: {
     }
 
     if (adjustedContrast >= PREFERRED_BACKGROUND_CONTRAST) {
+      return adjustedColor;
+    }
+  }
+
+  return bestColor;
+}
+
+function ensureDarkBorderLightness(options: {
+  background: string;
+  text: string;
+  candidate: string;
+}): string {
+  const background = parse(options.background);
+  const text = parse(options.text);
+  const candidate = parse(options.candidate);
+  if (!background || !text || !candidate) {
+    return options.candidate;
+  }
+
+  const backgroundOklch = toOklch(background);
+  const textOklch = toOklch(text);
+  const candidateOklch = toOklch(candidate);
+  if (
+    !backgroundOklch ||
+    !textOklch ||
+    !candidateOklch ||
+    typeof backgroundOklch.l !== "number" ||
+    typeof textOklch.l !== "number" ||
+    typeof candidateOklch.l !== "number"
+  ) {
+    return options.candidate;
+  }
+
+  if (backgroundOklch.l >= textOklch.l || candidateOklch.l > backgroundOklch.l) {
+    return options.candidate;
+  }
+
+  let bestColor = options.candidate;
+  let bestLightness = candidateOklch.l;
+  for (let step = 1; step <= MAX_BACKGROUND_CONTRAST_STEPS; step += 1) {
+    const adjusted = {
+      ...candidateOklch,
+      l: clamp(candidateOklch.l + BACKGROUND_LIGHTNESS_STEP * step, 0, 1),
+      c:
+        typeof candidateOklch.c === "number"
+          ? Math.min(candidateOklch.c, MAX_BACKGROUND_CHROMA)
+          : candidateOklch.c,
+    };
+    const clampedColor = clampToRgb(adjusted);
+    if (!clampedColor) {
+      continue;
+    }
+
+    const adjustedColor = formatHex(clampedColor);
+    const adjustedParsedColor = parse(adjustedColor);
+    const adjustedOklch = adjustedParsedColor ? toOklch(adjustedParsedColor) : undefined;
+    if (!adjustedOklch || typeof adjustedOklch.l !== "number") {
+      continue;
+    }
+
+    if (adjustedOklch.l > bestLightness) {
+      bestColor = adjustedColor;
+      bestLightness = adjustedOklch.l;
+    }
+
+    if (adjustedOklch.l > backgroundOklch.l) {
       return adjustedColor;
     }
   }

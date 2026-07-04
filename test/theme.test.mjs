@@ -434,6 +434,53 @@ test("maps shiki theme names to lildocs css variables", async () => {
   assert.doesNotMatch(html, /class="shiki github-light"/);
 });
 
+test("lightens dark theme borders above the page background", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const background = cssVariable(css, "--ld-color-background");
+  const border = cssVariable(css, "--ld-color-border");
+
+  assert.equal(background, "#24292e");
+  assert.notEqual(border, "#1b1f23");
+  assert.ok(oklchLightness(border) > oklchLightness(background));
+});
+
+test("lightens local dark theme borders above the page background", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "theme.ts",
+    `export default {
+  color: {
+    background: "#24292e",
+    text: "#e1e4e8",
+    mutedText: "#959da5",
+    border: "#1b1f23",
+    link: "#79b8ff",
+    codeBackground: "#2f363d",
+  },
+  font: {
+    body: "system-ui, sans-serif",
+    code: "ui-monospace, monospace",
+  },
+};`,
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const background = cssVariable(css, "--ld-color-background");
+  const border = cssVariable(css, "--ld-color-border");
+
+  assert.notEqual(border, "#1b1f23");
+  assert.ok(oklchLightness(border) > oklchLightness(background));
+});
+
 test("loads local theme files", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
