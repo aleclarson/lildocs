@@ -480,8 +480,8 @@ html.is-animating .transition-scale {
   width: 20px;
   height: 20px;
   background: currentColor;
-  mask: url("github-icon.svg") center / contain no-repeat;
-  -webkit-mask: url("github-icon.svg") center / contain no-repeat;
+  mask: var(--ld-repo-icon) center / contain no-repeat;
+  -webkit-mask: var(--ld-repo-icon) center / contain no-repeat;
 }
 
 .searchBox {

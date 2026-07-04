@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
+import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 test("generates search index from titles headings and body text", async () => {
   const { docs, workspace } = await fixtureWorkspace();
@@ -49,18 +49,24 @@ test("emits GitHub repository button from nearest package metadata", async () =>
       },
     }),
   );
+  await writeDocFile(docs, "nested/page.md", "# Nested\n");
 
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
   assert.match(html, /class="repoButton"/);
-  assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
+  assert.match(
+    html,
+    /<span class="repoIcon" aria-hidden="true" style="--ld-repo-icon: url\(\.\/assets\/github-icon\.svg\)"><\/span>/,
+  );
+  assert.match(nestedHtml, /--ld-repo-icon: url\(\.\.\/assets\/github-icon\.svg\)/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
   assert.ok(html.indexOf('class="repoButton"') < html.indexOf('class="searchBox"'));
-  assert.match(css, /mask: url\("github-icon\.svg"\) center \/ contain no-repeat/);
+  assert.match(css, /mask: var\(--ld-repo-icon\) center \/ contain no-repeat/);
   assert.match(icon, /viewBox="0 0 256 250"/);
 });
 

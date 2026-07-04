@@ -37,6 +37,7 @@ export function Layout({
 }: LayoutProps) {
   const transition = navigation?.transition ?? "fade";
   const documentTitle = projectName ? `${page.title} • ${projectName}` : page.title;
+  const repoIconUrl = rootRelativeUrl(page.route, "assets/github-icon.svg");
   return (
     <html lang="en">
       <head>
@@ -67,7 +68,11 @@ export function Layout({
                   aria-label="View repository on GitHub"
                   title="View repository on GitHub"
                 >
-                  <span className="repoIcon" aria-hidden="true" />
+                  <span
+                    className="repoIcon"
+                    aria-hidden="true"
+                    style={`--ld-repo-icon: url(${repoIconUrl})`}
+                  />
                 </a>
               ) : null}
               <div id="lildocs-search-root" className="searchBox">
