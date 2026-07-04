@@ -35,6 +35,10 @@ lildocs ./docs/index.md
 Navigation is generated from the folder structure. Nested folders become nested
 navigation groups, and hidden or system files are ignored.
 
+When the home page links to local Markdown documents, those pages are hoisted in
+the sidebar in first-reference order unless `navigation.order` already covers
+them. Unlinked pages continue to use generated folder order.
+
 ```text
 docs/
   index.md

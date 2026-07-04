@@ -70,7 +70,7 @@ This field is optional and does not change build behavior.
 | `background.gradient` | CSS background gradient. |
 | `background.blendMode` | CSS `background-blend-mode` for the theme color and configured background layers. |
 | `link.underline` | Content link underline behavior: `always`, `hover`, or `none`. |
-| `navigation.order` | Docs-root-relative Markdown files or folders, in generated navigation order. Unlisted pages keep their generated order after listed siblings. |
+| `navigation.order` | Docs-root-relative Markdown files or folders, in generated navigation order. Unlisted pages keep entry-point link order, then generated order after listed siblings. |
 | `navigation.transition` | Enhanced navigation transition preset: `fade`, `slide`, `scale`, or `instant`. |
 | `navigation.duration` | Enhanced navigation transition duration in milliseconds. |
 | `navigation.easing` | CSS timing function used by enhanced navigation transitions. |

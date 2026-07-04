@@ -16,6 +16,25 @@ export function relativeUrl(fromRoute: string, toRoute: string) {
   return relative.startsWith(".") ? relative : `./${relative}`;
 }
 
+export function isExternalOrAnchorUrl(href: string) {
+  return /^(?:[a-z]+:)?\/\//i.test(href) || href.startsWith("#") || href.startsWith("mailto:");
+}
+
+export function resolveMarkdownDocumentPath(fromRelativePath: string, href: string) {
+  if (isExternalOrAnchorUrl(href)) {
+    return undefined;
+  }
+
+  const [hrefPath] = href.split("#");
+  if (!hrefPath?.toLowerCase().endsWith(".md")) {
+    return undefined;
+  }
+
+  return path.posix.normalize(
+    path.posix.join(path.posix.dirname(fromRelativePath), hrefPath.replace(/\\/g, "/")),
+  );
+}
+
 export function pageDepth(route: string) {
   const dir = path.posix.dirname(route);
   return dir === "." ? 0 : dir.split("/").length;

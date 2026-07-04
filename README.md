@@ -6,8 +6,8 @@ searchable documentation site.
 It is built for projects that already keep docs in a repository and want a
 complete site without MDX, hosted search, or a large theme system. Point it at a
 folder or a single Markdown file and it finds the home page, infers navigation
-from the folder structure, renders Markdown and Mermaid, copies local assets,
-and writes self-contained HTML.
+from the folder structure and home page links, renders Markdown and Mermaid,
+copies local assets, and writes self-contained HTML.
 
 ```bash
 lildocs ./docs

@@ -7,7 +7,12 @@ import { codeToHtml } from "shiki";
 import type { ContentModel, Heading, Page } from "./content.js";
 import { LildocsError } from "./errors.js";
 import type { MermaidRenderer } from "./mermaid.js";
-import { rootRelativeUrl, toPosixPath } from "./paths.js";
+import {
+  isExternalOrAnchorUrl,
+  resolveMarkdownDocumentPath,
+  rootRelativeUrl,
+  toPosixPath,
+} from "./paths.js";
 import { normalizeSearchText } from "./search.js";
 
 export type AssetCopy = {
@@ -156,18 +161,11 @@ function nextHeading(headings: Heading[], depth: number, text: string) {
 }
 
 function rewriteLink(model: ContentModel, page: Page, href: string) {
-  if (isExternalOrAnchor(href)) {
+  const targetPath = resolveMarkdownDocumentPath(page.relativePath, href);
+  if (!targetPath) {
     return href;
   }
 
-  const [hrefPath, hash] = href.split("#");
-  if (!hrefPath?.toLowerCase().endsWith(".md")) {
-    return href;
-  }
-
-  const targetPath = toPosixPath(
-    path.normalize(path.join(path.posix.dirname(page.relativePath), hrefPath)),
-  );
   const targetPage = model.byRelativePath.get(targetPath);
   if (!targetPage) {
     return href;
@@ -175,6 +173,7 @@ function rewriteLink(model: ContentModel, page: Page, href: string) {
 
   const relative = path.posix.relative(path.posix.dirname(page.route), targetPage.route);
   const url = relative.startsWith(".") ? relative : `./${relative}`;
+  const hash = href.includes("#") ? href.slice(href.indexOf("#") + 1) : undefined;
   return hash ? `${url}#${hash}` : url;
 }
 
@@ -185,7 +184,7 @@ function registerAsset(
   href: string,
   assets: AssetCopy[],
 ) {
-  if (isExternalOrAnchor(href)) {
+  if (isExternalOrAnchorUrl(href)) {
     return href;
   }
 
@@ -198,10 +197,6 @@ function registerAsset(
   });
 
   return rootRelativeUrl(page.route, outputRelativePath);
-}
-
-function isExternalOrAnchor(href: string) {
-  return /^(?:[a-z]+:)?\/\//i.test(href) || href.startsWith("#") || href.startsWith("mailto:");
 }
 
 function stripHtml(value: string) {

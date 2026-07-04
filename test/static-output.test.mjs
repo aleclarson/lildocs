@@ -324,6 +324,73 @@ test("renders previous and next page links in generated navigation order", async
   assert.doesNotMatch(lastHtml, /rel="next"/);
 });
 
+test("hoists entry point links in referenced sidebar order", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+  await writeDocFile(
+    docs,
+    "index.md",
+    `# Fixture Home
+
+[Quickstart](quickstart.md)
+[Guide](guide.md)
+[Nested](nested/page.md)
+[Missing](missing.md)
+[External](https://example.com/docs.md)
+[Section](#welcome)
+`,
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const sidebar = documentationNavigation(homeHtml);
+  assert.match(
+    sidebar,
+    /<a class="active" href="\.\/index\.html">Fixture Home<\/a>[\s\S]*<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>/,
+  );
+  assert.match(homeHtml, /rel="next" href=".\/quickstart.html"/);
+
+  const quickstartHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
+  assert.match(quickstartHtml, /rel="prev" href=".\/index.html"/);
+  assert.match(quickstartHtml, /rel="next" href=".\/guide.html"/);
+});
+
+test("keeps manual navigation order ahead of entry point link order", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+  await writeDocFile(
+    docs,
+    "index.md",
+    `# Fixture Home
+
+[Quickstart](quickstart.md)
+[Nested](nested/page.md)
+[Guide](guide.md)
+`,
+  );
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      navigation: {
+        order: ["index.md", "nested/", "guide.md"],
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const sidebar = documentationNavigation(homeHtml);
+  assert.match(
+    sidebar,
+    /<a class="active" href="\.\/index\.html">Fixture Home<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a href="\.\/quickstart\.html">Quickstart<\/a>/,
+  );
+});
+
 test("uses docs config navigation order for pages folders and page links", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -465,3 +532,9 @@ test("writes to dist by default", async () => {
 
   await access(path.join(workspace, "dist", "index.html"));
 });
+
+function documentationNavigation(html) {
+  const match = html.match(/<nav aria-label="Documentation navigation">([\s\S]*?)<\/nav>/);
+  assert.ok(match?.[1]);
+  return match[1];
+}

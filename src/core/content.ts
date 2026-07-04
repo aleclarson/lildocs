@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import matter from "gray-matter";
+import { marked } from "marked";
 import { collectMarkdownPaths, type ResolvedInput } from "./input.js";
 import { LildocsError } from "./errors.js";
-import { toPosixPath } from "./paths.js";
+import { resolveMarkdownDocumentPath, toPosixPath } from "./paths.js";
 
 export type Heading = {
   depth: number;
@@ -41,14 +42,15 @@ export async function buildContentModel(
   const paths = await collectMarkdownPaths(input.docsRoot);
   const pages = await Promise.all(paths.map((sourcePath) => readPage(input, sourcePath)));
   const orderEntries = normalizeNavigationOrder(navigationOrder);
-  const sortedPages = pages
-    .filter((page) => !isInsideOutput(page.relativePath, outDirName))
-    .toSorted(
-      (a, b) =>
-        navigationRank(a, orderEntries) - navigationRank(b, orderEntries) ||
-        routeRank(a, input.homePage) - routeRank(b, input.homePage) ||
-        a.route.localeCompare(b.route),
-    );
+  const visiblePages = pages.filter((page) => !isInsideOutput(page.relativePath, outDirName));
+  const entryPointOrder = entryPointLinkOrder(visiblePages, input.homePage, orderEntries);
+  const sortedPages = visiblePages.toSorted(
+    (a, b) =>
+      navigationRank(a, orderEntries) - navigationRank(b, orderEntries) ||
+      routeRank(a, input.homePage) - routeRank(b, input.homePage) ||
+      entryPointLinkRank(a, entryPointOrder) - entryPointLinkRank(b, entryPointOrder) ||
+      a.route.localeCompare(b.route),
+  );
   validateNavigationOrder(orderEntries, sortedPages);
   ensureUniqueRoutes(sortedPages);
 
@@ -155,6 +157,57 @@ function markdownPathToRoute(relativePath: string) {
 
 function routeRank(page: Page, homePage: string) {
   return page.sourcePath === homePage ? -1 : 0;
+}
+
+function entryPointLinkOrder(
+  pages: Page[],
+  homePage: string,
+  navigationOrder: NavigationOrderEntry[],
+) {
+  const home = pages.find((page) => page.sourcePath === homePage);
+  if (!home) {
+    return new Map<string, number>();
+  }
+
+  const byRelativePath = new Map(pages.map((page) => [page.relativePath, page]));
+  const ordered = new Map<string, number>();
+
+  for (const href of markdownLinkHrefs(home.markdown)) {
+    const targetPath = resolveMarkdownDocumentPath(home.relativePath, href);
+    if (!targetPath) {
+      continue;
+    }
+
+    const target = byRelativePath.get(targetPath);
+    if (
+      !target ||
+      target.sourcePath === homePage ||
+      navigationOrder.some((entry) => navigationOrderEntryMatchesPage(entry, target)) ||
+      ordered.has(target.relativePath)
+    ) {
+      continue;
+    }
+
+    ordered.set(target.relativePath, ordered.size);
+  }
+
+  return ordered;
+}
+
+function markdownLinkHrefs(markdown: string) {
+  const hrefs: string[] = [];
+
+  marked.walkTokens(marked.lexer(markdown), (token) => {
+    if (token.type === "link") {
+      hrefs.push(token.href);
+    }
+  });
+
+  return hrefs;
+}
+
+function entryPointLinkRank(page: Page, order: Map<string, number>) {
+  return order.get(page.relativePath) ?? order.size;
 }
 
 type NavigationOrderEntry = {
