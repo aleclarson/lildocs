@@ -56,7 +56,7 @@ test("init github-pages writes a GitHub Pages workflow", async () => {
   const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
   assert.match(workflow, /actions\/upload-pages-artifact@v3/);
   assert.match(workflow, /pnpm install --frozen-lockfile/);
-  assert.match(workflow, /node dist\/cli\.mjs deploy \.\/docs --out site/);
+  assert.match(workflow, /pnpm exec lildocs deploy \.\/docs --out site/);
 });
 
 test("init github-pages preserves base paths in the workflow", async () => {
@@ -65,7 +65,7 @@ test("init github-pages preserves base paths in the workflow", async () => {
   await runCli(["init", "github-pages", "./docs", "--out", "site", "--base", "repo"], { cwd: workspace });
 
   const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
-  assert.match(workflow, /node dist\/cli\.mjs deploy \.\/docs --out site --base \/repo\//);
+  assert.match(workflow, /pnpm exec lildocs deploy \.\/docs --out site --base \/repo\//);
 });
 
 test("init github-pages does not overwrite an existing workflow", async () => {

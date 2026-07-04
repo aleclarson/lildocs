@@ -71,7 +71,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: node dist/cli.mjs ${deployArgs.map(shellQuote).join(" ")}
+      - run: pnpm exec lildocs ${deployArgs.map(shellQuote).join(" ")}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
