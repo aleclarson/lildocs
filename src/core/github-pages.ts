@@ -4,7 +4,10 @@ export type WorkflowOptions = {
   input: string;
   outDir: string;
   basePath?: string;
+  pnpmVersion?: string | false;
 };
+
+const DEFAULT_PNPM_VERSION = "10.29.3";
 
 export function normalizeBasePath(value?: string): string {
   const basePath = value ?? "/";
@@ -33,6 +36,13 @@ export function repoRelativeInputPath(input: string, cwd: string): string {
 }
 
 export function renderGitHubPagesWorkflow(options: WorkflowOptions): string {
+  const pnpmVersion = options.pnpmVersion ?? DEFAULT_PNPM_VERSION;
+  const pnpmActionSetupOptions =
+    pnpmVersion === false
+      ? ""
+      : `        with:
+          version: ${pnpmVersion}
+`;
   const deployArgs = [
     "deploy",
     options.input,
@@ -61,19 +71,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.29.3
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d
+${pnpmActionSetupOptions}      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - run: pnpm exec lildocs ${deployArgs.map(shellQuote).join(" ")}
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:
           path: ${options.outDir}
   deploy:
@@ -84,7 +92,7 @@ jobs:
     needs: build
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
 `;
 }
 

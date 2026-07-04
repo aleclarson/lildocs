@@ -31,18 +31,32 @@ test("rejects workflow input paths outside the repository", () => {
   assert.throws(() => repoRelativeInputPath(path.join(path.sep, "other", "docs"), cwd), /inside the repository/);
 });
 
-test("renders GitHub Pages workflow with official actions and pnpm", () => {
+test("renders GitHub Pages workflow with official actions pinned to SHAs and fallback pnpm version", () => {
   const workflow = renderGitHubPagesWorkflow({
     input: "./docs",
     outDir: "dist",
   });
 
-  assert.match(workflow, /actions\/checkout@v4/);
-  assert.match(workflow, /pnpm\/action-setup@v4/);
-  assert.match(workflow, /actions\/configure-pages@v5/);
-  assert.match(workflow, /actions\/upload-pages-artifact@v3/);
-  assert.match(workflow, /actions\/deploy-pages@v4/);
+  assert.match(workflow, /actions\/checkout@[a-f0-9]{40}/);
+  assert.match(workflow, /pnpm\/action-setup@[a-f0-9]{40}/);
+  assert.match(workflow, /actions\/setup-node@[a-f0-9]{40}/);
+  assert.match(workflow, /actions\/configure-pages@[a-f0-9]{40}/);
+  assert.match(workflow, /actions\/upload-pages-artifact@[a-f0-9]{40}/);
+  assert.match(workflow, /actions\/deploy-pages@[a-f0-9]{40}/);
+  assert.match(workflow, /version: 10\.29\.3/);
   assert.match(workflow, /pnpm exec lildocs deploy \.\/docs --out dist/);
+});
+
+test("renders GitHub Pages workflow without pnpm version when package manager should be inferred", () => {
+  const workflow = renderGitHubPagesWorkflow({
+    input: "./docs",
+    outDir: "dist",
+    pnpmVersion: false,
+  });
+
+  assert.doesNotMatch(workflow, /version: 10\.29\.3/);
+  assert.doesNotMatch(workflow, /with:\n\s+version:/);
+  assert.match(workflow, /pnpm\/action-setup@[a-f0-9]{40}/);
 });
 
 test("renders GitHub Pages workflow with project page base path", () => {

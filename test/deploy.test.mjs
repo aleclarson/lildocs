@@ -54,9 +54,35 @@ test("init github-pages writes a GitHub Pages workflow", async () => {
   await runCli(["init", "github-pages", "./docs", "--out", "site"], { cwd: workspace });
 
   const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
-  assert.match(workflow, /actions\/upload-pages-artifact@v3/);
+  assert.match(workflow, /actions\/upload-pages-artifact@[a-f0-9]{40}/);
+  assert.match(workflow, /version: 10\.29\.3/);
   assert.match(workflow, /pnpm install --frozen-lockfile/);
   assert.match(workflow, /pnpm exec lildocs deploy \.\/docs --out site/);
+});
+
+test("init github-pages omits pnpm version when packageManager is declared", async () => {
+  const { workspace } = await fixtureWorkspace();
+  await writeFile(path.join(workspace, "package.json"), `${JSON.stringify({ packageManager: "pnpm@10.30.0" })}\n`);
+
+  await runCli(["init", "github-pages", "./docs", "--out", "site"], { cwd: workspace });
+
+  const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
+  assert.match(workflow, /pnpm\/action-setup@[a-f0-9]{40}/);
+  assert.doesNotMatch(workflow, /with:\n\s+version:/);
+});
+
+test("init github-pages uses the nearest package.json packageManager field", async () => {
+  const { workspace } = await fixtureWorkspace();
+  const app = path.join(workspace, "app");
+  await writeFile(path.join(workspace, "package.json"), `${JSON.stringify({ packageManager: "pnpm@10.30.0" })}\n`);
+  await mkdir(path.join(app, "docs"), { recursive: true });
+  await writeFile(path.join(app, "docs", "index.md"), "# App docs\n");
+  await writeFile(path.join(app, "package.json"), "{}\n");
+
+  await runCli(["init", "github-pages", "./docs"], { cwd: app });
+
+  const workflow = await readFile(path.join(app, ".github", "workflows", "lildocs-pages.yml"), "utf8");
+  assert.match(workflow, /version: 10\.29\.3/);
 });
 
 test("init github-pages preserves base paths in the workflow", async () => {

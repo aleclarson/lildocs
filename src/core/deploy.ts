@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildSite, type BuildOptions, type BuildResult } from "./build.js";
@@ -64,6 +65,7 @@ async function prepareWorkflow(options: InitGitHubPagesWorkflowOptions) {
 
   const workflowInput = repoRelativeInputPath(options.input, options.cwd);
   const workflowOutDir = path.relative(options.cwd, path.resolve(options.cwd, options.outDir));
+  const hasPackageManager = nearestPackageJsonHasPackageManager(options.cwd);
 
   return {
     path: workflowPath,
@@ -71,8 +73,32 @@ async function prepareWorkflow(options: InitGitHubPagesWorkflowOptions) {
       input: workflowInput,
       outDir: workflowOutDir || ".",
       basePath: options.basePath,
+      pnpmVersion: hasPackageManager ? false : undefined,
     }),
   };
+}
+
+function nearestPackageJsonHasPackageManager(cwd: string) {
+  let current = path.resolve(cwd);
+
+  while (true) {
+    const packageJsonPath = path.join(current, "package.json");
+
+    if (existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+        packageManager?: unknown;
+      };
+      return (
+        typeof packageJson.packageManager === "string" && packageJson.packageManager.length > 0
+      );
+    }
+
+    const parent = path.dirname(current);
+    if (parent === current) {
+      return false;
+    }
+    current = parent;
+  }
 }
 
 async function pathExists(filePath: string) {
