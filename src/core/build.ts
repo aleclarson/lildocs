@@ -85,6 +85,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const searchScript = await readRenderAsset("search.js");
   const copyCodeScript = await readRenderAsset("copy-code.js");
   const navigationScript = await readRenderAsset("navigation.js");
+  const githubIcon = await readRenderAsset("github-icon.svg");
   const swupScript = await readSwupAsset();
   const backgroundResolution = resolveBackgroundOptions({
     cwd: options.cwd,
@@ -158,6 +159,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     await writeFile(path.join(outDir, "assets", "copy-code.js"), copyCodeScript);
     await writeFile(path.join(outDir, "assets", "swup.umd.js"), swupScript);
     await writeFile(path.join(outDir, "assets", "navigation.js"), navigationScript);
+    await writeFile(path.join(outDir, "assets", "github-icon.svg"), githubIcon);
     await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
     await copyAssets(assets);
   } finally {

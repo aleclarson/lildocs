@@ -53,12 +53,15 @@ test("emits GitHub repository button from nearest package metadata", async () =>
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
   assert.match(html, /class="repoButton"/);
-  assert.match(html, /<svg class="repoIcon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">/);
-  assert.match(html, /fill="currentColor"/);
+  assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
   assert.ok(html.indexOf('class="repoButton"') < html.indexOf('class="searchBox"'));
+  assert.match(css, /mask: url\("github-icon\.svg"\) center \/ contain no-repeat/);
+  assert.match(icon, /viewBox="0 0 256 250"/);
 });
 
 test("prefers GITHUB_REPOSITORY over package metadata for repository button", async () => {

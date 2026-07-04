@@ -6,7 +6,7 @@ export default defineConfig([
     format: ["esm"],
     outDir: "dist",
     clean: true,
-    copy: [{ from: "src/render/*.{css,js}", to: "dist/render" }],
+    copy: [{ from: "src/render/*.{css,js,svg}", to: "dist/render" }],
     dts: false,
     shims: true,
   },

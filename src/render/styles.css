@@ -479,6 +479,9 @@ html.is-animating .transition-scale {
   display: block;
   width: 20px;
   height: 20px;
+  background: currentColor;
+  mask: url("github-icon.svg") center / contain no-repeat;
+  -webkit-mask: url("github-icon.svg") center / contain no-repeat;
 }
 
 .searchBox {
