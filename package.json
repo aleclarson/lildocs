@@ -2,6 +2,7 @@
   "name": "lildocs",
   "version": "0.0.0",
   "description": "A lightweight CLI that turns Markdown docs into a static searchable documentation site.",
+  "homepage": "https://aleclarson.github.io/lildocs/",
   "repository": {
     "type": "git",
     "url": "https://github.com/aleclarson/lildocs"
