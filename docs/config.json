@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/config.schema.json",
-  "theme": "gruvbox-light-hard",
+  "theme": "one-dark-pro",
   "font": {
     "heading": "Onest",
     "body": "Geist",
@@ -16,5 +16,8 @@
   "favicon": "./assets/favicon.svg",
   "logo": {
     "image": "./assets/logo.svg"
+  },
+  "navigation": {
+    "duration": 125
   }
 }
