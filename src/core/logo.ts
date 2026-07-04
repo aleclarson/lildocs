@@ -26,6 +26,7 @@ export async function resolveLogoOptions(options: {
   docsRoot: string;
   outDir: string;
   logo?: LogoOptions;
+  defaultText?: string;
   favicon?: string;
 }): Promise<LogoResolution> {
   const assets: AssetCopy[] = [];
@@ -34,6 +35,8 @@ export async function resolveLogoOptions(options: {
 
   if (options.logo?.text) {
     logo.text = options.logo.text;
+  } else if (!options.logo?.image && options.defaultText) {
+    logo.text = options.defaultText;
   }
 
   if (options.logo?.image) {

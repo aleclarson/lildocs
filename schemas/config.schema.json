@@ -139,7 +139,7 @@
         "text": {
           "type": "string",
           "minLength": 1,
-          "description": "Logo text shown next to the logo image, or by itself when no image is configured."
+          "description": "Logo text shown next to the logo image, or by itself when no image is configured. Defaults to the nearest package.json name when no logo image is configured."
         },
         "font": {
           "$ref": "#/$defs/fontValue"

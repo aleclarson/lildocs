@@ -70,7 +70,7 @@ This field is optional and does not change build behavior.
 | `font.body` | Font used for normal text and interface text. |
 | `font.code` | Font used for inline code and fenced code blocks. |
 | `logo.image` | Header logo image from a URL, data URL, absolute URL path, or docs-relative image path. |
-| `logo.text` | Header brand text. |
+| `logo.text` | Header brand text. Defaults to the nearest `package.json` `name` when no logo image is configured. |
 | `logo.font` | Font used for header brand text. |
 | `background.image` | Background image from a URL or docs-relative file path. |
 | `background.gradient` | CSS background gradient. |

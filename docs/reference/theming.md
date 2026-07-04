@@ -121,8 +121,9 @@ file. Local image files are copied into the generated site's assets.
 `logo.image` can be a URL, data URL, absolute URL path, or docs-relative image
 file. Local image files are copied into the generated site's assets.
 
-`logo.text` sets the visible brand text. When omitted, no brand text is
-rendered.
+`logo.text` sets the visible brand text. When both `logo.text` and `logo.image`
+are omitted, the generated header uses the nearest `package.json` `name` as the
+brand text.
 
 `logo.font` sets the brand text font. Values can be Google Fonts family names or
 local `.woff2`, `.woff`, `.ttf`, or `.otf` file paths.

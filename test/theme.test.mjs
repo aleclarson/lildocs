@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { converter, parse } from "culori";
@@ -169,9 +169,21 @@ test("loads logo image text and font from docs config", async () => {
   await access(path.join(outDir, "assets", "images", "logo.svg"));
 });
 
+test("uses nearest package name as logo text when no logo is configured", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(path.join(workspace, "package.json"), JSON.stringify({ name: "fixture-docs" }));
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(html, /<span>fixture-docs<\/span>/);
+});
+
 test("does not render default logo text when logo text is omitted", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
+  await writeFile(path.join(workspace, "package.json"), JSON.stringify({ name: "fixture-docs" }));
   await writeDocFile(docs, "images/logo.svg", '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
   await writeDocFile(
     docs,
@@ -187,7 +199,7 @@ test("does not render default logo text when logo text is omitted", async () => 
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(html, /class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt/);
-  assert.doesNotMatch(html, /<span>Docs<\/span>/);
+  assert.doesNotMatch(html, /<span>fixture-docs<\/span>/);
 });
 
 test("copies local logo fonts from docs config", async () => {

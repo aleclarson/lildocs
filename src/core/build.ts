@@ -84,7 +84,8 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   );
   const packagePath = await findNearestPackageJson(input.docsRoot, options.cwd);
   const repositoryUrl = await resolveRepositoryUrl(packagePath);
-  const projectName = configOptions.projectName ?? (await resolvePackageName(packagePath));
+  const packageName = await resolvePackageName(packagePath);
+  const projectName = configOptions.projectName ?? packageName;
   const theme = await resolveTheme({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
@@ -113,6 +114,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     docsRoot: input.docsRoot,
     outDir,
     logo: configOptions.logo,
+    defaultText: packageName,
     favicon: configOptions.favicon,
   });
   const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
