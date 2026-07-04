@@ -33,6 +33,9 @@ want persistent defaults:
   "link": {
     "underline": "hover"
   },
+  "reference": {
+    "packageJson": "../package.json"
+  },
   "navigation": {
     "order": ["index.md", "getting-started.md", "guides/", "reference/"],
     "transition": "fade",
@@ -73,6 +76,7 @@ This field is optional and does not change build behavior.
 | `background.gradient` | CSS background gradient. |
 | `background.blendMode` | CSS `background-blend-mode` for the theme color and configured background layers. |
 | `link.underline` | Content link underline behavior: `always`, `hover`, or `none`. |
+| `reference.packageJson` | Docs-root-relative path to a `package.json` whose exported TypeScript declarations generate `/reference/` API pages. |
 | `navigation.order` | Docs-root-relative Markdown files or folders, in generated navigation order. Unlisted pages keep entry-point link order, then generated order after listed siblings. |
 | `navigation.transition` | Enhanced navigation transition preset: `fade`, `slide`, `scale`, or `instant`. |
 | `navigation.duration` | Enhanced navigation transition duration in milliseconds. |
@@ -104,5 +108,15 @@ and have no JSON config equivalent.
 `--base <path>` and `--workflow` are deploy-only options and have no JSON config
 equivalent.
 
-`favicon`, `logo.image`, `logo.text`, and `logo.font` are configuration-only and
-have no CLI flag equivalents.
+`favicon`, `logo.image`, `logo.text`, `logo.font`, and
+`reference.packageJson` are configuration-only and have no CLI flag equivalents.
+
+## API Reference
+
+When `reference.packageJson` points to a package manifest with TypeScript
+declaration exports, lildocs uses those exports to generate static API pages
+under `/reference/`.
+
+If `reference.packageJson` is not configured, lildocs also checks for a
+`package.json` next to the docs root. Sibling package manifests without an
+`exports` field are ignored.

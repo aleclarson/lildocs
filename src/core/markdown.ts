@@ -1,6 +1,6 @@
 import { copyFile, mkdir, stat } from "node:fs/promises";
 import path from "node:path";
-import { Marked, Renderer, parser } from "marked";
+import { Marked, Parser, Renderer } from "marked";
 import markedShiki from "marked-shiki";
 import { markedAlert } from "../vendor/marked-alert/index.js";
 import { codeToHtml } from "shiki";
@@ -46,14 +46,14 @@ export async function renderMarkdownPage(
   const renderer = new Renderer();
 
   renderer.heading = ({ tokens, depth }) => {
-    const text = parser(tokens);
+    const text = Parser.parseInline(tokens);
     const plain = stripHtml(text);
     const heading = nextHeading(headingIds, depth, plain);
     return `<h${depth} id="${heading?.id ?? ""}">${text}</h${depth}>`;
   };
 
   renderer.link = ({ href, title, tokens }) => {
-    const text = parser(tokens);
+    const text = Parser.parseInline(tokens);
     const rewritten = rewriteLink(model, page, href);
     const titleAttribute = title ? ` title="${escapeHtml(title)}"` : "";
     return `<a href="${escapeHtml(rewritten)}"${titleAttribute}>${text}</a>`;

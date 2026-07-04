@@ -34,13 +34,23 @@ export type ContentModel = {
   byRelativePath: Map<string, Page>;
 };
 
+export type AdditionalPage = {
+  sourcePath: string;
+  relativePath: string;
+  rawMarkdown: string;
+};
+
 export async function buildContentModel(
   input: ResolvedInput,
   outDirName: string,
   navigationOrder: string[] = [],
+  additionalPages: AdditionalPage[] = [],
 ): Promise<ContentModel> {
   const paths = await collectMarkdownPaths(input.docsRoot);
-  const pages = await Promise.all(paths.map((sourcePath) => readPage(input, sourcePath)));
+  const pages = [
+    ...(await Promise.all(paths.map((sourcePath) => readPage(input, sourcePath)))),
+    ...additionalPages.map((page) => pageFromMarkdown(input, page)),
+  ];
   const orderEntries = normalizeNavigationOrder(navigationOrder);
   const visiblePages = pages.filter((page) => !isInsideOutput(page.relativePath, outDirName));
   const entryPointOrder = entryPointLinkOrder(visiblePages, input.homePage, orderEntries);
@@ -65,20 +75,25 @@ export async function buildContentModel(
 
 async function readPage(input: ResolvedInput, sourcePath: string): Promise<Page> {
   const rawMarkdown = await readFile(sourcePath, "utf8");
-  const parsed = matter(rawMarkdown);
   const relativePath = toPosixPath(path.relative(input.docsRoot, sourcePath));
-  const isHome = sourcePath === input.homePage;
+  return pageFromMarkdown(input, { sourcePath, relativePath, rawMarkdown });
+}
+
+function pageFromMarkdown(input: ResolvedInput, page: AdditionalPage): Page {
+  const parsed = matter(page.rawMarkdown);
+  const relativePath = toPosixPath(page.relativePath);
+  const isHome = page.sourcePath === input.homePage;
   const route = isHome ? "index.html" : markdownPathToRoute(relativePath);
   const headings = extractHeadings(parsed.content);
-  const title = inferTitle(parsed.data, parsed.content, sourcePath);
+  const title = inferTitle(parsed.data, parsed.content, page.sourcePath);
 
   return {
-    sourcePath,
+    sourcePath: page.sourcePath,
     relativePath,
     route,
     outputPath: route,
     title,
-    rawMarkdown,
+    rawMarkdown: page.rawMarkdown,
     markdown: parsed.content,
     metadata: parsed.data,
     headings,

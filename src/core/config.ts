@@ -22,6 +22,11 @@ export type DocsConfig = {
   navigation?: NavigationOptions & {
     order?: string[];
   };
+  reference?: ReferenceOptions;
+};
+
+export type ReferenceOptions = {
+  packageJson?: string;
 };
 
 export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
@@ -78,6 +83,9 @@ export function mergeConfigOptions(options: {
     },
     link: {
       underline: options.link?.underline ?? options.config.link?.underline,
+    },
+    reference: {
+      packageJson: options.config.reference?.packageJson,
     },
     navigation: {
       transition: options.navigation?.transition ?? options.config.navigation?.transition,
@@ -161,6 +169,17 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     assertOptionalStringArray(config.navigation.order, "navigation.order", configPath);
   }
 
+  if (config.reference !== undefined) {
+    if (
+      !config.reference ||
+      typeof config.reference !== "object" ||
+      Array.isArray(config.reference)
+    ) {
+      throw new LildocsError(`Docs config "reference" must be an object: ${configPath}`);
+    }
+    assertOptionalString(config.reference.packageJson, "reference.packageJson", configPath);
+  }
+
   return {
     projectName: config.projectName,
     theme: config.theme,
@@ -189,6 +208,11 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
     link: config.link
       ? {
           underline: config.link.underline,
+        }
+      : undefined,
+    reference: config.reference
+      ? {
+          packageJson: config.reference.packageJson,
         }
       : undefined,
     navigation: config.navigation

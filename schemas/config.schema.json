@@ -179,6 +179,18 @@
         }
       }
     },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "API reference generation from package exports.",
+      "properties": {
+        "packageJson": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path to the package.json used to generate /reference/ API pages. Relative paths are resolved from the docs root."
+        }
+      }
+    },
     "navigation": {
       "type": "object",
       "additionalProperties": false,

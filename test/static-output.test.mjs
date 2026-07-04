@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
@@ -51,6 +51,38 @@ test("uses configured project name in document titles", async () => {
   assert.match(html, /<title>Fixture Home • Custom Docs<\/title>/);
 });
 
+test("generates API reference pages from sibling package exports", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeExportedDeclarations(workspace);
+
+  await runCli([docs, "--out", outDir]);
+
+  const referenceHtml = await readFile(path.join(outDir, "reference", "index.html"), "utf8");
+  const searchIndex = await readFile(path.join(outDir, "search-index.json"), "utf8");
+  assert.match(referenceHtml, /<title>fixture-lib • fixture-lib<\/title>/);
+  assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
+  assert.match(referenceHtml, /greet/);
+  assert.match(searchIndex, /Greets a person/);
+});
+
+test("generates API reference pages from configured package exports", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  const packageRoot = path.join(workspace, "packages", "fixture-lib");
+  await writeExportedDeclarations(packageRoot);
+  await writeFile(
+    path.join(docs, "config.json"),
+    JSON.stringify({ reference: { packageJson: "../packages/fixture-lib/package.json" } }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const referenceHtml = await readFile(path.join(outDir, "reference", "index.html"), "utf8");
+  assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
+  assert.match(referenceHtml, /FixtureOptions/);
+});
+
 test("renders mermaid diagrams to static svg", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -63,6 +95,37 @@ test("renders mermaid diagrams to static svg", async () => {
   assert.doesNotMatch(html, /mermaid\.initialize/);
   assert.doesNotMatch(html, /cdn\.jsdelivr\.net\/npm\/mermaid/);
 });
+
+async function writeExportedDeclarations(packageRoot) {
+  await mkdir(path.join(packageRoot, "dist"), { recursive: true });
+  await writeFile(
+    path.join(packageRoot, "package.json"),
+    JSON.stringify({
+      name: "fixture-lib",
+      exports: {
+        ".": {
+          types: "./dist/index.d.ts",
+          default: "./dist/index.js",
+        },
+      },
+    }),
+  );
+  await writeFile(
+    path.join(packageRoot, "dist", "index.d.ts"),
+    `/**
+ * Options for fixture generation.
+ */
+export interface FixtureOptions {
+  name: string;
+}
+
+/**
+ * Greets a person.
+ */
+export declare function greet(options: FixtureOptions): string;
+`,
+  );
+}
 
 test("reports invalid mermaid diagrams during build", async () => {
   const { docs, workspace } = await fixtureWorkspace();

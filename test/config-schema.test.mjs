@@ -62,6 +62,14 @@ test("config schema supports navigation feel options", async () => {
   assert.equal(schema.properties.navigation.additionalProperties, false);
 });
 
+test("config schema supports reference generation options", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+
+  assert.equal(schema.properties.reference.properties.packageJson.type, "string");
+  assert.equal(schema.properties.reference.properties.packageJson.minLength, 1);
+  assert.equal(schema.properties.reference.additionalProperties, false);
+});
+
 test("config schema supports logo options", async () => {
   const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
 

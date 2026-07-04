@@ -9,6 +9,7 @@ import { resolveInput, type HomePagePreference } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
 import { createMermaidRenderer } from "./mermaid.js";
 import { buildNavigation } from "./nav.js";
+import { buildReferencePages } from "./reference.js";
 import { resolveLogoOptions, type LogoOptions } from "./logo.js";
 import { relativeUrl } from "./paths.js";
 import { buildSearchIndex } from "./search.js";
@@ -70,7 +71,17 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
-  const model = await buildContentModel(input, outDirName, configOptions.navigation.order);
+  const referencePages = await buildReferencePages({
+    cwd: options.cwd,
+    docsRoot: input.docsRoot,
+    reference: configOptions.reference,
+  });
+  const model = await buildContentModel(
+    input,
+    outDirName,
+    configOptions.navigation.order,
+    referencePages,
+  );
   const packagePath = await findNearestPackageJson(input.docsRoot, options.cwd);
   const repositoryUrl = await resolveRepositoryUrl(packagePath);
   const projectName = configOptions.projectName ?? (await resolvePackageName(packagePath));
