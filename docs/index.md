@@ -33,4 +33,4 @@ GitHub Pages.
 ## Publishing
 
 - [GitHub Pages deployment](guides/github-pages.md) shows how to generate
-  Pages-ready output and optional workflow files.
+  Pages-ready output and initialize a deployment workflow.

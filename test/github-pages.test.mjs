@@ -42,5 +42,15 @@ test("renders GitHub Pages workflow with official actions and pnpm", () => {
   assert.match(workflow, /actions\/configure-pages@v5/);
   assert.match(workflow, /actions\/upload-pages-artifact@v3/);
   assert.match(workflow, /actions\/deploy-pages@v4/);
-  assert.match(workflow, /node dist\/cli\.mjs build \.\/docs --out dist/);
+  assert.match(workflow, /node dist\/cli\.mjs deploy \.\/docs --out dist/);
+});
+
+test("renders GitHub Pages workflow with project page base path", () => {
+  const workflow = renderGitHubPagesWorkflow({
+    input: "./docs",
+    outDir: "dist",
+    basePath: "repo",
+  });
+
+  assert.match(workflow, /node dist\/cli\.mjs deploy \.\/docs --out dist --base \/repo\//);
 });

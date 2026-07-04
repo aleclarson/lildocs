@@ -4,7 +4,7 @@ import { spawn } from "node:child_process";
 import { command, flag, option, optional, positional, run, string, subcommands } from "cmd-ts";
 import { buildSite } from "./core/build.js";
 import { startDevServer } from "./core/dev.js";
-import { deployGitHubPages } from "./core/deploy.js";
+import { deployGitHubPages, initGitHubPagesWorkflow } from "./core/deploy.js";
 
 export type CliOptions = {
   input: string;
@@ -21,7 +21,6 @@ export type CliOptions = {
   port?: string;
   base?: string;
   open?: boolean;
-  workflow?: boolean;
 };
 
 const outOption = option({
@@ -101,11 +100,6 @@ const baseOption = option({
   description: "GitHub Pages base path, such as /repo/ for project pages.",
 });
 
-const workflowOption = flag({
-  long: "workflow",
-  description: "Create a GitHub Actions workflow for GitHub Pages deployment.",
-});
-
 const inputArgument = positional({
   type: string,
   displayName: "path",
@@ -157,17 +151,24 @@ async function runDeploy(options: CliOptions) {
       underline: parseLinkUnderline(options.linkUnderline),
     },
     basePath: options.base,
-    workflow: options.workflow,
     cwd: process.cwd(),
   });
 
   console.log(`Built GitHub Pages site to ${result.outDir}`);
   console.log(
-    `Upload ${result.outDir} with actions/upload-pages-artifact or run with --workflow to create a workflow.`,
+    `Upload ${result.outDir} with actions/upload-pages-artifact or run init github-pages.`,
   );
-  if (result.workflowPath) {
-    console.log(`Created GitHub Pages workflow at ${result.workflowPath}`);
-  }
+}
+
+async function runInitGitHubPages(options: CliOptions) {
+  const workflowPath = await initGitHubPagesWorkflow({
+    input: options.input,
+    outDir: options.out ?? "dist",
+    basePath: options.base,
+    cwd: process.cwd(),
+  });
+
+  console.log(`Created GitHub Pages workflow at ${workflowPath}`);
 }
 
 const buildCommand = command({
@@ -293,9 +294,27 @@ const deployCommand = command({
     backgroundBlendMode: backgroundBlendModeOption,
     linkUnderline: linkUnderlineOption,
     base: baseOption,
-    workflow: workflowOption,
   },
   handler: runDeploy,
+});
+
+const initGitHubPagesCommand = command({
+  name: "github-pages",
+  description: "Create a GitHub Actions workflow for GitHub Pages deployment.",
+  args: {
+    input: inputArgument,
+    out: outOption,
+    base: baseOption,
+  },
+  handler: runInitGitHubPages,
+});
+
+const initCommand = subcommands({
+  name: "init",
+  description: "Initialize lildocs integration files.",
+  cmds: {
+    "github-pages": initGitHubPagesCommand,
+  },
 });
 
 const bareBuildCommand = command({
@@ -323,6 +342,7 @@ const app = subcommands({
     build: buildCommand,
     deploy: deployCommand,
     dev: devCommand,
+    init: initCommand,
   },
 });
 
@@ -332,6 +352,7 @@ function isKnownTopLevelArg(arg: string | undefined) {
     arg === "build" ||
     arg === "deploy" ||
     arg === "dev" ||
+    arg === "init" ||
     arg === "--help" ||
     arg === "-h"
   );

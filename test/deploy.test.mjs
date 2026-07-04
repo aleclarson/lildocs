@@ -48,37 +48,46 @@ test("deploy preserves build options", async () => {
   assert.match(html, /Roboto Mono/);
 });
 
-test("deploy workflow writes a GitHub Pages workflow", async () => {
+test("init github-pages writes a GitHub Pages workflow", async () => {
   const { workspace } = await fixtureWorkspace();
 
-  await runCli(["deploy", "./docs", "--out", "site", "--workflow"], { cwd: workspace });
+  await runCli(["init", "github-pages", "./docs", "--out", "site"], { cwd: workspace });
 
   const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
   assert.match(workflow, /actions\/upload-pages-artifact@v3/);
   assert.match(workflow, /pnpm install --frozen-lockfile/);
-  assert.match(workflow, /node dist\/cli\.mjs build \.\/docs --out site/);
+  assert.match(workflow, /node dist\/cli\.mjs deploy \.\/docs --out site/);
 });
 
-test("deploy workflow does not overwrite an existing workflow", async () => {
+test("init github-pages preserves base paths in the workflow", async () => {
+  const { workspace } = await fixtureWorkspace();
+
+  await runCli(["init", "github-pages", "./docs", "--out", "site", "--base", "repo"], { cwd: workspace });
+
+  const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
+  assert.match(workflow, /node dist\/cli\.mjs deploy \.\/docs --out site --base \/repo\//);
+});
+
+test("init github-pages does not overwrite an existing workflow", async () => {
   const { workspace } = await fixtureWorkspace();
   const workflowPath = path.join(workspace, ".github", "workflows", "lildocs-pages.yml");
   await mkdir(path.dirname(workflowPath), { recursive: true });
   await writeFile(workflowPath, "existing");
 
   await assert.rejects(
-    () => runCli(["deploy", "./docs", "--workflow"], { cwd: workspace }),
+    () => runCli(["init", "github-pages", "./docs"], { cwd: workspace }),
     /Refusing to overwrite existing workflow/,
   );
 
   assert.equal(await readFile(workflowPath, "utf8"), "existing");
 });
 
-test("deploy workflow rejects absolute input outside the repository", async () => {
-  const { docs, workspace } = await fixtureWorkspace();
-  const outDir = path.join(workspace, "site");
+test("init github-pages rejects absolute input outside the repository", async () => {
+  const { workspace } = await fixtureWorkspace();
+  const outsideDocs = path.join(path.dirname(workspace), "outside-docs");
 
   await assert.rejects(
-    () => runCli(["deploy", docs, "--out", outDir, "--workflow"]),
+    () => runCli(["init", "github-pages", outsideDocs, "--out", "site"], { cwd: workspace }),
     /inside the repository/,
   );
 });

@@ -3,6 +3,7 @@ import path from "node:path";
 export type WorkflowOptions = {
   input: string;
   outDir: string;
+  basePath?: string;
 };
 
 export function normalizeBasePath(value?: string): string {
@@ -32,6 +33,14 @@ export function repoRelativeInputPath(input: string, cwd: string): string {
 }
 
 export function renderGitHubPagesWorkflow(options: WorkflowOptions): string {
+  const deployArgs = [
+    "deploy",
+    options.input,
+    "--out",
+    options.outDir,
+    ...(options.basePath ? ["--base", normalizeBasePath(options.basePath)] : []),
+  ];
+
   return `name: Deploy lildocs to GitHub Pages
 
 on:
@@ -62,7 +71,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: node dist/cli.mjs build ${options.input} --out ${options.outDir}
+      - run: node dist/cli.mjs ${deployArgs.map(shellQuote).join(" ")}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -77,4 +86,11 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
 `;
+}
+
+function shellQuote(value: string): string {
+  if (/^[A-Za-z0-9_./:@-]+$/.test(value)) {
+    return value;
+  }
+  return `'${value.replaceAll("'", "'\\''")}'`;
 }

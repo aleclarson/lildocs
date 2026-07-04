@@ -7,18 +7,14 @@ import {
   repoRelativeInputPath,
 } from "./github-pages.js";
 
-export type DeployOptions = BuildOptions & {
-  workflow?: boolean;
-};
+export type DeployOptions = BuildOptions;
 
 export type DeployResult = BuildResult & {
   basePath: string;
-  workflowPath?: string;
 };
 
 export async function deployGitHubPages(options: DeployOptions): Promise<DeployResult> {
   const basePath = normalizeBasePath(options.basePath);
-  const workflow = options.workflow ? await prepareWorkflow(options) : undefined;
   const result = await buildSite({
     ...options,
     basePath,
@@ -38,21 +34,28 @@ export async function deployGitHubPages(options: DeployOptions): Promise<DeployR
     )}\n`,
   );
 
-  let workflowPath: string | undefined;
-  if (workflow) {
-    await mkdir(path.dirname(workflow.path), { recursive: true });
-    await writeFile(workflow.path, workflow.contents);
-    workflowPath = workflow.path;
-  }
-
   return {
     ...result,
     basePath,
-    workflowPath,
   };
 }
 
-async function prepareWorkflow(options: DeployOptions) {
+export type InitGitHubPagesWorkflowOptions = {
+  input: string;
+  outDir: string;
+  basePath?: string;
+  cwd: string;
+};
+
+export async function initGitHubPagesWorkflow(options: InitGitHubPagesWorkflowOptions) {
+  const workflow = await prepareWorkflow(options);
+  await mkdir(path.dirname(workflow.path), { recursive: true });
+  await writeFile(workflow.path, workflow.contents);
+
+  return workflow.path;
+}
+
+async function prepareWorkflow(options: InitGitHubPagesWorkflowOptions) {
   const workflowPath = path.join(options.cwd, ".github", "workflows", "lildocs-pages.yml");
 
   if (await pathExists(workflowPath)) {
@@ -67,6 +70,7 @@ async function prepareWorkflow(options: DeployOptions) {
     contents: renderGitHubPagesWorkflow({
       input: workflowInput,
       outDir: workflowOutDir || ".",
+      basePath: options.basePath,
     }),
   };
 }

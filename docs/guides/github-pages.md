@@ -31,16 +31,22 @@ from disk.
 
 ## GitHub Actions Workflow
 
-Use `--workflow` to create a Pages workflow:
+Use `init github-pages` to create a Pages workflow:
 
 ```bash
-lildocs deploy ./docs --out ./site --workflow
+lildocs init github-pages ./docs --out ./site
 ```
 
 This writes `.github/workflows/lildocs-pages.yml` if it does not already exist.
-The workflow installs dependencies with pnpm, builds the project, generates the
-site, uploads the output with `actions/upload-pages-artifact`, and deploys with
-`actions/deploy-pages`.
+The workflow installs dependencies with pnpm, builds the project, runs
+`lildocs deploy`, uploads the output with `actions/upload-pages-artifact`, and
+deploys with `actions/deploy-pages`.
+
+Pass the same output and base path that the workflow should use:
+
+```bash
+lildocs init github-pages ./docs --out ./site --base /repo-name/
+```
 
 In the repository settings, set Pages source to **GitHub Actions** before relying
 on the workflow.

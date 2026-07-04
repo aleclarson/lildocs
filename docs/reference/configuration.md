@@ -105,8 +105,8 @@ defaults to `.lildocs`.
 `--host <address>`, `--port <number>`, and `--open` are dev-only server options
 and have no JSON config equivalent.
 
-`--base <path>` and `--workflow` are deploy-only options and have no JSON config
-equivalent.
+`--base <path>` applies to `deploy` and `init github-pages`, and has no JSON
+config equivalent.
 
 `favicon`, `logo.image`, `logo.text`, `logo.font`, and
 `reference.packageJson` are configuration-only and have no CLI flag equivalents.

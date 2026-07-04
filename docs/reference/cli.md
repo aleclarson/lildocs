@@ -11,6 +11,7 @@ lildocs <path>
 lildocs build <path>
 lildocs dev <path>
 lildocs deploy <path>
+lildocs init github-pages <path>
 ```
 
 `<path>` can be a Markdown folder or a single Markdown file.
@@ -95,11 +96,23 @@ lildocs deploy ./docs
 metadata. See [GitHub Pages](../guides/github-pages.md) for the full publishing
 workflow.
 
+## Init GitHub Pages Command
+
+Create a GitHub Actions workflow that deploys lildocs output to GitHub Pages.
+
+```bash
+lildocs init github-pages ./docs
+```
+
+This command writes `.github/workflows/lildocs-pages.yml` if it does not already
+exist. The workflow runs `lildocs deploy`, uploads the generated output, and
+publishes it with GitHub's Pages deployment action.
+
 ## Options
 
 | Option | Applies to | Description |
 | --- | --- | --- |
-| `--out <dir>` | build, dev, deploy | Output directory for generated files. Build and deploy default to `dist`; dev defaults to `.lildocs`. |
+| `--out <dir>` | build, dev, deploy, init github-pages | Output directory for generated files. Build, deploy, and init github-pages default to `dist`; dev defaults to `.lildocs`. |
 | `--theme <name>` | build, dev, deploy | Built-in lildocs theme or bundled Shiki theme name. |
 | `--font.heading <name-or-file>` | build, dev, deploy | Heading font from Google Fonts or a local font file. |
 | `--font.body <name-or-file>` | build, dev, deploy | Body and interface font from Google Fonts or a local font file. |
@@ -111,8 +124,7 @@ workflow.
 | `--host <address>` | dev | Host address for the local development server. |
 | `--port <number>` | dev | Port for the local development server. |
 | `--open` | dev | Open the local development server in the default browser. |
-| `--base <path>` | deploy | GitHub Pages base path, such as `/repo/` for project pages. |
-| `--workflow` | deploy | Create a GitHub Actions workflow for GitHub Pages deployment. |
+| `--base <path>` | deploy, init github-pages | GitHub Pages base path, such as `/repo/` for project pages. |
 
 CLI flags override matching `config.json` values. See
 [Configuration](configuration.md) for persistent defaults.
