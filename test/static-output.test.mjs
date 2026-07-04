@@ -141,7 +141,8 @@ test("highlights code blocks with shiki", async () => {
 
   const html = await readFile(path.join(outDir, "code.html"), "utf8");
   assert.match(html, /class="shiki/);
-  assert.match(html, /style="color:/);
+  assert.match(html, /--shiki-light:/);
+  assert.match(html, /--shiki-dark:/);
 });
 
 test("emits copy-to-clipboard controls for code blocks", async () => {

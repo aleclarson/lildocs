@@ -39,6 +39,37 @@ test("uses the default built-in theme with no config", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(css, /--ld-color-link: #2563eb/);
+  assert.match(css, /color-scheme: light dark/);
+  assert.match(css, /@media \(prefers-color-scheme: dark\)/);
+  assert.match(css, /--ld-color-background: #24292e/);
+  assert.match(css, /--ld-color-link: #79b8ff/);
+});
+
+test("customizes light and dark themes from docs config", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "code.md", "# Code\n\n```ts\nconst message = \"hello\";\n```\n");
+  await writeDocFile(
+    docs,
+    "config.json",
+    JSON.stringify({
+      theme: {
+        light: "minimal",
+        dark: "github-dark-dimmed",
+      },
+    }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  assert.match(css, /--ld-color-link: #0f766e/);
+  assert.match(css, /@media \(prefers-color-scheme: dark\)/);
+  assert.match(css, /--ld-color-background: #22272e/);
+  assert.match(html, /class="shiki shiki-themes github-light github-dark-dimmed"/);
+  assert.match(html, /--shiki-light:/);
+  assert.match(html, /--shiki-dark:/);
 });
 
 test("loads theme and fonts from docs config", async () => {

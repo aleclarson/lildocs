@@ -15,6 +15,18 @@ test("config schema lists the exact bundled shiki themes", async () => {
   );
 });
 
+test("config schema supports system theme pairs", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+  const systemThemePair = schema.properties.theme.oneOf.find(
+    (option) => option.title === "System theme pair",
+  );
+
+  assert.equal(systemThemePair.type, "object");
+  assert.equal(systemThemePair.additionalProperties, false);
+  assert.equal(systemThemePair.properties.light.$ref, "#/$defs/themeName");
+  assert.equal(systemThemePair.properties.dark.$ref, "#/$defs/themeName");
+});
+
 test("config schema supports simple background options", async () => {
   const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
 

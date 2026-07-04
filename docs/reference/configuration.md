@@ -11,7 +11,10 @@ want persistent defaults:
 {
   "$schema": "https://raw.githubusercontent.com/aleclarson/lildocs/main/schemas/config.schema.json",
   "projectName": "Acme Docs",
-  "theme": "github-dark",
+  "theme": {
+    "light": "github-light",
+    "dark": "github-dark"
+  },
   "favicon": "./images/favicon.svg",
   "font": {
     "heading": "Inter",
@@ -58,7 +61,7 @@ This field is optional and does not change build behavior.
 | Field | Description |
 | --- | --- |
 | `projectName` | Project name appended to each browser document title. Defaults to the nearest `package.json` `name`. |
-| `theme` | Built-in lildocs theme or bundled Shiki theme name. |
+| `theme` | Built-in lildocs theme, bundled Shiki theme name, or `{ "light": "...", "dark": "..." }` system theme pair. |
 | `favicon` | Browser icon from a URL, data URL, absolute URL path, or docs-relative image path. |
 | `font.heading` | Font used for page titles and headings. |
 | `font.body` | Font used for normal text and interface text. |

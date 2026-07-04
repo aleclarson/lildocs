@@ -22,6 +22,7 @@ import {
   type BackgroundOptions,
   type LinkOptions,
   type NavigationOptions,
+  type ThemeConfig,
 } from "./theme.js";
 import { renderPage } from "../render/renderPage.js";
 import type { PageNavigation } from "../render/renderPage.js";
@@ -30,7 +31,7 @@ export type BuildOptions = {
   input: string;
   outDir: string;
   cwd: string;
-  theme?: string;
+  theme?: ThemeConfig;
   fonts?: FontOverrides;
   favicon?: string;
   logo?: LogoOptions;
@@ -119,7 +120,13 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   try {
     const renderedPages = await Promise.all(
       model.pages.map((page) =>
-        renderMarkdownPage(model, page, outDir, { mermaid, shikiTheme: theme.shiki?.theme }),
+        renderMarkdownPage(model, page, outDir, {
+          mermaid,
+          shikiTheme: {
+            light: theme.light.shiki?.theme,
+            dark: theme.dark?.shiki?.theme,
+          },
+        }),
       ),
     );
     for (const [index, rendered] of renderedPages.entries()) {

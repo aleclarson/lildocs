@@ -28,7 +28,10 @@ export type RenderedMarkdown = {
 
 export type MarkdownRenderOptions = {
   mermaid?: MermaidRenderer;
-  shikiTheme?: string;
+  shikiTheme?: {
+    light?: string;
+    dark?: string;
+  };
 };
 
 export async function renderMarkdownPage(
@@ -101,12 +104,31 @@ export async function renderMarkdownPage(
   };
 }
 
-async function highlightCode(code: string, lang: string, props: string[], theme = "github-light") {
+async function highlightCode(
+  code: string,
+  lang: string,
+  props: string[],
+  theme: MarkdownRenderOptions["shikiTheme"] = {},
+) {
+  const lightTheme = theme.light ?? "github-light";
+  const darkTheme = theme.dark;
+  const themeOptions = darkTheme
+    ? {
+        themes: {
+          light: lightTheme,
+          dark: darkTheme,
+        },
+        defaultColor: false as const,
+      }
+    : {
+        theme: lightTheme,
+      };
+
   try {
     return normalizeShikiBackground(
       await codeToHtml(code, {
         lang: lang || "text",
-        theme,
+        ...themeOptions,
         meta: {
           __raw: props.join(" "),
         },
@@ -116,17 +138,17 @@ async function highlightCode(code: string, lang: string, props: string[], theme 
     return normalizeShikiBackground(
       await codeToHtml(code, {
         lang: "text",
-        theme,
+        ...themeOptions,
       }),
     );
   }
 }
 
 function normalizeShikiBackground(html: string) {
-  return html.replace(
-    /background-color:[^;"]+;?/,
-    "background-color:var(--ld-color-code-background);",
-  );
+  return html
+    .replace(/background-color:[^;"]+;?/, "background-color:var(--ld-color-code-background);")
+    .replace(/--shiki-light-bg:[^;"]+/, "--shiki-light-bg:var(--ld-color-code-background)")
+    .replace(/--shiki-dark-bg:[^;"]+/, "--shiki-dark-bg:var(--ld-color-code-background)");
 }
 
 export async function copyAssets(assets: AssetCopy[]) {

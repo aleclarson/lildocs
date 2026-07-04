@@ -1,13 +1,19 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { LogoOptions } from "./logo.js";
-import type { BackgroundOptions, FontOverrides, LinkOptions, NavigationOptions } from "./theme.js";
+import type {
+  BackgroundOptions,
+  FontOverrides,
+  LinkOptions,
+  NavigationOptions,
+  ThemeConfig,
+} from "./theme.js";
 import { LildocsError } from "./errors.js";
 
 export type DocsConfig = {
   $schema?: string;
   projectName?: string;
-  theme?: string;
+  theme?: ThemeConfig;
   font?: FontOverrides;
   favicon?: string;
   logo?: LogoOptions;
@@ -43,7 +49,7 @@ export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
 
 export function mergeConfigOptions(options: {
   config: DocsConfig;
-  theme?: string;
+  theme?: ThemeConfig;
   fonts?: FontOverrides;
   favicon?: string;
   logo?: LogoOptions;
@@ -90,7 +96,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   const config = value as DocsConfig;
   assertOptionalString(config.$schema, "$schema", configPath);
   assertOptionalString(config.projectName, "projectName", configPath);
-  assertOptionalString(config.theme, "theme", configPath);
+  assertOptionalThemeConfig(config.theme, configPath);
   assertOptionalString(config.favicon, "favicon", configPath);
 
   if (config.font !== undefined) {
@@ -200,6 +206,23 @@ function assertOptionalString(value: unknown, name: string, configPath: string) 
   if (value !== undefined && (typeof value !== "string" || value.length === 0)) {
     throw new LildocsError(`Docs config "${name}" must be a non-empty string: ${configPath}`);
   }
+}
+
+function assertOptionalThemeConfig(value: unknown, configPath: string) {
+  if (value === undefined) {
+    return;
+  }
+  if (typeof value === "string") {
+    assertOptionalString(value, "theme", configPath);
+    return;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new LildocsError(`Docs config "theme" must be a string or an object: ${configPath}`);
+  }
+
+  const theme = value as { light?: unknown; dark?: unknown };
+  assertOptionalString(theme.light, "theme.light", configPath);
+  assertOptionalString(theme.dark, "theme.dark", configPath);
 }
 
 function assertOptionalEnum(value: unknown, name: string, allowed: string[], configPath: string) {

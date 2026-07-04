@@ -29,6 +29,18 @@ export type Theme = {
   };
 };
 
+export type ThemeConfig =
+  | string
+  | {
+      light?: string;
+      dark?: string;
+    };
+
+export type ResolvedTheme = {
+  light: Theme;
+  dark?: Theme;
+};
+
 export type ThemeFonts = {
   heading: string;
   body: string;
@@ -115,25 +127,43 @@ const themes: Record<string, Theme> = {
 export async function resolveTheme(options: {
   cwd: string;
   docsRoot: string;
-  requestedTheme?: string;
-}) {
+  requestedTheme?: ThemeConfig;
+}): Promise<ResolvedTheme> {
   if (options.requestedTheme) {
-    const theme = themes[options.requestedTheme];
-    if (theme) {
-      return theme;
+    if (typeof options.requestedTheme === "string") {
+      return {
+        light: await resolveThemeName(options.requestedTheme),
+      };
     }
 
-    return resolveShikiTheme(options.requestedTheme);
+    return {
+      light: await resolveThemeName(options.requestedTheme.light ?? "default"),
+      dark: await resolveThemeName(options.requestedTheme.dark ?? "github-dark"),
+    };
   }
 
   const localThemePath = path.join(options.docsRoot, "theme.ts");
   if (await exists(localThemePath)) {
     const jiti = createJiti(pathToFileURL(options.cwd).href);
     const module = await jiti.import(localThemePath, { default: true });
-    return validateTheme(module, localThemePath);
+    return {
+      light: validateTheme(module, localThemePath),
+    };
   }
 
-  return themes.default;
+  return {
+    light: themes.default,
+    dark: await resolveThemeName("github-dark"),
+  };
+}
+
+async function resolveThemeName(themeName: string): Promise<Theme> {
+  const theme = themes[themeName];
+  if (theme) {
+    return theme;
+  }
+
+  return resolveShikiTheme(themeName);
 }
 
 async function resolveShikiTheme(themeName: string): Promise<Theme> {
@@ -206,33 +236,36 @@ export async function resolveFontOverrides(options: {
 }
 
 export function themeToCssVariables(
-  theme: Theme,
+  theme: ResolvedTheme,
   fontOverrides: Partial<ThemeFonts> = {},
   linkOptions: LinkOptions = {},
   navigationOptions: NavigationOptions = {},
 ) {
-  const fonts = resolveThemeFonts(theme, fontOverrides);
   const linkDecoration = linkTextDecoration(linkOptions.underline);
   const navigationDuration = navigationOptions.duration ?? 180;
+  const rootVariables = themeToCssVariableBlock(theme.light, fontOverrides);
+  const darkVariables = theme.dark ? themeToCssVariableBlock(theme.dark, fontOverrides) : undefined;
+
   return `:root {
-  --ld-color-background: ${theme.color.background};
+${theme.dark ? "  color-scheme: light dark;\n" : ""}${rootVariables}
   --ld-background-image: none;
   --ld-background-blend-mode: normal;
-  --ld-color-text: ${theme.color.text};
-  --ld-color-muted-text: ${theme.color.mutedText};
-  --ld-color-border: ${theme.color.border};
-  --ld-color-link: ${theme.color.link};
-  --ld-color-code-background: ${theme.color.codeBackground};
-  --ld-color-sidebar-background: ${theme.color.sidebarBackground ?? theme.color.background};
-  --ld-font-heading: ${fonts.heading};
-  --ld-font-body: ${fonts.body};
-  --ld-font-code: ${fonts.code};
   --ld-font-logo: var(--ld-font-heading);
   --ld-link-text-decoration: ${linkDecoration.default};
   --ld-link-hover-text-decoration: ${linkDecoration.hover};
   --ld-navigation-duration: ${navigationDuration}ms;
   --ld-navigation-easing: ${navigationOptions.easing ?? "ease"};
-}`;
+}${
+    darkVariables
+      ? `
+
+@media (prefers-color-scheme: dark) {
+  :root {
+${darkVariables}    color-scheme: dark;
+  }
+}`
+      : ""
+  }`;
 }
 
 export function resolveBackgroundOptions(options: {
@@ -270,19 +303,34 @@ export function resolveBackgroundOptions(options: {
 }
 
 export function themeToMermaidConfig(
-  theme: Theme,
+  theme: ResolvedTheme,
   fontOverrides: Partial<ThemeFonts> = {},
 ): MermaidThemeConfig {
-  const fonts = resolveThemeFonts(theme, fontOverrides);
+  const fonts = resolveThemeFonts(theme.light, fontOverrides);
   return {
-    bg: theme.color.background,
-    fg: theme.color.text,
-    accent: theme.color.link,
-    muted: theme.color.mutedText,
-    surface: theme.color.codeBackground,
-    border: theme.color.border,
+    bg: theme.light.color.background,
+    fg: theme.light.color.text,
+    accent: theme.light.color.link,
+    muted: theme.light.color.mutedText,
+    surface: theme.light.color.codeBackground,
+    border: theme.light.color.border,
     fontFamily: fonts.body,
   };
+}
+
+function themeToCssVariableBlock(theme: Theme, fontOverrides: Partial<ThemeFonts>) {
+  const fonts = resolveThemeFonts(theme, fontOverrides);
+  return `  --ld-color-background: ${theme.color.background};
+  --ld-color-text: ${theme.color.text};
+  --ld-color-muted-text: ${theme.color.mutedText};
+  --ld-color-border: ${theme.color.border};
+  --ld-color-link: ${theme.color.link};
+  --ld-color-code-background: ${theme.color.codeBackground};
+  --ld-color-sidebar-background: ${theme.color.sidebarBackground ?? theme.color.background};
+  --ld-font-heading: ${fonts.heading};
+  --ld-font-body: ${fonts.body};
+  --ld-font-code: ${fonts.code};
+`;
 }
 
 function validateTheme(value: unknown, themePath: string): Theme {

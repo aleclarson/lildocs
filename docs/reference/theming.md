@@ -8,7 +8,10 @@ Theme and styling options are resolved at build time and emitted as static CSS.
 
 ## Theme
 
-`theme` selects the visual theme and syntax highlighting theme:
+By default, generated sites follow the visitor's system color scheme. lildocs
+uses the built-in `default` theme in light mode and `github-dark` in dark mode.
+
+Set `theme` to a string to force one visual theme and syntax highlighting theme:
 
 ```json
 {
@@ -19,6 +22,17 @@ Theme and styling options are resolved at build time and emitted as static CSS.
 Use `default`, `minimal`, or any bundled Shiki theme name, such as
 `github-light` or `github-dark`.
 
+Set `theme.light` and `theme.dark` to customize the system color-scheme pair:
+
+```json
+{
+  "theme": {
+    "light": "github-light",
+    "dark": "github-dark-dimmed"
+  }
+}
+```
+
 If the docs root contains `theme.ts`, lildocs loads it when `theme` is not set
 and no `--theme` flag is provided.
 
@@ -27,7 +41,7 @@ Theme resolution order is:
 1. `--theme`
 2. `theme` from `config.json`
 3. `theme.ts` in the docs root
-4. The built-in default theme
+4. The built-in system theme pair
 
 ## Local Theme Files
 
