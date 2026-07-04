@@ -600,6 +600,12 @@ html.is-animating .transition-scale {
   font-size: 0.84rem;
 }
 
+.searchResults mark {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ld-color-link) 18%, transparent);
+  color: inherit;
+}
+
 @media (max-width: 860px) {
   .pageShell {
     width: 94vw;

@@ -7,14 +7,38 @@ import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 test("generates search index from titles headings and body text", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "details.md",
+    `# Details
+
+## Install
+
+Install overview.
+
+### Local Files
+
+Unique local substring.
+`,
+  );
 
   await runCli([docs, "--out", outDir]);
 
   const index = JSON.parse(await readFile(path.join(outDir, "search-index.json"), "utf8"));
-  assert.equal(index.length, 3);
-  assert.ok(index.some((entry) => entry.title === "Frontmatter Title"));
-  assert.ok(index.some((entry) => entry.headings.includes("Guide Heading")));
-  assert.ok(index.some((entry) => entry.text.includes("searchable body copy")));
+  assert.ok(index.some((entry) => entry.kind === "page" && entry.title === "Frontmatter Title"));
+  assert.ok(index.some((entry) => entry.kind === "page" && entry.text.includes("searchable body copy")));
+
+  const guideHeading = index.find((entry) => entry.kind === "section" && entry.title === "Guide Heading");
+  assert.equal(guideHeading?.pageTitle, "Frontmatter Title");
+  assert.equal(guideHeading?.route, "guide.html#guide-heading");
+  assert.equal(guideHeading?.depth, 2);
+  assert.ok(guideHeading?.headings.includes("Guide Heading"));
+  assert.ok(guideHeading?.text.includes("Nested content"));
+
+  const localFiles = index.find((entry) => entry.kind === "section" && entry.title === "Local Files");
+  assert.equal(localFiles?.route, "details.html#local-files");
+  assert.deepEqual(localFiles?.headings, ["Details", "Install", "Local Files"]);
+  assert.ok(localFiles?.text.includes("Unique local substring"));
 });
 
 test("emits search UI and static search script", async () => {
@@ -32,7 +56,10 @@ test("emits search UI and static search script", async () => {
   assert.match(html, />search<\/span>/);
   assert.match(html, /id="lildocs-overlay-root"/);
   assert.match(html, /<script type="module" src=".\/assets\/search\.js"><\/script>/);
-  assert.match(searchScript, /scoreEntry/);
+  assert.match(searchScript, /matchEntry/);
+  assert.match(searchScript, /matchingSnippet/);
+  assert.match(searchScript, /renderHighlighted/);
+  assert.match(searchScript, /titleMatches\.length < 4/);
   assert.match(searchScript, /embeddedIndex/);
   assert.match(searchScript, /setOverlayPortalRoots/);
 });
@@ -123,4 +150,5 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
   assert.match(css, /\.searchResults \{[^}]*font-family: var\(--ld-font-body\)/);
   assert.match(css, /\.searchResults a\.selected,\n\.searchResults a:hover \{[^}]*background: var\(--ld-color-code-background\)/);
+  assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
 });

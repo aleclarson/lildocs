@@ -4,10 +4,22 @@ import { hydrate } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 
 type SearchEntry = {
+  kind: "page" | "section";
   route: string;
   title: string;
+  pageTitle: string;
   headings: string[];
   text: string;
+  depth?: number;
+};
+
+type SearchMatch = {
+  entry: SearchEntry;
+  title: string;
+  subtitle: string;
+  score: number;
+  terms: string[];
+  type: "title" | "body";
 };
 
 declare global {
@@ -165,6 +177,7 @@ function SearchBox({
               const selected = matchIndex === selectedIndex;
               return (
                 <a
+                  key={`${match.entry.route}:${match.title}`}
                   ref={selected ? selectedRef : undefined}
                   href={new URL(match.entry.route, siteRoot).href}
                   data-search-result="true"
@@ -173,8 +186,8 @@ function SearchBox({
                   onMouseOver={() => setSelectedIndex(matchIndex)}
                   onClick={clearSearch}
                 >
-                  {match.entry.title}
-                  <span>{match.entry.headings.slice(0, 3).join(" · ")}</span>
+                  {renderHighlighted(match.title, match.terms)}
+                  <span>{renderHighlighted(match.subtitle, match.terms)}</span>
                 </a>
               );
             })
@@ -186,16 +199,25 @@ function SearchBox({
 }
 
 function searchIndex(index: SearchEntry[], query: string) {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeQuery(query);
   if (!normalizedQuery) {
     return [];
   }
 
   const terms = normalizedQuery.split(/\s+/);
-  return index
-    .map((entry) => ({ entry, score: scoreEntry(entry, terms) }))
-    .filter((result) => result.score > 0)
-    .toSorted((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title))
+  const matches = index.map((entry) => matchEntry(entry, terms, normalizedQuery)).filter(isMatch);
+  const titleMatches = matches.filter((match) => match.type === "title");
+  const sectionBodyMatches = matches.filter(
+    (match) => match.type === "body" && match.entry.kind === "section",
+  );
+  const bodyMatches =
+    sectionBodyMatches.length > 0
+      ? sectionBodyMatches
+      : matches.filter((match) => match.type === "body");
+  const visibleMatches = titleMatches.length < 4 ? [...titleMatches, ...bodyMatches] : titleMatches;
+
+  return visibleMatches
+    .toSorted((a, b) => b.score - a.score || a.title.localeCompare(b.title))
     .slice(0, 8);
 }
 
@@ -216,17 +238,114 @@ function preloadRelativeUrl(href: string | null | undefined, preloadedUrls: Set<
   document.head.append(preload);
 }
 
-function scoreEntry(entry: SearchEntry, terms: string[]) {
-  const title = entry.title.toLowerCase();
-  const headings = entry.headings.join(" ").toLowerCase();
-  const text = entry.text.toLowerCase();
+function matchEntry(
+  entry: SearchEntry,
+  terms: string[],
+  normalizedQuery: string,
+): SearchMatch | undefined {
+  const titleScore = scoreText(entry.title, terms, normalizedQuery);
+  if (titleScore > 0) {
+    return {
+      entry,
+      title: entry.title,
+      subtitle: subtitleForEntry(entry),
+      score: (entry.kind === "page" ? 300 : 250) + titleScore,
+      terms,
+      type: "title",
+    };
+  }
+
+  const bodyScore = scoreText(entry.text, terms, normalizedQuery);
+  if (bodyScore > 0) {
+    return {
+      entry,
+      title: matchingSnippet(entry.text, terms),
+      subtitle: subtitleForEntry(entry),
+      score: 20 + bodyScore,
+      terms,
+      type: "body",
+    };
+  }
+
+  return undefined;
+}
+
+function scoreText(value: string, terms: string[], normalizedQuery: string) {
+  const text = value.toLowerCase();
+  if (!text) {
+    return 0;
+  }
+
   let score = 0;
+  if (text === normalizedQuery) {
+    score += 80;
+  } else if (text.includes(normalizedQuery)) {
+    score += 40;
+  }
 
   for (const term of terms) {
-    if (title.includes(term)) score += 10;
-    if (headings.includes(term)) score += 5;
-    if (text.includes(term)) score += 1;
+    if (text.includes(term)) {
+      score += 10;
+    }
   }
 
   return score;
+}
+
+function subtitleForEntry(entry: SearchEntry) {
+  if (entry.kind === "page") {
+    return entry.headings.slice(0, 3).join(" / ") || "Page";
+  }
+
+  const parents = entry.headings.slice(0, -1);
+  return uniqueParts([entry.pageTitle, ...parents]).join(" / ");
+}
+
+function matchingSnippet(text: string, terms: string[]) {
+  const lowerText = text.toLowerCase();
+  const starts = terms
+    .map((term) => lowerText.indexOf(term))
+    .filter((index) => index >= 0)
+    .toSorted((a, b) => a - b);
+  const matchStart = starts[0] ?? 0;
+  const start = Math.max(0, matchStart - 36);
+  const end = Math.min(text.length, matchStart + 96);
+  const prefix = start > 0 ? "... " : "";
+  const suffix = end < text.length ? " ..." : "";
+
+  return `${prefix}${text.slice(start, end).trim()}${suffix}`;
+}
+
+function renderHighlighted(value: string, terms: string[]) {
+  const matchingTerms = terms.filter(Boolean).toSorted((a, b) => b.length - a.length);
+  if (matchingTerms.length === 0) {
+    return value;
+  }
+
+  const pattern = new RegExp(`(${matchingTerms.map(escapeRegExp).join("|")})`, "gi");
+  return value
+    .split(pattern)
+    .map((part) =>
+      matchingTerms.some((term) => part.toLowerCase() === term) ? <mark>{part}</mark> : part,
+    );
+}
+
+function normalizeQuery(value: string) {
+  return value
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function uniqueParts(parts: string[]) {
+  return parts.filter((part, index) => part && parts.indexOf(part) === index);
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function isMatch(match: SearchMatch | undefined): match is SearchMatch {
+  return Boolean(match);
 }
