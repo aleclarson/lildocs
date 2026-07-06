@@ -62,11 +62,16 @@ export default {
     body: "system-ui, sans-serif",
     code: "ui-monospace, SFMono-Regular, Menlo, monospace",
   },
+  background: {
+    gradient: "linear-gradient(180deg, rgb(37 99 235 / 0.06), transparent 220px)",
+  },
 };
 ```
 
 Local themes keep the token surface small: colors, font families, and syntax
-highlighting theme configuration.
+highlighting theme configuration. `background.gradient` and
+`background.blendMode` can be set on a local theme when the background should
+come from the active light or dark theme.
 
 ## Fonts
 
@@ -149,6 +154,9 @@ Local image files are copied into the generated site's assets.
 
 `background.blendMode` sets `background-blend-mode` for the theme color and
 configured background layers.
+
+Theme-provided gradients are defaults. A `background` entry in `config.json` or
+the matching CLI background flags override the active theme's background layers.
 
 ## Links
 

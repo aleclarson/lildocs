@@ -28,6 +28,10 @@ export type Theme = {
   shiki?: {
     theme: string;
   };
+  background?: {
+    gradient?: string;
+    blendMode?: string;
+  };
 };
 
 export type ThemeConfig =
@@ -104,6 +108,9 @@ const themes: Record<string, Theme> = {
     shiki: {
       theme: "github-light",
     },
+    background: {
+      gradient: "linear-gradient(180deg, rgb(37 99 235 / 0.045), transparent 220px)",
+    },
   },
   minimal: {
     color: {
@@ -123,6 +130,9 @@ const themes: Record<string, Theme> = {
     },
     shiki: {
       theme: "github-light",
+    },
+    background: {
+      gradient: "linear-gradient(180deg, rgb(15 118 110 / 0.04), transparent 220px)",
     },
   },
 };
@@ -248,11 +258,14 @@ export function themeToCssVariables(
   const navigationDuration = navigationOptions.duration ?? 180;
   const rootVariables = themeToCssVariableBlock(theme.light, fontOverrides);
   const darkVariables = theme.dark ? themeToCssVariableBlock(theme.dark, fontOverrides) : undefined;
+  const rootBackgroundVariables = themeToBackgroundVariableBlock(theme.light);
+  const darkBackgroundVariables = theme.dark
+    ? themeToBackgroundVariableBlock(theme.dark)
+    : undefined;
 
   return `:root {
 ${theme.dark ? "  color-scheme: light dark;\n" : ""}${rootVariables}
-  --ld-background-image: none;
-  --ld-background-blend-mode: normal;
+${rootBackgroundVariables}
   --ld-font-logo: var(--ld-font-heading);
   --ld-link-text-decoration: ${linkDecoration.default};
   --ld-link-hover-text-decoration: ${linkDecoration.hover};
@@ -264,7 +277,7 @@ ${theme.dark ? "  color-scheme: light dark;\n" : ""}${rootVariables}
 
 @media (prefers-color-scheme: dark) {
   :root {
-${darkVariables}    color-scheme: dark;
+${darkVariables}${darkBackgroundVariables}    color-scheme: dark;
   }
 }`
       : ""
@@ -338,6 +351,12 @@ function themeToCssVariableBlock(theme: Theme, fontOverrides: Partial<ThemeFonts
 `;
 }
 
+function themeToBackgroundVariableBlock(theme: Theme) {
+  return `  --ld-background-image: ${theme.background?.gradient ?? "none"};
+  --ld-background-blend-mode: ${theme.background?.blendMode ?? "normal"};
+`;
+}
+
 function normalizeThemeColors(color: Theme["color"]): Theme["color"] {
   return {
     ...color,
@@ -370,6 +389,30 @@ function validateTheme(value: unknown, themePath: string): Theme {
     throw new LildocsError(
       `Local theme is missing required color or font string values: ${themePath}`,
     );
+  }
+
+  if (theme.background !== undefined) {
+    if (!theme.background || typeof theme.background !== "object") {
+      throw new LildocsError(`Local theme "background" must be an object: ${themePath}`);
+    }
+
+    if (
+      theme.background.gradient !== undefined &&
+      (typeof theme.background.gradient !== "string" || theme.background.gradient.length === 0)
+    ) {
+      throw new LildocsError(
+        `Local theme "background.gradient" must be a non-empty string: ${themePath}`,
+      );
+    }
+
+    if (
+      theme.background.blendMode !== undefined &&
+      (typeof theme.background.blendMode !== "string" || theme.background.blendMode.length === 0)
+    ) {
+      throw new LildocsError(
+        `Local theme "background.blendMode" must be a non-empty string: ${themePath}`,
+      );
+    }
   }
 
   return theme;
@@ -462,6 +505,12 @@ function mapShikiThemeToTheme(
     },
     shiki: {
       theme: themeName,
+    },
+    background: {
+      gradient:
+        shikiTheme.type === "dark"
+          ? `linear-gradient(180deg, color-mix(in srgb, ${link} 16%, transparent), transparent 240px)`
+          : `linear-gradient(180deg, color-mix(in srgb, ${link} 9%, transparent), transparent 220px)`,
     },
   };
 }

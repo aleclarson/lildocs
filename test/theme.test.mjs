@@ -43,6 +43,14 @@ test("uses the default built-in theme with no config", async () => {
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
   assert.match(css, /--ld-color-background: #24292e/);
   assert.match(css, /--ld-color-link: #79b8ff/);
+  assert.match(
+    css,
+    /--ld-background-image: linear-gradient\(180deg, rgb\(37 99 235 \/ 0\.045\), transparent 220px\)/,
+  );
+  assert.match(
+    css,
+    /--ld-background-image: linear-gradient\(180deg, color-mix\(in srgb, #79b8ff 16%, transparent\), transparent 240px\)/,
+  );
 });
 
 test("customizes light and dark themes from docs config", async () => {
@@ -283,6 +291,42 @@ test("loads background gradient from docs config", async () => {
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(css, /--ld-background-image: linear-gradient\(135deg, rgb\(255 255 255 \/ 0\.1\), transparent\)/);
   assert.match(css, /--ld-background-blend-mode: screen/);
+});
+
+test("loads background gradient from local theme files", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "theme.ts",
+    `export default {
+  color: {
+    background: "#ffffff",
+    text: "#111111",
+    mutedText: "#555555",
+    border: "#dddddd",
+    link: "#dc2626",
+    codeBackground: "#f8fafc",
+  },
+  font: {
+    body: "system-ui, sans-serif",
+    mono: "ui-monospace, monospace",
+  },
+  background: {
+    gradient: "linear-gradient(180deg, rgb(220 38 38 / 0.08), transparent 200px)",
+    blendMode: "multiply",
+  },
+};`,
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(
+    css,
+    /--ld-background-image: linear-gradient\(180deg, rgb\(220 38 38 \/ 0\.08\), transparent 200px\)/,
+  );
+  assert.match(css, /--ld-background-blend-mode: multiply/);
 });
 
 test("copies local background images from docs config", async () => {
