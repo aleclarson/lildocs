@@ -9,10 +9,6 @@
     "body": "Geist",
     "code": "Geist Mono"
   },
-  "background": {
-    "gradient": "linear-gradient(135deg, rgb(121 184 255 / 0.14), transparent 38%)",
-    "blendMode": "screen"
-  },
   "link": {
     "underline": "hover"
   },
