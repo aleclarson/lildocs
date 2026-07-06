@@ -394,7 +394,7 @@ test("renders previous and next page links in generated navigation order", async
   assert.match(css, /\.pageNavLink \{[^}]*line-height: 1\.25;[^}]*text-decoration: none/);
   assert.match(css, /\.content \.pageNavLink,\n\.content \.pageNavLink:hover \{[^}]*text-decoration: none/);
   assert.match(css, /\.toc ul \{[^}]*gap: 6px/);
-  assert.match(css, /\.toc a \{[^}]*text-decoration: none/);
+  assert.match(css, /\.toc a \{[^}]*color: var\(--ld-color-muted-text\);[^}]*text-decoration: none/);
 
   const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
   assert.match(nestedHtml, /rel="prev" href="..\/guide.html"/);

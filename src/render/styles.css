@@ -181,7 +181,6 @@ html.is-animating .transition-scale {
 }
 
 .content a,
-.toc a,
 .navList a {
   color: var(--ld-color-link);
 }
@@ -471,6 +470,7 @@ html.is-animating .transition-scale {
 }
 
 .toc a {
+  color: var(--ld-color-muted-text);
   text-decoration: none;
 }
 
