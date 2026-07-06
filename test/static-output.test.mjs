@@ -239,10 +239,12 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const script = await readFile(path.join(outDir, "assets", "copy-code.js"), "utf8");
   assert.match(html, /<script src=".\/assets\/copy-code\.js"><\/script>/);
+  assert.match(css, /\.content \.copyCodeBlock \{/);
   assert.match(css, /\.copyCodeButton \{/);
   assert.match(css, /\.copyCodeIcon \{/);
   assert.match(script, /navigator\.clipboard\?\.writeText/);
   assert.match(script, /const copyText = block\.textContent \?\? ""/);
+  assert.match(script, /wrapper\.append\(block, button\)/);
   assert.match(script, /innerHTML = icons\.copy/);
   assert.match(script, /material-symbols-rounded copyCodeIcon/);
   assert.match(script, /content_copy/);

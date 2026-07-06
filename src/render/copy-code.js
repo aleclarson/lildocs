@@ -15,11 +15,13 @@
     }
 
     for (const block of blocks) {
-      if (block.querySelector(":scope > .copyCodeButton")) {
+      if (block.parentElement?.classList.contains("copyCodeBlock")) {
         continue;
       }
 
       const copyText = block.textContent ?? "";
+      const wrapper = document.createElement("div");
+      wrapper.className = "copyCodeBlock";
       const button = document.createElement("button");
       button.type = "button";
       button.className = "copyCodeButton";
@@ -45,7 +47,8 @@
         }
       });
 
-      block.append(button);
+      block.before(wrapper);
+      wrapper.append(block, button);
     }
   }
 })();

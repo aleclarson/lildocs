@@ -278,6 +278,15 @@ html.is-animating .transition-scale {
   white-space: inherit;
 }
 
+.content .copyCodeBlock {
+  position: relative;
+  margin-block: 1em;
+}
+
+.content .copyCodeBlock > pre {
+  margin: 0;
+}
+
 .content pre.shiki {
   color: var(--shiki-light);
   background: var(--shiki-light-bg);
