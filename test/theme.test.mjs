@@ -584,8 +584,10 @@ test("darkens light shiki code backgrounds when contrast is too low", async () =
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const background = cssVariable(css, "--ld-color-background");
   const codeBackground = cssVariable(css, "--ld-color-code-background");
+  const codeForeground = cssVariable(css, "--ld-color-code-foreground");
 
   assert.notEqual(codeBackground, background);
+  assert.equal(codeForeground, "#24292e");
   assert.ok(oklchLightness(codeBackground) < oklchLightness(background));
 });
 
@@ -598,9 +600,11 @@ test("preserves dark shiki code backgrounds that already have contrast", async (
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const background = cssVariable(css, "--ld-color-background");
   const codeBackground = cssVariable(css, "--ld-color-code-background");
+  const codeForeground = cssVariable(css, "--ld-color-code-foreground");
 
   assert.equal(background, "#24292e");
   assert.equal(codeBackground, "#2f363d");
+  assert.equal(codeForeground, "#e1e4e8");
   assert.ok(oklchLightness(codeBackground) > oklchLightness(background));
 });
 

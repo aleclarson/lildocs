@@ -16,6 +16,7 @@ export type Theme = {
     border: string;
     link: string;
     codeBackground: string;
+    codeForeground?: string;
     sidebarBackground?: string;
   };
   font: {
@@ -92,6 +93,7 @@ const themes: Record<string, Theme> = {
       border: "#e5e5e5",
       link: "#2563eb",
       codeBackground: "#f6f8fa",
+      codeForeground: "#24292e",
       sidebarBackground: "#fafafa",
     },
     font: {
@@ -111,6 +113,7 @@ const themes: Record<string, Theme> = {
       border: "#dddddd",
       link: "#0f766e",
       codeBackground: "#f7f7f7",
+      codeForeground: "#24292e",
       sidebarBackground: "#ffffff",
     },
     font: {
@@ -327,6 +330,7 @@ function themeToCssVariableBlock(theme: Theme, fontOverrides: Partial<ThemeFonts
   --ld-color-border: ${color.border};
   --ld-color-link: ${color.link};
   --ld-color-code-background: ${color.codeBackground};
+  --ld-color-code-foreground: ${color.codeForeground ?? color.text};
   --ld-color-sidebar-background: ${color.sidebarBackground ?? color.background};
   --ld-font-heading: ${fonts.heading};
   --ld-font-body: ${fonts.body};
@@ -448,6 +452,7 @@ function mapShikiThemeToTheme(
       border,
       link,
       codeBackground,
+      codeForeground: text,
       sidebarBackground,
     },
     font: {

@@ -310,6 +310,13 @@ html.is-animating .transition-scale {
   font-size: 0.92em;
 }
 
+.content :not(pre) > code {
+  padding: 0.16em 0.36em;
+  border-radius: 4px;
+  background: var(--ld-color-code-background);
+  color: var(--ld-color-code-foreground);
+}
+
 .copyCodeButton {
   position: absolute;
   top: 10px;
