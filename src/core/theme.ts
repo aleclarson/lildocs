@@ -81,6 +81,7 @@ export type ResolvedBackground = {
 
 const MIN_BACKGROUND_CONTRAST = 1.08;
 const PREFERRED_BACKGROUND_CONTRAST = 1.14;
+const MIN_DARK_BORDER_CONTRAST = 1.35;
 const MAX_BACKGROUND_CONTRAST_STEPS = 12;
 const BACKGROUND_LIGHTNESS_STEP = 0.015;
 const MAX_BACKGROUND_CHROMA = 0.03;
@@ -691,12 +692,17 @@ function ensureDarkBorderLightness(options: {
     return options.candidate;
   }
 
-  if (backgroundOklch.l >= textOklch.l || candidateOklch.l > backgroundOklch.l) {
+  if (backgroundOklch.l >= textOklch.l) {
+    return options.candidate;
+  }
+
+  const currentContrast = wcagContrast(background, candidate);
+  if (candidateOklch.l > backgroundOklch.l && currentContrast >= MIN_DARK_BORDER_CONTRAST) {
     return options.candidate;
   }
 
   let bestColor = options.candidate;
-  let bestLightness = candidateOklch.l;
+  let bestContrast = currentContrast;
   for (let step = 1; step <= MAX_BACKGROUND_CONTRAST_STEPS; step += 1) {
     const adjusted = {
       ...candidateOklch,
@@ -713,17 +719,21 @@ function ensureDarkBorderLightness(options: {
 
     const adjustedColor = formatHex(clampedColor);
     const adjustedParsedColor = parse(adjustedColor);
-    const adjustedOklch = adjustedParsedColor ? toOklch(adjustedParsedColor) : undefined;
+    if (!adjustedParsedColor) {
+      continue;
+    }
+    const adjustedOklch = toOklch(adjustedParsedColor);
     if (!adjustedOklch || typeof adjustedOklch.l !== "number") {
       continue;
     }
+    const adjustedContrast = wcagContrast(background, adjustedParsedColor);
 
-    if (adjustedOklch.l > bestLightness) {
+    if (adjustedOklch.l > backgroundOklch.l && adjustedContrast > bestContrast) {
       bestColor = adjustedColor;
-      bestLightness = adjustedOklch.l;
+      bestContrast = adjustedContrast;
     }
 
-    if (adjustedOklch.l > backgroundOklch.l) {
+    if (adjustedOklch.l > backgroundOklch.l && adjustedContrast >= MIN_DARK_BORDER_CONTRAST) {
       return adjustedColor;
     }
   }

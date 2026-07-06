@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { converter, parse } from "culori";
+import { converter, parse, wcagContrast } from "culori";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 const toOklch = converter("oklch");
@@ -19,6 +19,14 @@ function oklchLightness(color) {
   const oklch = toOklch(parsed);
   assert.ok(oklch, `${color} should convert to OKLCH`);
   return oklch.l;
+}
+
+function contrastRatio(first, second) {
+  const firstColor = parse(first);
+  const secondColor = parse(second);
+  assert.ok(firstColor, `${first} should parse as a color`);
+  assert.ok(secondColor, `${second} should parse as a color`);
+  return wcagContrast(firstColor, secondColor);
 }
 
 test("supports the minimal built-in theme", async () => {
@@ -493,6 +501,7 @@ test("lightens dark theme borders above the page background", async () => {
   assert.equal(background, "#24292e");
   assert.notEqual(border, "#1b1f23");
   assert.ok(oklchLightness(border) > oklchLightness(background));
+  assert.ok(contrastRatio(background, border) >= 1.35);
 });
 
 test("lightens local dark theme borders above the page background", async () => {
@@ -525,6 +534,7 @@ test("lightens local dark theme borders above the page background", async () => 
 
   assert.notEqual(border, "#1b1f23");
   assert.ok(oklchLightness(border) > oklchLightness(background));
+  assert.ok(contrastRatio(background, border) >= 1.35);
 });
 
 test("loads local theme files", async () => {
