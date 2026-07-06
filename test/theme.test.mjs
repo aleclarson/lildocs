@@ -164,8 +164,10 @@ test("loads logo image text and font from docs config", async () => {
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(css, /family=Onest:wght@400;500;600;700&display=swap/);
   assert.match(css, /--ld-font-logo: "Onest"/);
-  assert.match(html, /class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt/);
-  assert.match(html, /<span>Acme Docs<\/span>/);
+  assert.match(
+    html,
+    /<a class="brand" href="\.\/index\.html"><img class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt\/><span>Acme Docs<\/span><\/a>/,
+  );
   await access(path.join(outDir, "assets", "images", "logo.svg"));
 });
 

@@ -39,6 +39,26 @@ test("appends nearest package name to document titles", async () => {
   assert.match(guideHtml, /<title>Frontmatter Title • fixture-docs<\/title>/);
 });
 
+test("links header brand text to the home page", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(path.join(workspace, "package.json"), JSON.stringify({ name: "fixture-docs" }));
+  await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
+  assert.match(
+    homeHtml,
+    /<a class="brand" href="\.\/index\.html"><span>fixture-docs<\/span><\/a>/,
+  );
+  assert.match(
+    nestedHtml,
+    /<a class="brand" href="\.\.\/index\.html"><span>fixture-docs<\/span><\/a>/,
+  );
+});
+
 test("uses configured project name in document titles", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -410,9 +430,11 @@ test("hoists entry point links in referenced sidebar order", async () => {
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   const sidebar = documentationNavigation(homeHtml);
+  assert.doesNotMatch(sidebar, /Fixture Home/);
+  assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
   assert.match(
     sidebar,
-    /<a class="active" href="\.\/index\.html">Fixture Home<\/a>[\s\S]*<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>/,
+    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>/,
   );
   assert.match(homeHtml, /rel="next" href=".\/quickstart.html"/);
 
@@ -449,9 +471,11 @@ test("keeps manual navigation order ahead of entry point link order", async () =
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   const sidebar = documentationNavigation(homeHtml);
+  assert.doesNotMatch(sidebar, /Fixture Home/);
+  assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
   assert.match(
     sidebar,
-    /<a class="active" href="\.\/index\.html">Fixture Home<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a href="\.\/quickstart\.html">Quickstart<\/a>/,
+    /<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a href="\.\/quickstart\.html">Quickstart<\/a>/,
   );
 });
 
@@ -476,9 +500,12 @@ test("uses docs config navigation order for pages folders and page links", async
   assert.match(quickstartHtml, /rel="next" href=".\/nested\/page.html"/);
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const sidebar = documentationNavigation(homeHtml);
+  assert.doesNotMatch(sidebar, /Fixture Home/);
+  assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
   assert.match(
-    homeHtml,
-    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a class="active" href="\.\/index\.html">Fixture Home<\/a>/,
+    sidebar,
+    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>/,
   );
   assert.match(homeHtml, /rel="prev" href=".\/guide.html"/);
   assert.doesNotMatch(homeHtml, /rel="next"/);

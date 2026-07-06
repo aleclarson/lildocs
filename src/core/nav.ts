@@ -10,7 +10,9 @@ export type NavItem = {
 };
 
 export function buildNavigation(model: ContentModel, activePage: Page): NavItem[] {
-  const items = model.pages.map((page) => pageToNavItem(page, activePage));
+  const items = model.pages
+    .filter((page) => page.sourcePath !== model.homePage)
+    .map((page) => pageToNavItem(page, activePage));
 
   return nestNavItems(items);
 }
