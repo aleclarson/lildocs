@@ -497,7 +497,7 @@ html.is-animating .transition-scale {
 
 .toc ul {
   display: grid;
-  gap: 6px;
+  gap: 9px;
   list-style: none;
   padding-left: 0;
 }
