@@ -1,6 +1,6 @@
 ---
 name: lildocs
-description: Use when authoring, reviewing, or restructuring Markdown documentation for projects that publish with lildocs, especially docs architecture, page purpose, examples, technical-writing quality, and docs-change review.
+description: Use when authoring, reviewing, or restructuring Markdown documentation, especially docs architecture, page purpose, examples, technical-writing quality, and docs-change review.
 ---
 
 # Technical Documentation
