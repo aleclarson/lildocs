@@ -208,6 +208,8 @@ test("styles regular blockquotes", async () => {
   assert.match(css, /\.content blockquote \{[^}]*border-left: 4px solid var\(--ld-color-border\)/);
   assert.match(css, /\.content blockquote \{[^}]*background: color-mix/);
   assert.match(css, /\.content \{[^}]*padding-block: 0 64px/);
+  assert.match(css, /\.content article \{[^}]*max-width: 60ch/);
+  assert.match(css, /\.content article \{[^}]*font-size: 110%/);
   assert.match(css, /\.content article > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);

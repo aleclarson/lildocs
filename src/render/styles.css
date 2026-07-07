@@ -150,6 +150,11 @@ html.is-animating .transition-scale {
   height: auto;
 }
 
+.content article {
+  max-width: 60ch;
+  font-size: 110%;
+}
+
 .content article li {
   margin-bottom: 8px;
 }
