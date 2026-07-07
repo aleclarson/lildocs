@@ -177,11 +177,13 @@ The build failed because `docs/config.json` contains invalid JSON.
 ```
 
 Example comments may explain intent, but they cannot carry information the
-surrounding prose omits.
+surrounding prose omits. Use `jsonc` for JSON examples with comments so the
+comments are syntax highlighted correctly.
 
-```json
+```jsonc
 {
   "navigation": {
+    // Keep the getting-started page before generated folder entries.
     "order": ["getting-started.md", "guides/"]
   }
 }
