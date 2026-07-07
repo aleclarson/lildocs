@@ -45,6 +45,7 @@ export function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{documentTitle}</title>
         {favicon ? <link rel="icon" href={assetSrc(page.route, favicon)} /> : null}
+        <link rel="stylesheet" href={rootRelativeUrl(page.route, "assets/tabler-icons.css")} />
         <link rel="stylesheet" href={rootRelativeUrl(page.route, "assets/lildocs.css")} />
       </head>
       <body>

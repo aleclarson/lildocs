@@ -118,7 +118,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     defaultText: packageName,
     favicon: configOptions.favicon,
   });
-  const css = `${tablerIconsCss}${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
+  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
   const assets: AssetCopy[] = [
     ...tablerIconFontAssets(outDir),
     ...fontResolution.assets,
@@ -180,6 +180,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     );
 
     await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
+    await writeFile(path.join(outDir, "assets", "tabler-icons.css"), tablerIconsCss);
     await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
     await writeFile(path.join(outDir, "assets", "copy-code.js"), copyCodeScript);
     await writeFile(path.join(outDir, "assets", "swup.umd.js"), swupScript);
