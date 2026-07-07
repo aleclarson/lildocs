@@ -250,10 +250,11 @@ test("styles h1-adjacent blockquotes as subtitles", async () => {
     /<h1 id="title">Title<\/h1>\s*<blockquote>\s*<p>Short supporting copy\.<\/p>\s*<\/blockquote>\s*<p>Body copy\.<\/p>/,
   );
   assert.match(css, /\.content article h1 \+ blockquote \{[^}]*margin: 0 0 1\.5em/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*margin-top: -1\.1em/);
   assert.match(css, /\.content article h1 \+ blockquote \{[^}]*padding: 0/);
   assert.match(css, /\.content article h1 \+ blockquote \{[^}]*border-left: 0/);
   assert.match(css, /\.content article h1 \+ blockquote \{[^}]*background: transparent/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*font-size: 1\.2em/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*font-size: 1\.15em/);
   assert.match(css, /\.content article h1 \+ blockquote \{[^}]*line-height: 1\.45/);
   assert.match(
     css,
