@@ -5,7 +5,7 @@ description: Use when writing, editing, reviewing, or restructuring lildocs docu
 
 # Lildocs Documentation
 
-> Use this skill to turn technical knowledge into lildocs-ready Markdown that is navigable, searchable, example-driven, and clear about what each page helps readers accomplish.
+> Turn technical knowledge into lildocs-ready Markdown that is navigable, searchable, example-driven, and clear about the decisions each page helps readers make.
 
 ## Work From The Site Shape
 
@@ -39,7 +39,9 @@ path. Keep paths docs-root-relative.
 
 Every page should have frontmatter when the sidebar label or browser title needs
 to differ from the visible heading. Every H1 must be followed immediately by a
-purpose blockquote that explains the page's actual job for the reader.
+purpose blockquote that explains the page's actual job for the reader. Avoid
+boilerplate openings like `Use this page to...`; name the decision, task, or
+outcome directly.
 
 ```md
 ---
@@ -48,8 +50,8 @@ title: CLI Reference
 
  # Command Line
 
-> Use this page to choose the right lildocs command, understand which flags apply
-> to each command, and copy the smallest command that fits your publishing flow.
+> Choose the smallest command that fits the publishing flow, then confirm which
+> flags apply before copying it into scripts or CI.
 ```
 
 Do not write a purpose blockquote that merely repeats the heading.
@@ -65,8 +67,8 @@ Prefer a purpose blockquote that narrows scope, reader intent, and outcome.
 ```md
  # Configuration
 
-> Use this page to decide which settings belong in `config.json`, which options
-> should stay as one-off CLI flags, and how those choices affect generated HTML.
+> Site defaults belong in `config.json`; one-off choices belong in CLI flags for
+> the current build, preview, or deployment command.
 ```
 
 ## Code Blocks For Concepts
