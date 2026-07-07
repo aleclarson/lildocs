@@ -146,7 +146,7 @@ html.is-animating .transition-scale {
 }
 
 .content article :where(h1, h2, h3, h4, h5, h6) {
-  margin-block: 1.2em 0.6em;
+  margin-block: 2em 0.667em;
 }
 
 .content article p {
