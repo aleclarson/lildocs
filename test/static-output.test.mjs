@@ -207,7 +207,7 @@ test("styles regular blockquotes", async () => {
   assert.match(html, /<blockquote>\s*<p>A quoted note\.<\/p>\s*<\/blockquote>/);
   assert.match(css, /\.content blockquote \{[^}]*border-left: 4px solid var\(--ld-color-border\)/);
   assert.match(css, /\.content blockquote \{[^}]*background: color-mix/);
-  assert.match(css, /\.content \{[^}]*padding-block: 0 64px/);
+  assert.match(css, /\.content \{[^}]*padding-block: 28px 64px/);
   assert.match(css, /\.content article \{[^}]*max-width: 60ch/);
   assert.match(css, /\.content article \{[^}]*font-size: 110%/);
   assert.match(css, /\.content article :where\(h1, h2, h3, h4, h5, h6\) \{[^}]*margin-block: 1\.2em 0\.6em/);
@@ -402,7 +402,7 @@ test("renders previous and next page links in generated navigation order", async
   assert.match(homeHtml, /Frontmatter Title/);
   assert.match(css, /\.pageNavLink \{[^}]*line-height: 1\.25;[^}]*text-decoration: none/);
   assert.match(css, /\.content \.pageNavLink,\n\.content \.pageNavLink:hover \{[^}]*text-decoration: none/);
-  assert.match(css, /\.toc ul \{[^}]*gap: 6px/);
+  assert.match(css, /\.toc ul \{[^}]*gap: 9px/);
   assert.match(css, /\.toc a \{[^}]*color: var\(--ld-color-muted-text\);[^}]*text-decoration: none/);
 
   const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
@@ -568,6 +568,23 @@ test("renders sidebar folder names as title-cased labels instead of links", asyn
   assert.doesNotMatch(html, /<span class="navFolder">nested section<\/span>/);
   assert.doesNotMatch(html, /<a[^>]+href="\.\/nested-section\/page\.html"[^>]*>\s*nested section\s*<\/a>/);
   assert.match(html, /<a href="\.\/nested-section\/page\.html">Nested Page<\/a>/);
+});
+
+test("renders group breadcrumbs before grouped page content", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested-section/deep/page.md", "# Nested Page\n\nNested content.");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "nested-section", "deep", "page.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(
+    html,
+    /<article><p class="groupBreadcrumbs">Nested Section \/ Deep<\/p><div><h1 id="nested-page">Nested Page<\/h1>/,
+  );
+  assert.match(css, /\.groupBreadcrumbs \{[^}]*color: var\(--ld-color-accent\);/);
+  assert.match(css, /\.groupBreadcrumbs \{[^}]*font-size: 80%;[^}]*font-weight: 700;/);
 });
 
 test("does not indent nested sidebar pages", async () => {

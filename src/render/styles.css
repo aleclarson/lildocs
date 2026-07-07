@@ -159,6 +159,13 @@ html.is-animating .transition-scale {
   font-size: 110%;
 }
 
+.groupBreadcrumbs {
+  margin: 0 0 12px;
+  color: var(--ld-color-accent);
+  font-size: 80%;
+  font-weight: 700;
+}
+
 .content article li {
   margin-bottom: 8px;
 }

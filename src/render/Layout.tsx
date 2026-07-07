@@ -90,7 +90,10 @@ export function Layout({
               </nav>
             </aside>
             <main className={`content transition-${transition}`}>
-              <article dangerouslySetInnerHTML={{ __html: page.html ?? "" }} />
+              <article>
+                <GroupBreadcrumbs route={page.route} />
+                <div dangerouslySetInnerHTML={{ __html: page.html ?? "" }} />
+              </article>
               <PageNav pageNavigation={pageNavigation} />
             </main>
             <aside className={`toc transition-${transition}`}>
@@ -126,6 +129,21 @@ function assetSrc(pageRoute: string, image: string) {
   }
 
   return rootRelativeUrl(pageRoute, image);
+}
+
+function GroupBreadcrumbs({ route }: { route: string }) {
+  const dir = route.split("/").slice(0, -1);
+  if (dir.length === 0) {
+    return null;
+  }
+
+  return <p className="groupBreadcrumbs">{dir.map(titleFromDir).join(" / ")}</p>;
+}
+
+function titleFromDir(dir: string) {
+  return dir
+    .replace(/[-_]+/g, " ")
+    .replace(/\S+/g, (word) => `${word[0]?.toLocaleUpperCase() ?? ""}${word.slice(1)}`);
 }
 
 function PageNav({ pageNavigation }: { pageNavigation?: PageNavigation }) {
