@@ -60,7 +60,7 @@ The project uses:
 - `cmd-ts` for CLI parsing
 - Preact SSR for rendering
 - `marked` and `gray-matter` for Markdown and frontmatter
-- `jiti` for theme loading
+- native dynamic `import()` for local theme loading
 - `tsdown` for bundling
 - `oxlint` for linting
 - `oxfmt` for formatting

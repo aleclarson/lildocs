@@ -87,7 +87,6 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const packageName = await resolvePackageName(packagePath);
   const projectName = configOptions.projectName ?? packageName;
   const theme = await resolveTheme({
-    cwd: options.cwd,
     docsRoot: input.docsRoot,
     requestedTheme: configOptions.theme,
   });

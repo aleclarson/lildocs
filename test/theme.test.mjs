@@ -543,13 +543,15 @@ test("loads local theme files", async () => {
   await writeDocFile(
     docs,
     "theme.ts",
-    `export default {
+    `const link: string = "#dc2626";
+
+export default {
   color: {
     background: "#ffffff",
     text: "#111111",
     mutedText: "#555555",
     border: "#dddddd",
-    link: "#dc2626",
+    link,
     codeBackground: "#f8fafc",
   },
   font: {

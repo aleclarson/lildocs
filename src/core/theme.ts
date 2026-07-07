@@ -1,8 +1,7 @@
 import { pathToFileURL } from "node:url";
-import { access } from "node:fs/promises";
+import { access, stat } from "node:fs/promises";
 import path from "node:path";
 import { clampGamut, converter, formatHex, parse, wcagContrast } from "culori";
-import { createJiti } from "jiti";
 import { bundledThemes } from "shiki";
 import type { AssetCopy } from "./markdown.js";
 import type { MermaidThemeConfig } from "./mermaid.js";
@@ -139,7 +138,6 @@ const themes: Record<string, Theme> = {
 };
 
 export async function resolveTheme(options: {
-  cwd: string;
   docsRoot: string;
   requestedTheme?: ThemeConfig;
 }): Promise<ResolvedTheme> {
@@ -158,10 +156,13 @@ export async function resolveTheme(options: {
 
   const localThemePath = path.join(options.docsRoot, "theme.ts");
   if (await exists(localThemePath)) {
-    const jiti = createJiti(pathToFileURL(options.cwd).href);
-    const module = await jiti.import(localThemePath, { default: true });
+    const localThemeUrl = pathToFileURL(localThemePath);
+    const localThemeStats = await stat(localThemePath);
+    // Native ESM imports are cached by URL, so vary the URL for dev rebuilds.
+    localThemeUrl.searchParams.set("mtime", String(localThemeStats.mtimeMs));
+    const module = await import(localThemeUrl.href);
     return {
-      light: validateTheme(module, localThemePath),
+      light: validateTheme(module.default, localThemePath),
     };
   }
 

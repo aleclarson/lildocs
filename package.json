@@ -32,7 +32,6 @@
     "culori": "^4.0.2",
     "exports-md": "^0.1.7",
     "gray-matter": "^4.0.3",
-    "jiti": "^2.7.0",
     "marked": "^18.0.3",
     "marked-shiki": "^1.2.1",
     "preact": "^10.29.2",
@@ -50,7 +49,7 @@
     "typescript": "^5.9.0"
   },
   "engines": {
-    "node": "^22.18.0 || >=24.2.0"
+    "node": "^22.18.0 || >=24.3.0"
   },
   "packageManager": "pnpm@10.29.3"
 }

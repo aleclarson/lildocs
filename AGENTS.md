@@ -22,7 +22,7 @@ Keep product behavior aligned with the README, generated documentation, and exis
 - CLI parsing: `cmd-ts`
 - Rendering: Preact SSR
 - Markdown/frontmatter: `marked` and `gray-matter`
-- Theme loading: `jiti`
+- Theme loading: native dynamic `import()`
 - Bundling: `tsdown`
 - Linting: `oxlint`
 - Formatting: `oxfmt`
