@@ -4,19 +4,16 @@ import { LildocsError } from "./errors.js";
 import { isHiddenOrSystemPath } from "./paths.js";
 
 const HOME_PAGE_CANDIDATES = [
+  "README.md",
+  "readme.md",
   "index.md",
   "intro.md",
   "introduction.md",
   "getting-started.md",
   "quickstart.md",
-  "readme.md",
-  "README.md",
 ];
 
-const README_FIRST_HOME_PAGE_CANDIDATES = [
-  "README.md",
-  ...HOME_PAGE_CANDIDATES.filter((candidate) => candidate !== "README.md"),
-];
+const README_FIRST_HOME_PAGE_CANDIDATES = HOME_PAGE_CANDIDATES;
 
 export type HomePagePreference = "default" | "readme-first";
 

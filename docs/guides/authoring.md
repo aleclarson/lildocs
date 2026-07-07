@@ -12,13 +12,13 @@ source and turns the file tree into navigation.
 When the input is a folder, lildocs treats that folder as the docs root and
 looks for a home page in this order:
 
-1. `index.md`
-2. `intro.md`
-3. `introduction.md`
-4. `getting-started.md`
-5. `quickstart.md`
-6. `readme.md`
-7. `README.md`
+1. `README.md`
+2. `readme.md`
+3. `index.md`
+4. `intro.md`
+5. `introduction.md`
+6. `getting-started.md`
+7. `quickstart.md`
 
 If none of those files exists, the first Markdown file found in the folder tree
 is used as the home page.

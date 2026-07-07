@@ -23,6 +23,18 @@ test("builds with explicit build command", async () => {
   assert.match(result.stdout, /Built 3 pages/);
 });
 
+test("build command prefers README.md when input is a directory", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "README.md", "# Readme Home\n\nPreferred in build.");
+
+  await runCli(["build", docs, "--out", outDir]);
+
+  const home = await readFile(path.join(outDir, "index.html"), "utf8");
+  assert.match(home, /<title>Readme Home<\/title>/);
+  assert.match(home, /Preferred in build\./);
+});
+
 test("dev command serves and rebuilds the generated site", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, ".dev-site");
