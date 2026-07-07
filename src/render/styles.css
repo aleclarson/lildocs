@@ -132,7 +132,7 @@ html.is-animating .transition-scale {
 
 .content {
   min-width: 0;
-  padding-block: 28px 64px;
+  padding-block: 0 64px;
   line-height: 1.65;
 }
 
@@ -152,6 +152,10 @@ html.is-animating .transition-scale {
 
 .content article li {
   margin-bottom: 8px;
+}
+
+.content article > :first-child {
+  margin-top: 0;
 }
 
 .content blockquote {

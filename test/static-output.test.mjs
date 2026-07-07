@@ -207,6 +207,8 @@ test("styles regular blockquotes", async () => {
   assert.match(html, /<blockquote>\s*<p>A quoted note\.<\/p>\s*<\/blockquote>/);
   assert.match(css, /\.content blockquote \{[^}]*border-left: 4px solid var\(--ld-color-border\)/);
   assert.match(css, /\.content blockquote \{[^}]*background: color-mix/);
+  assert.match(css, /\.content \{[^}]*padding-block: 0 64px/);
+  assert.match(css, /\.content article > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);
 });
