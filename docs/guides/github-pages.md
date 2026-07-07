@@ -1,7 +1,3 @@
----
-title: GitHub Pages
----
-
 # GitHub Pages
 
 > Generate GitHub Pages-ready output and wire it into an Actions workflow without

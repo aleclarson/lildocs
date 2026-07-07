@@ -1,7 +1,3 @@
----
-title: Configuration
----
-
 # Configuration
 
 > Define persistent project defaults for themes, branding, navigation, links,

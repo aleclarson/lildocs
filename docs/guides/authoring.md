@@ -1,7 +1,3 @@
----
-title: Authoring Docs
----
-
 # Authoring Docs
 
 > Structure Markdown source files so lildocs can infer titles, navigation,

@@ -1,7 +1,3 @@
----
-title: lildocs Documentation
----
-
 # Introducing lildocs
 
 > A map of the lildocs documentation, from first build through authoring,

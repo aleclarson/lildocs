@@ -1,7 +1,3 @@
----
-title: Themes And Styling
----
-
 # Themes And Styling
 
 > Control the generated site's visual system with theme selection, local theme
