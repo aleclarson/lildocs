@@ -1,62 +1,54 @@
 ---
 name: lildocs
-description: Trigger for authoring, reviewing, or restructuring lildocs-powered Markdown documentation, including docs architecture, page purpose, examples, technical-writing quality, and agent steering for docs changes.
+description: Use when authoring, reviewing, or restructuring Markdown documentation in projects that use lildocs, including docs architecture, page purpose, examples, technical-writing quality, and docs-change review.
 ---
 
-# Lildocs Documentation Steering
+# Lildocs-Powered Documentation
 
-> Keep lildocs docs focused on reader decisions: verify product facts from canonical docs, shape pages around clear tasks, and make each non-obvious concept concrete with an example.
+> Shape project docs around reader decisions: start from the current project's facts, keep page purpose explicit, and make each non-obvious concept concrete with a nearby example.
 
-## Source Boundary
+## Operating Assumptions
 
-This skill is agent steering, not product reference. Do not use it as a
-replacement for lildocs docs. For exact commands, config fields, generated-site
-behavior, and current examples, consult canonical lildocs documentation first.
+The current project already uses lildocs. Do not spend prose validating or
+pitching that choice, and do not write as if the audience maintains lildocs
+itself.
+
+Write for the project's readers and contributors:
+
+- users trying to complete tasks with the project
+- contributors editing or publishing the project's docs
+- operators building or deploying the project's static docs site
+
+Mention lildocs only when it changes what those readers do, such as a local
+build command, docs folder structure, supported Markdown behavior, or
+generated-site constraint.
+
+## Project Context First
+
+Use the current project's sources as truth:
+
+- existing docs and README
+- docs root and file layout
+- package scripts and CI workflows
+- lildocs config, theme, and font files
+- examples and fixtures used by the project
+
+For exact lildocs behavior, verify from the installed package docs or source
+before writing:
 
 ```text
-Prefer local installed docs:
 node_modules/lildocs/docs/
+node_modules/lildocs/
+```
 
-Fallback:
+Use the published docs only when local package docs are unavailable:
+
+```text
 https://aleclarson.github.io/lildocs/
 ```
 
-When editing this repository, the project `docs/` directory is the source
-artifact to update. When using lildocs from another project, prefer installed
-package docs when present, then the published site.
-
-```text
-Repository docs source:
-docs/
-
-Installed package docs:
-node_modules/lildocs/docs/
-```
-
-## Agent Role
-
-Steer documentation quality and reader flow. Do not duplicate exhaustive
-reference material in the skill or in prose where a link to canonical docs is
-clearer.
-
-```text
-Good skill use:
-Improve a CLI page so command choices are easier to compare.
-
-Bad skill use:
-Recreate every lildocs config field from memory.
-```
-
-When a product fact affects correctness, check the real docs or source before
-writing. Treat remembered behavior as provisional.
-
-```text
-Check before documenting:
-- command names and flags
-- config field names and value sets
-- generated output filenames
-- deployment workflow details
-```
+Do not copy broad product reference into project docs. Link to reference
+material or keep the explanation scoped to the project task.
 
 ## Page Contract
 
@@ -65,7 +57,7 @@ blockquote must explain the page's real job: the decision it supports, the task
 it helps complete, or the boundary it clarifies.
 
 ```md
- # Command Line
+# Command Line
 
 > Build, preview, and publish flows start from different commands; this page
 > keeps their flags and defaults separate so scripts stay small.
@@ -74,7 +66,7 @@ it helps complete, or the boundary it clarifies.
 Avoid boilerplate such as `Use this page to...`, and avoid restating the title.
 
 ```md
- # Configuration
+# Configuration
 
 > Learn about configuration.
 ```
@@ -82,10 +74,10 @@ Avoid boilerplate such as `Use this page to...`, and avoid restating the title.
 Prefer direct clarity over page-navigation language.
 
 ```md
- # Configuration
+# Configuration
 
 > Persistent site defaults belong in `config.json`; one-off choices belong in
-> CLI flags for the current build, preview, or deployment command.
+> CLI flags for the current build or preview command.
 ```
 
 ## Example Discipline
@@ -140,10 +132,10 @@ Prefer observable outcomes over vague benefits.
 
 ```md
 Weak:
-This makes deployment easier.
+This makes publishing easier.
 
 Strong:
-`lildocs deploy` adds GitHub Pages metadata to the generated output directory.
+`lildocs build ./docs --out ./site` writes the static site to `./site` for CI to upload.
 ```
 
 Keep terminology stable across pages. Change terminology only when the
@@ -155,10 +147,10 @@ Avoid switching between `source folder`, `content folder`, and `docs directory`
 unless each term has a distinct meaning.
 ```
 
-## Lildocs Fit Checks
+## Navigation and Structure
 
-Let lildocs generate navigation from the folder structure unless the docs need a
-deliberate reading order. Show structure with a small tree before explaining
+Respect lildocs' folder-based navigation. Put pages and folders where readers
+expect to find them, and show structure with a small tree before explaining
 navigation implications.
 
 ```text
@@ -178,18 +170,18 @@ incorrectly.
 ```md
 | Option | Applies to | Description |
 | --- | --- | --- |
-| `--out <dir>` | build, dev, deploy | Output directory for generated files. |
+| `--out <dir>` | build, dev | Output directory for generated files. |
 ```
 
 ## Review Checks
 
-Before finishing docs changes, verify the skill did not become a product
-reference, exact lildocs facts came from canonical docs or source, each H1 has a
-useful purpose blockquote, and every non-trivial concept has a nearby example.
+Before finishing docs changes, verify that:
 
-```bash
-pnpm run format
-pnpm run lint
-pnpm run typecheck
-pnpm test
-```
+- the content serves the current project's readers, not lildocs maintainers
+- exact lildocs facts came from local project files, installed package docs, or source
+- each H1 has a useful purpose blockquote
+- every non-trivial concept has a nearby example
+- broad lildocs reference material was linked or omitted instead of copied
+
+Run the project's available checks, such as formatting, linting, typechecking,
+tests, or a local lildocs build. Do not invent missing scripts.
