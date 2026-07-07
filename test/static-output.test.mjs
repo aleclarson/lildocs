@@ -211,7 +211,7 @@ test("styles regular blockquotes", async () => {
   assert.match(css, /\.content article \{[^}]*max-width: 60ch/);
   assert.match(css, /\.content article \{[^}]*font-size: 110%/);
   assert.match(css, /\.content article :where\(h1, h2, h3, h4, h5, h6\) \{[^}]*margin-block: 1\.2em 0\.6em/);
-  assert.match(css, /\.content article > :first-child \{[^}]*margin-top: 0/);
+  assert.match(css, /\.content :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);
 });
@@ -583,6 +583,7 @@ test("renders group breadcrumbs before grouped page content", async () => {
     html,
     /<article><p class="groupBreadcrumbs">Nested Section \/ Deep<\/p><div><h1 id="nested-page">Nested Page<\/h1>/,
   );
+  assert.match(css, /\.groupBreadcrumbs \{[^}]*margin: 0 0 -4px;/);
   assert.match(css, /\.groupBreadcrumbs \{[^}]*color: var\(--ld-color-accent\);/);
   assert.match(css, /\.groupBreadcrumbs \{[^}]*font-size: 80%;[^}]*font-weight: 700;/);
 });

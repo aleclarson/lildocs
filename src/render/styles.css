@@ -160,7 +160,7 @@ html.is-animating .transition-scale {
 }
 
 .groupBreadcrumbs {
-  margin: 0 0 12px;
+  margin: 0 0 -4px;
   color: var(--ld-color-accent);
   font-size: 80%;
   font-weight: 700;
@@ -170,7 +170,7 @@ html.is-animating .transition-scale {
   margin-bottom: 8px;
 }
 
-.content article > :first-child {
+.content :first-child {
   margin-top: 0;
 }
 
