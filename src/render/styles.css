@@ -149,6 +149,10 @@ html.is-animating .transition-scale {
   margin-block: 1.2em 0.6em;
 }
 
+.content article p {
+  margin-block: 1.25em;
+}
+
 .content img {
   max-width: 100%;
   height: auto;
