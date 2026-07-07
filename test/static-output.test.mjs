@@ -229,7 +229,7 @@ test("styles regular blockquotes", async () => {
   assert.match(css, /\.content blockquote \{[^}]*background: color-mix/);
   assert.match(css, /\.content \{[^}]*padding-block: 28px 64px/);
   assert.match(css, /\.content article \{[^}]*max-width: 60ch/);
-  assert.match(css, /\.content article \{[^}]*font-size: 110%/);
+  assert.match(css, /\.content article \{[^}]*font-size: 105%/);
   assert.match(css, /\.content article :where\(h1, h2, h3, h4, h5, h6\) \{[^}]*margin-block: 2em 0\.667em/);
   assert.match(css, /\.content :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
