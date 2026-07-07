@@ -412,13 +412,15 @@ test("omits frontmatter from rendered content", async () => {
 test("generates unique stable heading anchors", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
-  await writeDocFile(docs, "duplicates.md", "# Duplicate\n\n## Repeat\n\n## Repeat\n");
+  await writeDocFile(docs, "duplicates.md", "# Duplicate\n\n## Repeat\n\n## Repeat\n\n## user_name\n");
 
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "duplicates.html"), "utf8");
   assert.match(html, /id="repeat"/);
   assert.match(html, /id="repeat-2"/);
+  assert.match(html, /id="user_name"/);
+  assert.match(html, /<a href="#user_name">user_name<\/a>/);
 });
 
 test("copies nested assets with nested relative links", async () => {

@@ -117,13 +117,19 @@ export function inferTitle(
   return formatFilename(path.basename(sourcePath, path.extname(sourcePath)));
 }
 
-export function slugify(value: string) {
+type SlugifyOptions = {
+  preserveUnderscores?: boolean;
+};
+
+export function slugify(value: string, options: SlugifyOptions = {}) {
+  const punctuation = options.preserveUnderscores ? /[`*~[\]()]/g : /[`*_~[\]()]/g;
+  const nonSlugCharacters = options.preserveUnderscores ? /[^a-z0-9_]+/g : /[^a-z0-9]+/g;
   const slug = value
     .toLowerCase()
     .trim()
-    .replace(/[`*_~[\]()]/g, "")
+    .replace(punctuation, "")
     .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(nonSlugCharacters, "-")
     .replace(/^-+|-+$/g, "");
 
   return slug || "section";
@@ -139,7 +145,7 @@ export function extractHeadings(markdown: string): Heading[] {
       continue;
     }
 
-    const baseId = slugify(stripMarkdownInline(match[2]));
+    const baseId = slugify(stripMarkdownInline(match[2]), { preserveUnderscores: true });
     const count = seen.get(baseId) ?? 0;
     seen.set(baseId, count + 1);
     headings.push({
@@ -153,7 +159,14 @@ export function extractHeadings(markdown: string): Heading[] {
 }
 
 function stripMarkdownInline(value: string) {
-  return value.replace(/[`*_~]/g, "").replace(/\[(.*?)\]\(.*?\)/g, "$1");
+  return value
+    .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/~~([\s\S]*?)~~/g, "$1")
+    .replace(/\*\*([\s\S]*?)\*\*/g, "$1")
+    .replace(/__([\s\S]*?)__/g, "$1")
+    .replace(/\*([^*]*?)\*/g, "$1")
+    .replace(/(^|[\s([{])_([^\s_](?:[\s\S]*?[^\s_])?)_(?=$|[\s)\]}.,;:!?])/g, "$1$2");
 }
 
 function formatFilename(value: string) {
