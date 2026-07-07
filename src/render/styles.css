@@ -229,11 +229,12 @@ html.is-animating .transition-scale {
 .navFolder {
   display: block;
   padding: 6px 8px;
-  border-radius: 6px;
 }
 
 .navList a,
 .navDisclosure summary {
+  padding-left: 7px;
+  border-left: 1px solid color-mix(in srgb, var(--ld-color-border) 65%, transparent);
   color: var(--ld-color-muted-text);
   text-decoration: none;
 }
@@ -272,9 +273,9 @@ html.is-animating .transition-scale {
 
 .navList a.active,
 .navDisclosure summary.active {
-  color: var(--ld-color-text);
-  background: var(--ld-color-code-background);
-  font-weight: 600;
+  border-left-color: var(--ld-color-accent);
+  color: var(--ld-color-accent);
+  font-weight: 550;
 }
 
 .content pre {

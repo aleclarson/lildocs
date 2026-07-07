@@ -343,6 +343,7 @@ function themeToCssVariableBlock(theme: Theme, fontOverrides: Partial<ThemeFonts
   --ld-color-muted-text: ${color.mutedText};
   --ld-color-border: ${color.border};
   --ld-color-link: ${color.link};
+  --ld-color-accent: ${color.link};
   --ld-color-code-background: ${color.codeBackground};
   --ld-color-code-foreground: ${color.codeForeground ?? color.text};
   --ld-color-sidebar-background: ${color.sidebarBackground ?? color.background};
