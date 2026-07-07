@@ -4,6 +4,9 @@ title: GitHub Pages
 
 # GitHub Pages
 
+> Generate GitHub Pages-ready output and wire it into an Actions workflow without
+> changing how the static site is built.
+
 Use `deploy` to build GitHub Pages-ready output:
 
 ```bash

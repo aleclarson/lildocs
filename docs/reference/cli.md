@@ -4,6 +4,9 @@ title: CLI Reference
 
 # Command Line
 
+> Choose the right lildocs command, understand each flag, and map one-off CLI
+> choices to persistent configuration.
+
 lildocs supports these command shapes:
 
 ```bash

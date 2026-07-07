@@ -4,6 +4,9 @@ title: lildocs Documentation
 
 # lildocs Documentation
 
+> A map of the lildocs documentation, from first build through authoring,
+> configuration, styling, and GitHub Pages deployment.
+
 `lildocs` builds a static, searchable documentation site from Markdown files.
 The default path is intentionally short:
 

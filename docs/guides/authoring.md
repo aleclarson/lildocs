@@ -4,6 +4,9 @@ title: Authoring Docs
 
 # Authoring Docs
 
+> Structure Markdown source files so lildocs can infer titles, navigation,
+> assets, callouts, diagrams, and search content.
+
 Write normal Markdown files in a folder. lildocs uses that folder as the site
 source and turns the file tree into navigation.
 
@@ -71,6 +74,20 @@ title: CLI Reference
 # Command Line
 ```
 
+## Page Subtitles
+
+Place a plain blockquote immediately after the page `h1` to render short
+supporting copy as a subtitle:
+
+```md
+# Command Line
+
+> Choose the command and flags for building, previewing, or deploying docs.
+```
+
+Keep subtitles brief and descriptive. Blockquotes elsewhere on the page continue
+to render as regular quoted notes unless they use GitHub-style callout syntax.
+
 ## Markdown Features
 
 | Feature | Support |
@@ -80,6 +97,7 @@ title: CLI Reference
 | Frontmatter | Supported |
 | Syntax-highlighted fenced code blocks | Supported, with copy buttons |
 | Heading anchors | Supported |
+| H1-adjacent subtitle blockquotes | Supported |
 | Relative Markdown links | Supported |
 | Images and local assets | Supported |
 | GitHub-style callouts | Supported |

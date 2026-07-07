@@ -4,6 +4,9 @@ title: Themes And Styling
 
 # Themes And Styling
 
+> Control the generated site's visual system with theme selection, local theme
+> files, fonts, logos, backgrounds, links, and navigation transitions.
+
 Theme and styling options are resolved at build time and emitted as static CSS.
 
 ## Theme

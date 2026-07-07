@@ -4,6 +4,9 @@ title: Configuration
 
 # Configuration
 
+> Define persistent project defaults for themes, branding, navigation, links,
+> generated API pages, and matching CLI overrides.
+
 lildocs works without configuration. Add `config.json` to the docs root when you
 want persistent defaults:
 

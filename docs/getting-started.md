@@ -4,6 +4,9 @@ title: Getting Started
 
 # Getting Started
 
+> Install lildocs, build your first static docs site, and start the local
+> development server.
+
 Run lildocs directly with `pnpm dlx`:
 
 ```bash
