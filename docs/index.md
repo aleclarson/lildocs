@@ -2,7 +2,7 @@
 title: lildocs Documentation
 ---
 
-# lildocs Documentation
+# Introducing lildocs
 
 > A map of the lildocs documentation, from first build through authoring,
 > configuration, styling, and GitHub Pages deployment.
