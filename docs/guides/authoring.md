@@ -48,8 +48,33 @@ docs/
     cli.md
 ```
 
-That folder tree creates top-level links for the home page and
-`getting-started.md`, plus `Guides` and `Reference` groups.
+That folder tree creates a top-level sidebar link for `getting-started.md`,
+plus `Guides` and `Reference` groups. The home page is not repeated in the
+sidebar; the generated header brand links back to it instead.
+
+Multi-page sites also get previous and next links at the bottom of each page.
+Those links follow the same generated page order as the sidebar:
+`navigation.order` first, then home-page link order, then generated folder
+order.
+
+```json
+{
+  "navigation": {
+    "order": ["getting-started.md", "guides/", "reference/"]
+  }
+}
+```
+
+Pages inside folders show a small group breadcrumb above the page content. The
+labels come from the folder names:
+
+```text
+docs/
+  guides/
+    local-files.md
+```
+
+That page shows `Guides` before its content.
 
 ## Page Titles
 
@@ -156,10 +181,29 @@ flowchart LR
 ```
 
 Mermaid diagrams work out of the box. lildocs keeps client-side JavaScript
-limited to search, Mermaid, or progressive enhancement.
+limited to search and progressive enhancement. Mermaid rendering happens during
+the build, so generated pages contain static SVG and do not load Mermaid from a
+CDN or require Mermaid client JavaScript. Invalid Mermaid syntax fails the build
+with the page and diagram number in the error message.
 
 ## Search
 
 Search is generated locally at build time from page titles, headings, and body
 text. No external search service is required, and the generated search index is
 emitted with the static site.
+
+`h2` and `h3` sections get their own search entries, so results can point
+directly at useful subsections:
+
+```md
+ ## Install
+
+Run the package manager command.
+
+ ### Local Files
+
+Place screenshots in the docs folder and reference them with relative paths.
+```
+
+The search UI highlights matching terms, supports Arrow Up, Arrow Down, Enter,
+and Escape, and prefetches local result pages while readers browse results.

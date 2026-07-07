@@ -72,6 +72,34 @@ highlighting theme configuration. `background.gradient` and
 `background.blendMode` can be set on a local theme when the background should
 come from the active light or dark theme.
 
+Local themes can also tune code foreground color, sidebar background color, and
+the Shiki theme used for syntax highlighting:
+
+```ts
+export default {
+  color: {
+    background: "#ffffff",
+    text: "#111111",
+    mutedText: "#666666",
+    border: "#e5e5e5",
+    link: "#2563eb",
+    codeBackground: "#f6f8fa",
+    codeForeground: "#24292e",
+    sidebarBackground: "#fafafa",
+  },
+  font: {
+    body: "system-ui, sans-serif",
+    mono: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  },
+  shiki: {
+    theme: "github-light",
+  },
+};
+```
+
+Use `font.code` when you want to name the code font directly. Use `font.mono`
+when a local theme should provide a general monospace fallback for code.
+
 ## Fonts
 
 `font` configures the generated site's font families:
@@ -146,8 +174,17 @@ local `.woff2`, `.woff`, `.ttf`, or `.otf` file paths.
 }
 ```
 
-`background.image` adds a background image from a URL or docs-relative file path.
-Local image files are copied into the generated site's assets.
+`background.image` adds a background image from a URL, CSS image function, or
+docs-relative file path. Local image files are copied into the generated site's
+assets.
+
+```json
+{
+  "background": {
+    "image": "radial-gradient(circle at top, rgb(37 99 235 / 0.18), transparent 42%)"
+  }
+}
+```
 
 `background.gradient` adds a CSS background gradient.
 

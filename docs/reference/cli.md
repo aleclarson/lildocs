@@ -120,7 +120,7 @@ publishes it with GitHub's Pages deployment action.
 | `--font.heading <name-or-file>` | build, dev, deploy | Heading font from Google Fonts or a local font file. |
 | `--font.body <name-or-file>` | build, dev, deploy | Body and interface font from Google Fonts or a local font file. |
 | `--font.code <name-or-file>` | build, dev, deploy | Code font from Google Fonts or a local font file. |
-| `--background.image <url-or-file>` | build, dev, deploy | Background image URL or docs-relative image path. |
+| `--background.image <url-or-file>` | build, dev, deploy | Background image URL, CSS image function, or docs-relative image path. |
 | `--background.gradient <gradient>` | build, dev, deploy | CSS background gradient. |
 | `--background.blendMode <mode>` | build, dev, deploy | CSS `background-blend-mode` for the theme color and background layers. |
 | `--link.underline <style>` | build, dev, deploy | Content link underline behavior: `always`, `hover`, or `none`. |

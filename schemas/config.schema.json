@@ -154,7 +154,7 @@
         "image": {
           "type": "string",
           "minLength": 1,
-          "description": "Background image URL, CSS url(...), or docs-relative image path."
+          "description": "Background image URL, CSS image function, or docs-relative image path."
         },
         "gradient": {
           "type": "string",

@@ -71,7 +71,7 @@ This field is optional and does not change build behavior.
 | `logo.image` | Header logo image from a URL, data URL, absolute URL path, or docs-relative image path. |
 | `logo.text` | Header brand text. Defaults to the nearest `package.json` `name` when no logo image is configured. |
 | `logo.font` | Font used for header brand text. |
-| `background.image` | Background image from a URL or docs-relative file path. |
+| `background.image` | Background image from a URL, CSS image function, or docs-relative file path. |
 | `background.gradient` | CSS background gradient. |
 | `background.blendMode` | CSS `background-blend-mode` for the theme color and configured background layers. |
 | `link.underline` | Content link underline behavior: `always`, `hover`, or `none`. |

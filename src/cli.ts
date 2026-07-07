@@ -56,7 +56,7 @@ const fontCodeOption = option({
 const backgroundImageOption = option({
   type: optional(string),
   long: "background.image",
-  description: "Background image URL or docs-relative image path.",
+  description: "Background image URL, CSS image function, or docs-relative image path.",
 });
 
 const backgroundGradientOption = option({
