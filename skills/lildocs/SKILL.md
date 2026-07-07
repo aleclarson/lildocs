@@ -10,17 +10,11 @@ description: Use when authoring, reviewing, or restructuring Markdown documentat
 ## Operating Assumptions
 
 The current project already uses lildocs. Do not spend prose validating or
-pitching that choice, and do not write as if the audience maintains lildocs
-itself.
+pitching that choice. Treat lildocs as the documentation framework and focus on
+the project's documentation goals, reader tasks, and generated-site behavior.
 
-Write for the project's readers and contributors:
-
-- users trying to complete tasks with the project
-- contributors editing or publishing the project's docs
-- operators building or deploying the project's static docs site
-
-Mention lildocs only when it changes what those readers do, such as a local
-build command, docs folder structure, supported Markdown behavior, or
+Mention lildocs only when it changes a writing or publishing decision, such as
+a local build command, docs folder structure, supported Markdown behavior, or
 generated-site constraint.
 
 ## Project Context First
@@ -177,7 +171,7 @@ incorrectly.
 
 Before finishing docs changes, verify that:
 
-- the content serves the current project's readers, not lildocs maintainers
+- the content starts from reader tasks and the current project's facts
 - exact lildocs facts came from local project files, installed package docs, or source
 - each H1 has a useful purpose blockquote
 - every non-trivial concept has a nearby example
