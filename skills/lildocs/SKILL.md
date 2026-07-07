@@ -1,54 +1,51 @@
 ---
 name: lildocs
-description: Use when authoring, reviewing, or restructuring Markdown documentation in projects that use lildocs, including docs architecture, page purpose, examples, technical-writing quality, and docs-change review.
+description: Use when authoring, reviewing, or restructuring Markdown documentation for projects that publish with lildocs, especially docs architecture, page purpose, examples, technical-writing quality, and docs-change review.
 ---
 
-# Lildocs-Powered Documentation
+# Technical Documentation
 
-> Shape project docs around reader decisions: start from the current project's facts, keep page purpose explicit, and make each non-obvious concept concrete with a nearby example.
+> Help readers make correct decisions quickly: organize around tasks and concepts, state boundaries plainly, and prove claims with concrete examples.
 
-## Operating Assumptions
+## Read the Project
 
-The current project already uses lildocs. Do not spend prose validating or
-pitching that choice. Treat lildocs as the documentation framework and focus on
-the project's documentation goals, reader tasks, and generated-site behavior.
-
-Mention lildocs only when it changes a writing or publishing decision, such as
-a local build command, docs folder structure, supported Markdown behavior, or
-generated-site constraint.
-
-## Project Context First
-
-Use the current project's sources as truth:
+Base documentation on the current project's facts, vocabulary, and support
+boundaries:
 
 - existing docs and README
-- docs root and file layout
+- docs root, folder layout, and generated navigation
 - package scripts and CI workflows
-- lildocs config, theme, and font files
 - examples and fixtures used by the project
+- configuration, theme, font, and asset files
 
-For exact lildocs behavior, verify from the installed package docs or source
-before writing:
+When publishing behavior matters, verify it from the installed package docs or
+source before writing about it:
 
 ```text
 node_modules/lildocs/docs/
 node_modules/lildocs/
 ```
 
-Use the published docs only when local package docs are unavailable:
+Use published docs only when local package docs are unavailable:
 
 ```text
 https://aleclarson.github.io/lildocs/
 ```
 
-Do not copy broad product reference into project docs. Link to reference
-material or keep the explanation scoped to the project task.
+Treat generated-site constraints as content constraints: folder-based
+navigation, static links, headings and anchors, local search, diagrams, and
+assets all affect how readers find and trust the docs.
 
-## Page Contract
+## Page Purpose
 
-Every page H1 must be followed immediately by a purpose blockquote. The
-blockquote must explain the page's real job: the decision it supports, the task
-it helps complete, or the boundary it clarifies.
+Give each page one durable job. Before drafting, decide what the reader is
+trying to do, what they already know, what decision the page must support, and
+where they should go next.
+
+For new pages in this project, follow the H1 with a purpose blockquote unless
+nearby docs use a different contract. The blockquote should clarify the page's
+real job: the decision it supports, the task it helps complete, or the boundary
+it draws.
 
 ```md
 # Command Line
@@ -57,7 +54,7 @@ it helps complete, or the boundary it clarifies.
 > keeps their flags and defaults separate so scripts stay small.
 ```
 
-Avoid boilerplate such as `Use this page to...`, and avoid restating the title.
+Weak purpose blocks restate the title or promise generic learning.
 
 ```md
 # Configuration
@@ -74,18 +71,99 @@ Prefer direct clarity over page-navigation language.
 > CLI flags for the current build or preview command.
 ```
 
+## Information Architecture
+
+Organize docs by reader movement, not by source-code ownership. A useful docs
+set has a few clear shapes:
+
+- **Overview**: names the system, its moving parts, and the first meaningful
+  decisions.
+- **Task guides**: complete a workflow from prerequisite to successful result.
+- **Concept guides**: explain boundaries, tradeoffs, and mental models.
+- **Reference**: supports lookup with complete, scannable facts.
+- **Troubleshooting**: starts from symptoms and leads to verification.
+
+Put concepts at the point where readers need them. If a concept is needed by
+many pages, give it a canonical home and link to it instead of redefining it in
+each workflow.
+
+Use file and folder names as navigation labels. Prefer short, stable nouns for
+reference areas and action-oriented names for workflows:
+
+```text
+docs/
+  index.md
+  getting-started.md
+  guides/
+    publish.md
+    customize-theme.md
+  reference/
+    cli.md
+    configuration.md
+```
+
+Keep prerequisite information before the steps that depend on it. Keep
+conceptual tradeoffs before the choice they influence. Put warnings immediately
+before the action they can change.
+
+## Writing Quality
+
+Lead with the reader's next decision or action, then provide the smallest
+command, config, file tree, table, or Markdown pattern that completes it.
+
+Prefer observable outcomes over vague benefits.
+
+```md
+Weak:
+This makes publishing easier.
+
+Strong:
+`pnpm run docs:build` writes static files to `./site` for CI to upload.
+```
+
+Keep terminology stable across pages. Change terms only when the distinction
+helps readers make a different decision.
+
+```md
+Use `docs root` consistently.
+Avoid switching between `source folder`, `content folder`, and `docs directory`
+unless each term has a distinct meaning.
+```
+
+Use parallel structure when comparing options, fields, commands, or states. A
+table is often better than prose when readers need to scan for defaults,
+constraints, or differences.
+
+```md
+| Option | Applies to | Default | Notes |
+| --- | --- | --- | --- |
+| `--out <dir>` | build, dev | `dist` | Directory for generated files. |
+```
+
+Qualify claims where the boundary matters. Prefer "when X, use Y" over broad
+rules that become false on the next page.
+
 ## Example Discipline
 
-Every new, non-trivial concept needs a minimal code block example close to its
-first explanation. Non-trivial concepts include commands, config, file layout,
-Markdown syntax, workflow steps, API shapes, generated output, and errors.
+Every non-trivial concept needs a nearby example. Non-trivial concepts include
+commands, config, file layout, Markdown syntax, workflow steps, API shapes,
+generated output, and errors.
+
+Strong examples have four parts, even when some are only one sentence:
+
+- the situation that makes the example relevant
+- the smallest realistic input
+- the command, config, or content to use
+- the observable result or next check
 
 ````md
-Set the output directory when generated files should not go to `dist`:
+Set a build output directory when CI expects artifacts in `./site`:
 
 ```bash
-lildocs build ./docs --out ./site
+pnpm run docs:build -- --out ./site
 ```
+
+After the command finishes, CI can upload `./site` as a static artifact.
 ````
 
 For prose concepts, use before/after snippets rather than abstract advice.
@@ -98,8 +176,8 @@ Strong:
 The build failed because `docs/config.json` contains invalid JSON.
 ```
 
-Comments inside examples may explain intent, but they cannot replace the
-surrounding Markdown explanation.
+Example comments may explain intent, but they cannot carry information the
+surrounding prose omits.
 
 ```json
 {
@@ -109,73 +187,33 @@ surrounding Markdown explanation.
 }
 ```
 
-## Technical Writing Standards
+## Reference Pages
 
-Lead with the reader's next decision or action, then give the smallest command,
-config, file tree, or Markdown pattern that completes it.
+Reference pages should be complete inside their stated boundary and optimized
+for lookup speed. Put the boundary at the top, then use consistent tables,
+short subsections, and examples only where readers might choose incorrectly.
 
-````md
-Build a static site for CI:
+For commands, include syntax, required arguments, defaults, side effects,
+generated files, and failure cases that change user action.
 
-```bash
-lildocs build ./docs
-```
-````
+For configuration, include field name, type, default, allowed values, merge or
+precedence behavior, and a minimal complete example.
 
-Prefer observable outcomes over vague benefits.
-
-```md
-Weak:
-This makes publishing easier.
-
-Strong:
-`lildocs build ./docs --out ./site` writes the static site to `./site` for CI to upload.
-```
-
-Keep terminology stable across pages. Change terminology only when the
-distinction helps readers make a different decision.
-
-```md
-Use `docs root` consistently.
-Avoid switching between `source folder`, `content folder`, and `docs directory`
-unless each term has a distinct meaning.
-```
-
-## Navigation and Structure
-
-Respect lildocs' folder-based navigation. Put pages and folders where readers
-expect to find them, and show structure with a small tree before explaining
-navigation implications.
-
-```text
-docs/
-  index.md
-  getting-started.md
-  guides/
-    authoring.md
-  reference/
-    cli.md
-```
-
-Keep reference pages optimized for lookup speed: a tight purpose blockquote,
-tables for option or field scans, and examples only where a reader might choose
-incorrectly.
-
-```md
-| Option | Applies to | Description |
-| --- | --- | --- |
-| `--out <dir>` | build, dev | Output directory for generated files. |
-```
+For errors, start with the symptom, then list likely causes, verification
+steps, and the smallest fix that resolves each cause.
 
 ## Review Checks
 
 Before finishing docs changes, verify that:
 
-- the content starts from reader tasks and the current project's facts
-- exact lildocs facts came from local project files, installed package docs, or source
-- each H1 has a useful purpose blockquote
+- each changed page has one clear reader job
+- navigation follows reader tasks rather than implementation trivia
+- duplicated explanations have a canonical home
+- claims are grounded in project files, tests, package docs, or source
 - every non-trivial concept has a nearby example
-- broad lildocs reference material was linked or omitted instead of copied
+- examples use project-realistic names, paths, and commands
+- links, headings, anchors, diagrams, and assets work in the generated site
+- terminology is consistent across changed pages
 
 Run the project's available checks, such as formatting, linting, typechecking,
-tests, or a local lildocs build. Do not invent missing scripts.
+tests, or a local docs build.
