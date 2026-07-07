@@ -184,12 +184,12 @@ test("renders github-style callouts", async () => {
   const html = await readFile(path.join(outDir, "callouts.html"), "utf8");
   assert.match(html, /<div class="markdown-alert markdown-alert-note">/);
   assert.match(html, /<p class="markdown-alert-title">/);
-  assert.match(html, /<span class="material-symbols-rounded markdown-alert-icon" aria-hidden="true">info<\/span>/);
+  assert.match(html, /<span class="ti ti-info-circle markdown-alert-icon" aria-hidden="true"><\/span>/);
   assert.match(html, /Useful context\./);
   assert.match(html, /<div class="markdown-alert markdown-alert-warning">/);
   assert.match(
     html,
-    /<span class="material-symbols-rounded markdown-alert-icon" aria-hidden="true">warning<\/span>/,
+    /<span class="ti ti-alert-triangle markdown-alert-icon" aria-hidden="true"><\/span>/,
   );
   assert.match(html, /Check this first\./);
   assert.doesNotMatch(html, /octicon/);
@@ -253,8 +253,8 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   assert.match(script, /const copyText = block\.textContent \?\? ""/);
   assert.match(script, /wrapper\.append\(block, button\)/);
   assert.match(script, /innerHTML = icons\.copy/);
-  assert.match(script, /material-symbols-rounded copyCodeIcon/);
-  assert.match(script, /content_copy/);
+  assert.match(script, /ti ti-copy copyCodeIcon/);
+  assert.match(script, /ti ti-copy-check copyCodeIcon/);
 });
 
 test("emits swup navigation enhancement assets", async () => {

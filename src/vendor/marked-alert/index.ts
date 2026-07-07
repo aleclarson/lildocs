@@ -27,23 +27,23 @@ type AlertToken = Token & {
 const defaultAlertVariants: AlertVariant[] = [
   {
     type: "note",
-    icon: materialSymbol("info"),
+    icon: tablerIcon("info-circle"),
   },
   {
     type: "tip",
-    icon: materialSymbol("lightbulb"),
+    icon: tablerIcon("bulb"),
   },
   {
     type: "important",
-    icon: materialSymbol("feedback"),
+    icon: tablerIcon("message-report"),
   },
   {
     type: "warning",
-    icon: materialSymbol("warning"),
+    icon: tablerIcon("alert-triangle"),
   },
   {
     type: "caution",
-    icon: materialSymbol("dangerous"),
+    icon: tablerIcon("alert-circle"),
   },
 ];
 
@@ -144,8 +144,8 @@ function capitalize(value: string) {
   return value.slice(0, 1).toUpperCase() + value.slice(1).toLowerCase();
 }
 
-function materialSymbol(name: string) {
-  return `<span class="material-symbols-rounded markdown-alert-icon" aria-hidden="true">${name}</span>`;
+function tablerIcon(name: string) {
+  return `<span class="ti ti-${name} markdown-alert-icon" aria-hidden="true"></span>`;
 }
 
 function escapeRegExp(value: string) {

@@ -107,9 +107,7 @@ function SearchBox({
 
   return (
     <>
-      <span className="searchIcon material-symbols-rounded" aria-hidden="true">
-        search
-      </span>
+      <span className="searchIcon ti ti-search" aria-hidden="true" />
       <input
         ref={inputRef}
         id="lildocs-search-input"

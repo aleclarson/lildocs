@@ -45,10 +45,6 @@ export function Layout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{documentTitle}</title>
         {favicon ? <link rel="icon" href={assetSrc(page.route, favicon)} /> : null}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0&display=block"
-        />
         <link rel="stylesheet" href={rootRelativeUrl(page.route, "assets/lildocs.css")} />
       </head>
       <body>
@@ -76,9 +72,7 @@ export function Layout({
                 </a>
               ) : null}
               <div id="lildocs-search-root" className="searchBox">
-                <span className="searchIcon material-symbols-rounded" aria-hidden="true">
-                  search
-                </span>
+                <span className="searchIcon ti ti-search" aria-hidden="true" />
                 <input
                   id="lildocs-search-input"
                   type="search"

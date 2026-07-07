@@ -408,6 +408,7 @@ html.is-animating .transition-scale {
 
 .markdown-alert-icon {
   flex: 0 0 auto;
+  font-size: 20px;
 }
 
 .markdown-alert-note {
@@ -564,21 +565,6 @@ html.is-animating .transition-scale {
   line-height: 1;
   pointer-events: none;
   transform: translateY(-50%);
-}
-
-.material-symbols-rounded {
-  font-family: "Material Symbols Rounded";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 20px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  font-feature-settings: "liga";
-  -webkit-font-smoothing: antialiased;
 }
 
 .searchBox input {

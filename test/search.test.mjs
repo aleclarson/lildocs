@@ -51,9 +51,8 @@ test("emits search UI and static search script", async () => {
   const searchScript = await readFile(path.join(outDir, "assets", "search.js"), "utf8");
   assert.match(html, /id="lildocs-search-input"/);
   assert.match(html, /id="lildocs-search-index"/);
-  assert.match(html, /fonts\.googleapis\.com\/css2\?family=Material\+Symbols\+Rounded/);
-  assert.match(html, /class="searchIcon material-symbols-rounded"/);
-  assert.match(html, />search<\/span>/);
+  assert.doesNotMatch(html, /fonts\.googleapis\.com\/css2\?family=Material\+Symbols\+Rounded/);
+  assert.match(html, /class="searchIcon ti ti-search"/);
   assert.match(html, /id="lildocs-overlay-root"/);
   assert.match(html, /<script type="module" src=".\/assets\/search\.js"><\/script>/);
   assert.match(searchScript, /matchEntry/);

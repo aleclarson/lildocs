@@ -1,8 +1,8 @@
 (() => {
   const icons = {
-    copy: '<span class="material-symbols-rounded copyCodeIcon" aria-hidden="true">content_copy</span>',
-    check: '<span class="material-symbols-rounded copyCodeIcon" aria-hidden="true">check</span>',
-    error: '<span class="material-symbols-rounded copyCodeIcon" aria-hidden="true">error</span>',
+    copy: '<span class="ti ti-copy copyCodeIcon" aria-hidden="true"></span>',
+    check: '<span class="ti ti-copy-check copyCodeIcon" aria-hidden="true"></span>',
+    error: '<span class="ti ti-alert-circle copyCodeIcon" aria-hidden="true"></span>',
   };
 
   initCopyCode();
