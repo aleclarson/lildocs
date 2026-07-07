@@ -122,7 +122,7 @@ html.is-animating .transition-scale {
   align-self: start;
   max-height: 100vh;
   overflow: auto;
-  padding-block: 24px;
+  padding-block: 28px 24px;
 }
 
 .sidebar {
@@ -132,7 +132,7 @@ html.is-animating .transition-scale {
 
 .content {
   min-width: 0;
-  padding-block: 0 64px;
+  padding-block: 28px 64px;
   line-height: 1.65;
 }
 
