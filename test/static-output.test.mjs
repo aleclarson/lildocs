@@ -631,7 +631,7 @@ test("renders group breadcrumbs before grouped page content", async () => {
     html,
     /<article><p class="groupBreadcrumbs">Nested Section \/ Deep<\/p><div><h1 id="nested-page">Nested Page<\/h1>/,
   );
-  assert.match(css, /\.groupBreadcrumbs \{[^}]*margin: 0 0 -4px;/);
+  assert.match(css, /\.groupBreadcrumbs \{[^}]*margin-block-end: -4px !important;/);
   assert.match(css, /\.groupBreadcrumbs \{[^}]*color: var\(--ld-color-accent\);/);
   assert.match(css, /\.groupBreadcrumbs \{[^}]*font-size: 80%;[^}]*font-weight: 700;/);
 });

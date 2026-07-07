@@ -164,7 +164,7 @@ html.is-animating .transition-scale {
 }
 
 .groupBreadcrumbs {
-  margin: 0 0 -4px;
+  margin-block-end: -4px !important;
   color: var(--ld-color-accent);
   font-size: 80%;
   font-weight: 700;
