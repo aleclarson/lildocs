@@ -16,6 +16,26 @@ test("writes static html pages and copied assets", async () => {
   await access(path.join(outDir, "assets", "images", "sample.svg"));
 });
 
+test("emits only bundled icon masks for tabler icons", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "tabler-icons.css"), "utf8");
+  assert.match(html, /<link rel="stylesheet" href=".\/assets\/tabler-icons\.css"\/>/);
+  assert.match(css, /\.ti \{/);
+  assert.match(css, /\.ti-search \{/);
+  assert.match(css, /\.ti-copy-check \{/);
+  assert.match(css, /\.ti-alert-triangle \{/);
+  assert.doesNotMatch(css, /@font-face/);
+  assert.doesNotMatch(css, /tabler-icons\.(?:woff2?|ttf)/);
+  await assert.rejects(() => access(path.join(outDir, "assets", "fonts", "tabler-icons.woff2")), {
+    code: "ENOENT",
+  });
+});
+
 test("rewrites markdown links to generated html routes", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

@@ -97,7 +97,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     fonts: configOptions.fonts,
   });
   const baseCss = await readRenderAsset("styles.css");
-  const tablerIconsCss = await readTablerIconsCss();
+  const tablerIconsCss = await readRenderAsset("tabler-icons.css");
   const searchScript = await readRenderAsset("search.js");
   const copyCodeScript = await readRenderAsset("copy-code.js");
   const navigationScript = await readRenderAsset("navigation.js");
@@ -119,7 +119,6 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
   const assets: AssetCopy[] = [
-    ...tablerIconFontAssets(outDir),
     ...fontResolution.assets,
     ...backgroundResolution.assets,
     ...logoResolution.assets,
@@ -297,21 +296,6 @@ async function readRenderAsset(name: string) {
 
 async function readSwupAsset() {
   return readFile(path.join(path.dirname(require.resolve("swup")), "Swup.umd.js"), "utf8");
-}
-
-async function readTablerIconsCss() {
-  return readFile(require.resolve("@tabler/icons-webfont/dist/tabler-icons.css"), "utf8");
-}
-
-function tablerIconFontAssets(outDir: string): AssetCopy[] {
-  const fontsDir = path.join(
-    path.dirname(require.resolve("@tabler/icons-webfont/dist/tabler-icons.css")),
-    "fonts",
-  );
-  return ["tabler-icons.woff2", "tabler-icons.woff", "tabler-icons.ttf"].map((name) => ({
-    from: path.join(fontsDir, name),
-    to: path.join(outDir, "assets", "fonts", name),
-  }));
 }
 
 function buildPageNavigation(pages: Page[]) {
