@@ -61,6 +61,9 @@ test("emits search UI and static search script", async () => {
   assert.match(searchScript, /titleMatches\.length < 4/);
   assert.match(searchScript, /embeddedIndex/);
   assert.match(searchScript, /setOverlayPortalRoots/);
+  assert.match(searchScript, /Create a GitHub issue/);
+  assert.match(searchScript, /issueUrlForQuery/);
+  assert.doesNotMatch(html, /window\.lildocsIssueUrl/);
 });
 
 test("emits GitHub repository button from nearest package metadata", async () => {
@@ -90,6 +93,7 @@ test("emits GitHub repository button from nearest package metadata", async () =>
   );
   assert.match(nestedHtml, /--ld-repo-icon: url\(\.\.\/assets\/github-icon\.svg\)/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
+  assert.match(html, /window\.lildocsIssueUrl = "https:\/\/github\.com\/example\/project\/issues\/new"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
   assert.ok(html.indexOf('class="repoButton"') < html.indexOf('class="searchBox"'));
   assert.match(css, /mask: var\(--ld-repo-icon\) center \/ contain no-repeat/);
@@ -133,6 +137,8 @@ test("search script preloads links and supports keyboard result selection", asyn
   assert.match(searchScript, /selected\.click\(\)/);
   assert.match(searchScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
   assert.match(searchScript, /onClick: clearSearch/);
+  assert.match(searchScript, /Missing docs for/);
+  assert.match(searchScript, /I searched the docs for/);
 });
 
 test("uses theme colors for search input placeholder and focus styles", async () => {
@@ -149,5 +155,7 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
   assert.match(css, /\.searchResults \{[^}]*font-family: var\(--ld-font-body\)/);
   assert.match(css, /\.searchResults a\.selected,\n\.searchResults a:hover \{[^}]*background: var\(--ld-color-code-background\)/);
+  assert.match(css, /\.searchResults \.searchEmpty a \{[^}]*color: var\(--ld-color-link\)/);
+  assert.match(css, /\.searchResults \.searchEmpty a:hover,\n\.searchResults \.searchEmpty a:focus-visible \{[^}]*background: transparent/);
   assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
 });

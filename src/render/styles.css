@@ -655,6 +655,21 @@ html.is-animating .transition-scale {
   font-size: 0.84rem;
 }
 
+.searchEmpty p {
+  color: var(--ld-color-muted-text);
+}
+
+.searchResults .searchEmpty a {
+  padding-top: 0;
+  color: var(--ld-color-link);
+}
+
+.searchResults .searchEmpty a:hover,
+.searchResults .searchEmpty a:focus-visible {
+  background: transparent;
+  text-decoration: underline;
+}
+
 .searchResults mark {
   border-radius: 3px;
   background: color-mix(in srgb, var(--ld-color-link) 18%, transparent);

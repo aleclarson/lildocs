@@ -38,6 +38,7 @@ export function Layout({
   const transition = navigation?.transition ?? "fade";
   const documentTitle = projectName ? `${page.title} • ${projectName}` : page.title;
   const repoIconUrl = rootRelativeUrl(page.route, "assets/github-icon.svg");
+  const issueUrl = issueUrlForRepository(repositoryUrl);
   return (
     <html lang="en">
       <head>
@@ -103,7 +104,7 @@ export function Layout({
         </div>
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.lildocsSearchUrl = ${JSON.stringify(rootRelativeUrl(page.route, "search-index.json"))};`,
+            __html: `window.lildocsSearchUrl = ${JSON.stringify(rootRelativeUrl(page.route, "search-index.json"))};${issueUrl ? `window.lildocsIssueUrl = ${JSON.stringify(issueUrl)};` : ""}`,
           }}
         />
         <script
@@ -121,6 +122,30 @@ export function Layout({
       </body>
     </html>
   );
+}
+
+function issueUrlForRepository(repositoryUrl: string | undefined) {
+  if (!repositoryUrl) {
+    return undefined;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(repositoryUrl);
+  } catch {
+    return undefined;
+  }
+
+  if (url.hostname !== "github.com") {
+    return undefined;
+  }
+
+  const [owner, repo] = url.pathname.split("/").filter(Boolean);
+  if (!owner || !repo) {
+    return undefined;
+  }
+
+  return `https://github.com/${owner}/${repo}/issues/new`;
 }
 
 function assetSrc(pageRoute: string, image: string) {

@@ -24,6 +24,7 @@ type SearchMatch = {
 
 declare global {
   interface Window {
+    lildocsIssueUrl?: string;
     lildocsSearchUrl?: string;
   }
 }
@@ -63,6 +64,7 @@ const open = signal(false);
       index={index}
       siteRoot={siteRoot}
       preloadedUrls={preloadedUrls}
+      issueUrl={window.lildocsIssueUrl}
     />,
     root,
   );
@@ -73,11 +75,13 @@ function SearchBox({
   index,
   siteRoot,
   preloadedUrls,
+  issueUrl,
 }: {
   anchorElement: Element;
   index: SearchEntry[];
   siteRoot: URL;
   preloadedUrls: Set<string>;
+  issueUrl?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedRef = useRef<HTMLAnchorElement>(null);
@@ -169,7 +173,12 @@ function SearchBox({
       >
         <div id="lildocs-search-results">
           {matches.length === 0 ? (
-            <p>No results</p>
+            <div className="searchEmpty">
+              <p>No results</p>
+              {issueUrl ? (
+                <a href={issueUrlForQuery(issueUrl, query)}>Create a GitHub issue</a>
+              ) : null}
+            </div>
           ) : (
             matches.map((match, matchIndex) => {
               const selected = matchIndex === selectedIndex;
@@ -194,6 +203,20 @@ function SearchBox({
       </Popover>
     </>
   );
+}
+
+function issueUrlForQuery(issueUrl: string, query: string) {
+  const url = new URL(issueUrl);
+  const trimmedQuery = query.trim();
+  if (trimmedQuery) {
+    url.searchParams.set("title", `Missing docs for ${trimmedQuery}`);
+    url.searchParams.set(
+      "body",
+      `I searched the docs for "${trimmedQuery}" but did not find a result.`,
+    );
+  }
+
+  return url.href;
 }
 
 function searchIndex(index: SearchEntry[], query: string) {
