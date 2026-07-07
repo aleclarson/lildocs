@@ -51,14 +51,8 @@ test("uses the default built-in theme with no config", async () => {
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
   assert.match(css, /--ld-color-background: #24292e/);
   assert.match(css, /--ld-color-link: #79b8ff/);
-  assert.match(
-    css,
-    /--ld-background-image: linear-gradient\(180deg, rgb\(37 99 235 \/ 0\.045\), transparent 220px\)/,
-  );
-  assert.match(
-    css,
-    /--ld-background-image: linear-gradient\(180deg, color-mix\(in srgb, #79b8ff 16%, transparent\), transparent 240px\)/,
-  );
+  assert.match(css, /--ld-background-image: none/);
+  assert.doesNotMatch(css, /--ld-background-image: linear-gradient/);
 });
 
 test("customizes light and dark themes from docs config", async () => {

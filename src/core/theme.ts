@@ -108,9 +108,6 @@ const themes: Record<string, Theme> = {
     shiki: {
       theme: "github-light",
     },
-    background: {
-      gradient: "linear-gradient(180deg, rgb(37 99 235 / 0.045), transparent 220px)",
-    },
   },
   minimal: {
     color: {
@@ -130,9 +127,6 @@ const themes: Record<string, Theme> = {
     },
     shiki: {
       theme: "github-light",
-    },
-    background: {
-      gradient: "linear-gradient(180deg, rgb(15 118 110 / 0.04), transparent 220px)",
     },
   },
 };
@@ -508,12 +502,6 @@ function mapShikiThemeToTheme(
     },
     shiki: {
       theme: themeName,
-    },
-    background: {
-      gradient:
-        shikiTheme.type === "dark"
-          ? `linear-gradient(180deg, color-mix(in srgb, ${link} 16%, transparent), transparent 240px)`
-          : `linear-gradient(180deg, color-mix(in srgb, ${link} 9%, transparent), transparent 220px)`,
     },
   };
 }
