@@ -340,8 +340,17 @@ html.is-animating .transition-scale {
   background: color-mix(in srgb, var(--ld-color-background) 88%, transparent);
   color: var(--ld-color-muted-text);
   line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
   vertical-align: top;
   cursor: pointer;
+}
+
+.content .copyCodeBlock:hover .copyCodeButton,
+.copyCodeButton:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .copyCodeIcon {

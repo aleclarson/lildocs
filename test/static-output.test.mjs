@@ -241,6 +241,8 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   assert.match(html, /<script src=".\/assets\/copy-code\.js"><\/script>/);
   assert.match(css, /\.content \.copyCodeBlock \{/);
   assert.match(css, /\.copyCodeButton \{/);
+  assert.match(css, /\.content \.copyCodeBlock:hover \.copyCodeButton/);
+  assert.match(css, /opacity: 0/);
   assert.match(css, /\.copyCodeIcon \{/);
   assert.match(script, /navigator\.clipboard\?\.writeText/);
   assert.match(script, /const copyText = block\.textContent \?\? ""/);
