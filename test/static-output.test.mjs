@@ -198,7 +198,7 @@ test("renders github-style callouts", async () => {
 test("styles regular blockquotes", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
-  await writeDocFile(docs, "quotes.md", "# Quotes\n\n> A quoted note.\n");
+  await writeDocFile(docs, "quotes.md", "# Quotes\n\nIntro copy.\n\n> A quoted note.\n");
 
   await runCli([docs, "--out", outDir]);
 
@@ -214,6 +214,31 @@ test("styles regular blockquotes", async () => {
   assert.match(css, /\.content :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);
+});
+
+test("styles h1-adjacent blockquotes as subtitles", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "subtitle.md", "# Title\n\n> Short supporting copy.\n\nBody copy.\n");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "subtitle.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(
+    html,
+    /<h1 id="title">Title<\/h1>\s*<blockquote>\s*<p>Short supporting copy\.<\/p>\s*<\/blockquote>\s*<p>Body copy\.<\/p>/,
+  );
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*margin: 0 0 1\.5em/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*padding: 0/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*border-left: 0/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*background: transparent/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*font-size: 1\.2em/);
+  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*line-height: 1\.45/);
+  assert.match(
+    css,
+    /\.content article h1 \+ blockquote \{[^}]*color: color-mix\(in srgb, var\(--ld-color-muted-text\) 88%, var\(--ld-color-text\)\)/,
+  );
 });
 
 test("highlights code blocks with shiki", async () => {

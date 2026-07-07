@@ -187,6 +187,17 @@ html.is-animating .transition-scale {
   color: var(--ld-color-muted-text);
 }
 
+.content article h1 + blockquote {
+  margin: 0 0 1.5em;
+  padding: 0;
+  border-left: 0;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--ld-color-muted-text) 88%, var(--ld-color-text));
+  font-size: 1.2em;
+  line-height: 1.45;
+}
+
 .content blockquote > :first-child {
   margin-top: 0;
 }
