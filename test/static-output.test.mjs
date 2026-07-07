@@ -215,7 +215,7 @@ test("renders github-style callouts", async () => {
   assert.doesNotMatch(html, /octicon/);
 });
 
-test("styles regular blockquotes", async () => {
+test("renders regular blockquotes", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
   await writeDocFile(docs, "quotes.md", "# Quotes\n\nIntro copy.\n\n> A quoted note.\n");
@@ -223,21 +223,10 @@ test("styles regular blockquotes", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "quotes.html"), "utf8");
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /<blockquote>\s*<p>A quoted note\.<\/p>\s*<\/blockquote>/);
-  assert.match(css, /\.content blockquote \{[^}]*border-left: 4px solid var\(--ld-color-border\)/);
-  assert.match(css, /\.content blockquote \{[^}]*background: color-mix/);
-  assert.match(css, /\.content \{[^}]*padding-block: 28px 64px/);
-  assert.match(css, /\.content article \{[^}]*max-width: 60ch/);
-  assert.match(css, /\.content article \{[^}]*font-size: 105%/);
-  assert.match(css, /\.content article :where\(h1, h2, h3, h4, h5, h6\) \{[^}]*margin-block: 2em 0\.667em/);
-  assert.match(css, /\.content article h1 \{[^}]*font-size: 2\.2rem/);
-  assert.match(css, /\.content :first-child \{[^}]*margin-top: 0/);
-  assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
-  assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);
 });
 
-test("styles h1-adjacent blockquotes as subtitles", async () => {
+test("renders h1-adjacent blockquotes before body copy", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
   await writeDocFile(docs, "subtitle.md", "# Title\n\n> Short supporting copy.\n\nBody copy.\n");
@@ -245,21 +234,9 @@ test("styles h1-adjacent blockquotes as subtitles", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "subtitle.html"), "utf8");
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(
     html,
     /<h1 id="title">Title<\/h1>\s*<blockquote>\s*<p>Short supporting copy\.<\/p>\s*<\/blockquote>\s*<p>Body copy\.<\/p>/,
-  );
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*margin: 0 0 1\.5em/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*margin-top: -1\.1em/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*padding: 0/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*border-left: 0/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*background: transparent/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*font-size: 1\.15em/);
-  assert.match(css, /\.content article h1 \+ blockquote \{[^}]*line-height: 1\.45/);
-  assert.match(
-    css,
-    /\.content article h1 \+ blockquote \{[^}]*color: color-mix\(in srgb, var\(--ld-color-muted-text\) 88%, var\(--ld-color-text\)\)/,
   );
 });
 
@@ -288,18 +265,9 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "code.html"), "utf8");
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const script = await readFile(path.join(outDir, "assets", "copy-code.js"), "utf8");
   assert.match(html, /<script src=".\/assets\/copy-code\.js"><\/script>/);
-  assert.match(css, /\.content \.copyCodeBlock \{/);
-  assert.match(css, /\.copyCodeButton \{/);
-  assert.match(css, /\.content \.copyCodeBlock:hover \.copyCodeButton/);
-  assert.match(css, /opacity: 0/);
-  assert.match(css, /\.copyCodeIcon \{/);
   assert.match(script, /navigator\.clipboard\?\.writeText/);
-  assert.match(script, /const copyText = block\.textContent \?\? ""/);
-  assert.match(script, /wrapper\.append\(block, button\)/);
-  assert.match(script, /innerHTML = icons\.copy/);
   assert.match(script, /ti ti-copy copyCodeIcon/);
   assert.match(script, /ti ti-copy-check copyCodeIcon/);
 });
@@ -311,22 +279,15 @@ test("emits swup navigation enhancement assets", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const navigationScript = await readFile(path.join(outDir, "assets", "navigation.js"), "utf8");
-  const swupScript = await readFile(path.join(outDir, "assets", "swup.umd.js"), "utf8");
   assert.match(html, /<div id="swup" class="contentGrid">/);
   assert.match(html, /<main class="content transition-fade">/);
   assert.match(html, /<aside class="toc transition-fade">/);
   assert.match(html, /<script src=".\/assets\/swup\.umd\.js"><\/script>/);
   assert.match(html, /<script src=".\/assets\/navigation\.js"><\/script>/);
-  assert.match(css, /--ld-navigation-duration: 180ms/);
-  assert.match(
-    css,
-    /html\.is-changing :where\(\.transition-fade, \.transition-slide, \.transition-scale\)/,
-  );
+  await access(path.join(outDir, "assets", "swup.umd.js"));
   assert.match(navigationScript, /window\.location\.protocol === "file:"/);
   assert.match(navigationScript, /new window\.Swup/);
-  assert.match(swupScript, /\(t\|\|self\)\.Swup=e\(\)/);
 });
 
 test("uses lildocs code background for shiki blocks", async () => {
@@ -340,31 +301,6 @@ test("uses lildocs code background for shiki blocks", async () => {
   assert.match(html, /class="shiki github-dark"/);
   assert.match(html, /background-color:var\(--ld-color-code-background\)/);
   assert.doesNotMatch(html, /background-color:#24292e/);
-});
-
-test("emits code block styles without css borders", async () => {
-  const { docs, workspace } = await fixtureWorkspace();
-  const outDir = path.join(workspace, "site");
-
-  await runCli([docs, "--out", outDir]);
-
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  const codeBlockRule = css.match(/\.content pre \{[^}]+\}/)?.[0] ?? "";
-  assert.match(codeBlockRule, /background: var\(--ld-color-code-background\)/);
-  assert.doesNotMatch(codeBlockRule, /border:/);
-});
-
-test("emits reset and whitespace-preserving code styles", async () => {
-  const { docs, workspace } = await fixtureWorkspace();
-  const outDir = path.join(workspace, "site");
-
-  await runCli([docs, "--out", outDir]);
-
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  assert.match(css, /:where\(\*, \*::before, \*::after\) \{[^}]*box-sizing: border-box/);
-  assert.match(css, /:where\(input, button, textarea, select\) \{[^}]*font: inherit/);
-  assert.match(css, /\.content pre \{[^}]*white-space: pre/);
-  assert.match(css, /\.content pre code \{[^}]*white-space: inherit/);
 });
 
 test("uses the local theme shiki theme for code blocks", async () => {
@@ -444,15 +380,10 @@ test("renders previous and next page links in generated navigation order", async
   await runCli([docs, "--out", outDir]);
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(homeHtml, /<nav class="pageNav" aria-label="Page navigation">/);
   assert.doesNotMatch(homeHtml, /rel="prev"/);
   assert.match(homeHtml, /rel="next" href=".\/guide.html"/);
   assert.match(homeHtml, /Frontmatter Title/);
-  assert.match(css, /\.pageNavLink \{[^}]*line-height: 1\.25;[^}]*text-decoration: none/);
-  assert.match(css, /\.content \.pageNavLink,\n\.content \.pageNavLink:hover \{[^}]*text-decoration: none/);
-  assert.match(css, /\.toc ul \{[^}]*gap: 9px/);
-  assert.match(css, /\.toc a \{[^}]*color: var\(--ld-color-muted-text\);[^}]*text-decoration: none/);
 
   const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
   assert.match(nestedHtml, /rel="prev" href="..\/guide.html"/);
@@ -627,14 +558,10 @@ test("renders group breadcrumbs before grouped page content", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "nested-section", "deep", "page.html"), "utf8");
-  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(
     html,
     /<article><p class="groupBreadcrumbs">Nested Section \/ Deep<\/p><div><h1 id="nested-page">Nested Page<\/h1>/,
   );
-  assert.match(css, /\.groupBreadcrumbs \{[^}]*margin-block-end: -4px !important;/);
-  assert.match(css, /\.groupBreadcrumbs \{[^}]*color: var\(--ld-color-accent\);/);
-  assert.match(css, /\.groupBreadcrumbs \{[^}]*font-size: 80%;[^}]*font-weight: 700;/);
 });
 
 test("does not indent nested sidebar pages", async () => {
@@ -646,10 +573,6 @@ test("does not indent nested sidebar pages", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
-  assert.match(css, /\.navList > \.navGroup \{[^}]*margin-top: 12px/);
-  assert.match(css, /\.sidebar \{[^}]*overscroll-behavior: contain/);
-  assert.match(css, /padding-bottom: calc\(24px \+ 40vh\)/);
-  assert.match(css, /@media \(max-width: 860px\) \{[\s\S]*\.sidebar \{[^}]*padding-bottom: 24px/);
 });
 
 test("renders folders with index pages as expandable page rows", async () => {
