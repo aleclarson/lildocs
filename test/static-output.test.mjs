@@ -231,6 +231,7 @@ test("styles regular blockquotes", async () => {
   assert.match(css, /\.content article \{[^}]*max-width: 60ch/);
   assert.match(css, /\.content article \{[^}]*font-size: 105%/);
   assert.match(css, /\.content article :where\(h1, h2, h3, h4, h5, h6\) \{[^}]*margin-block: 2em 0\.667em/);
+  assert.match(css, /\.content article h1 \{[^}]*font-size: 2\.2rem/);
   assert.match(css, /\.content :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :first-child \{[^}]*margin-top: 0/);
   assert.match(css, /\.content blockquote > :last-child \{[^}]*margin-bottom: 0/);
