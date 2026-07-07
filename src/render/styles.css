@@ -145,6 +145,10 @@ html.is-animating .transition-scale {
   font-family: var(--ld-font-heading);
 }
 
+.content article :where(h1, h2, h3, h4, h5, h6) {
+  margin-block: 1.2em 0.6em;
+}
+
 .content img {
   max-width: 100%;
   height: auto;
