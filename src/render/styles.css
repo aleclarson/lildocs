@@ -411,6 +411,9 @@ html.is-animating .transition-scale {
 }
 
 .content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
   width: 100%;
   border-collapse: collapse;
 }

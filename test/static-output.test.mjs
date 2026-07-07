@@ -185,7 +185,9 @@ test("renders gfm tables task lists and strikethrough", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "guide.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /<table>/);
+  assert.match(css, /\.content table \{[^}]*display: block;[^}]*max-width: 100%;[^}]*overflow-x: auto/);
   assert.match(html, /type="checkbox"/);
   assert.match(html, /<del>Removed copy<\/del>/);
 });
