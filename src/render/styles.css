@@ -79,7 +79,7 @@ body {
 
 .contentGrid {
   display: grid;
-  grid-template-columns: minmax(180px, 22vw) minmax(0, 1fr) minmax(160px, 18vw);
+  grid-template-columns: minmax(180px, 18vw) minmax(0, 1fr) minmax(160px, 16vw);
   gap: 32px;
 }
 
