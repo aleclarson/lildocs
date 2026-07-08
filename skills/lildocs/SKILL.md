@@ -88,7 +88,7 @@ many pages, give it a canonical home and link to it instead of redefining it in
 each workflow.
 
 Use file and folder names as navigation labels. Prefer short, stable nouns for
-reference areas and action-oriented names for workflows:
+concept areas and action-oriented names for workflows:
 
 ```text
 docs/
@@ -97,14 +97,51 @@ docs/
   guides/
     publish.md
     customize-theme.md
-  reference/
-    cli.md
-    configuration.md
+  concepts/
+    navigation.md
+  troubleshooting.md
 ```
 
 Keep prerequisite information before the steps that depend on it. Keep
 conceptual tradeoffs before the choice they influence. Put warnings immediately
 before the action they can change.
+
+## Public API Documentation
+
+When documentation touches TypeScript library APIs, keep factual API behavior
+near the source instead of creating hand-maintained `docs/reference/` prose.
+
+Default to this source-of-truth model:
+
+- public TSDoc owns symbol behavior, parameters, returns, errors, invariants,
+  side effects, deprecations, and related APIs
+- runnable examples own usage, composition, common workflows, and preferred
+  defaults
+- concept docs own mental models, lifecycle, terminology, API-selection
+  guidance, stable patterns, and anti-patterns
+- generated declarations own exact signatures and module shape
+
+Treat the published surface as public:
+
+- package export-map entrypoints
+- source entry files intended for consumers
+- symbols reachable from generated declaration files
+- documented re-exports intended as API
+
+Every public export should have at least a useful TSDoc summary. Add detailed
+tags when they clarify real behavior:
+
+- `@param`
+- `@returns`
+- `@throws`
+- `@example`
+- `@remarks`
+- `@deprecated`
+- `@see`
+
+Do not document internal helpers as public API unless they are intentionally
+exported. If declarations expose internal-only symbols, prefer fixing the
+package boundary over documenting the leak as official API.
 
 ## Writing Quality
 
@@ -191,9 +228,11 @@ comments are syntax highlighted correctly.
 
 ## Reference Pages
 
-Reference pages should be complete inside their stated boundary and optimized
-for lookup speed. Put the boundary at the top, then use consistent tables,
-short subsections, and examples only where readers might choose incorrectly.
+Product reference pages should be complete inside their stated boundary and
+optimized for lookup speed. Put the boundary at the top, then use consistent
+tables, short subsections, and examples only where readers might choose
+incorrectly. For TypeScript API reference, prefer public TSDoc plus generated
+declarations over hand-maintained reference pages.
 
 For commands, include syntax, required arguments, defaults, side effects,
 generated files, and failure cases that change user action.
