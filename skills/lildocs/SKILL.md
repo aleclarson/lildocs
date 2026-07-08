@@ -15,7 +15,7 @@ boundaries:
 - existing docs and README
 - docs root, folder layout, and generated navigation
 - package scripts and CI workflows
-- examples and fixtures used by the project
+- guides and fixtures used by the project
 - configuration, theme, font, and asset files
 
 When publishing behavior matters, verify it from the installed package docs or
@@ -115,8 +115,8 @@ Default to this source-of-truth model:
 
 - public TSDoc owns symbol behavior, parameters, returns, errors, invariants,
   side effects, deprecations, and related APIs
-- runnable examples own usage, composition, common workflows, and preferred
-  defaults
+- `docs/guides/` owns usage, composition, common workflows, and preferred
+  defaults when those patterns belong in dedicated guide pages
 - concept docs own mental models, lifecycle, terminology, API-selection
   guidance, stable patterns, and anti-patterns
 - generated declarations own exact signatures and module shape
@@ -252,7 +252,7 @@ Before finishing docs changes, verify that:
 - duplicated explanations have a canonical home
 - claims are grounded in project files, tests, package docs, or source
 - every non-trivial concept has a nearby example
-- examples use project-realistic names, paths, and commands
+- guide examples use project-realistic names, paths, and commands
 - links, headings, anchors, diagrams, and assets work in the generated site
 - terminology is consistent across changed pages
 
