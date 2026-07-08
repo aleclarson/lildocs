@@ -469,49 +469,13 @@ html.is-animating .transition-scale {
 }
 
 .pageNav {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
   margin-top: 48px;
   padding-top: 24px;
   border-top: 1px solid var(--ld-color-border);
 }
 
-.pageNavLink {
-  display: block;
-  min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--ld-color-border);
-  border-radius: 8px;
-  color: var(--ld-color-link);
-  line-height: 1.25;
-  text-decoration: none;
-}
-
-.content .pageNavLink,
-.content .pageNavLink:hover {
-  text-decoration: none;
-}
-
-.pageNavLink span {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--ld-color-muted-text);
-  font-size: 0.84rem;
-}
-
-.pageNavNext {
-  text-align: right;
-}
-
-.pageNavLink:hover {
-  background: var(--ld-color-code-background);
-  text-decoration: none;
-}
-
-.pageNavLink:focus-visible {
-  outline: 2px solid var(--ld-color-link);
-  outline-offset: 2px;
+.pageNav p {
+  margin: 0;
 }
 
 .toc {
@@ -708,13 +672,5 @@ html.is-animating .transition-scale {
 
   .sidebar {
     padding-bottom: 24px;
-  }
-
-  .pageNav {
-    grid-template-columns: 1fr;
-  }
-
-  .pageNavNext {
-    text-align: left;
   }
 }

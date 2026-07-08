@@ -172,26 +172,18 @@ function titleFromDir(dir: string) {
 }
 
 function PageNav({ pageNavigation }: { pageNavigation?: PageNavigation }) {
-  if (!pageNavigation?.previous && !pageNavigation?.next) {
+  if (!pageNavigation?.next) {
     return null;
   }
 
   return (
     <nav className="pageNav" aria-label="Page navigation">
-      {pageNavigation.previous ? (
-        <a className="pageNavLink pageNavPrevious" rel="prev" href={pageNavigation.previous.href}>
-          <span>Previous</span>
-          {pageNavigation.previous.title}
-        </a>
-      ) : (
-        <span />
-      )}
-      {pageNavigation.next ? (
-        <a className="pageNavLink pageNavNext" rel="next" href={pageNavigation.next.href}>
-          <span>Next</span>
+      <p>
+        Next:{" "}
+        <a rel="next" href={pageNavigation.next.href}>
           {pageNavigation.next.title}
         </a>
-      ) : null}
+      </p>
     </nav>
   );
 }

@@ -384,7 +384,7 @@ test("copies nested assets with nested relative links", async () => {
   assert.match(html, /href="..\/index.html"/);
 });
 
-test("renders previous and next page links in generated navigation order", async () => {
+test("renders next page links in generated navigation order", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
   await writeDocFile(docs, "nested/page.md", "# Nested Page\n\nNested content.");
@@ -394,18 +394,20 @@ test("renders previous and next page links in generated navigation order", async
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(homeHtml, /<nav class="pageNav" aria-label="Page navigation">/);
   assert.doesNotMatch(homeHtml, /rel="prev"/);
+  assert.match(homeHtml, /Next: /);
   assert.match(homeHtml, /rel="next" href=".\/guide.html"/);
   assert.match(homeHtml, /Frontmatter Title/);
 
   const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
-  assert.match(nestedHtml, /rel="prev" href="..\/guide.html"/);
+  assert.doesNotMatch(nestedHtml, /rel="prev"/);
   assert.match(nestedHtml, /Frontmatter Title/);
+  assert.match(nestedHtml, /Next: /);
   assert.match(nestedHtml, /rel="next" href="..\/quickstart.html"/);
   assert.match(nestedHtml, /Quickstart/);
 
   const lastHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
-  assert.match(lastHtml, /rel="prev" href=".\/nested\/page.html"/);
-  assert.match(lastHtml, /Nested Page/);
+  assert.doesNotMatch(lastHtml, /<nav class="pageNav"/);
+  assert.doesNotMatch(lastHtml, /rel="prev"/);
   assert.doesNotMatch(lastHtml, /rel="next"/);
 });
 
@@ -440,7 +442,7 @@ test("hoists entry point links in referenced sidebar order", async () => {
   assert.match(homeHtml, /rel="next" href=".\/quickstart.html"/);
 
   const quickstartHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
-  assert.match(quickstartHtml, /rel="prev" href=".\/index.html"/);
+  assert.doesNotMatch(quickstartHtml, /rel="prev"/);
   assert.match(quickstartHtml, /rel="next" href=".\/guide.html"/);
 });
 
@@ -508,7 +510,8 @@ test("uses docs config navigation order for pages folders and page links", async
     sidebar,
     /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>/,
   );
-  assert.match(homeHtml, /rel="prev" href=".\/guide.html"/);
+  assert.doesNotMatch(homeHtml, /<nav class="pageNav"/);
+  assert.doesNotMatch(homeHtml, /rel="prev"/);
   assert.doesNotMatch(homeHtml, /rel="next"/);
 });
 
