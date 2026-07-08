@@ -71,10 +71,14 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const outDir = path.resolve(options.cwd, options.outDir);
   const outDirName = path.basename(outDir);
+  const packagePath = await findNearestPackageJson(input.docsRoot, options.cwd);
+  const repositoryUrl = await resolveRepositoryUrl(packagePath);
+  const packageName = await resolvePackageName(packagePath);
   const referencePages = await buildReferencePages({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
     reference: configOptions.reference,
+    githubRepository: githubRepositoryName(repositoryUrl),
   });
   const model = await buildContentModel(
     input,
@@ -82,9 +86,6 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     configOptions.navigation.order,
     referencePages,
   );
-  const packagePath = await findNearestPackageJson(input.docsRoot, options.cwd);
-  const repositoryUrl = await resolveRepositoryUrl(packagePath);
-  const packageName = await resolvePackageName(packagePath);
   const projectName = configOptions.projectName ?? packageName;
   const theme = await resolveTheme({
     docsRoot: input.docsRoot,
@@ -283,6 +284,15 @@ function normalizeGitHubRepository(value: string): string | undefined {
   }
 
   return undefined;
+}
+
+function githubRepositoryName(repositoryUrl: string | undefined): string | undefined {
+  if (!repositoryUrl) {
+    return undefined;
+  }
+
+  const match = /^https:\/\/github\.com\/([^/]+\/[^/]+)$/.exec(repositoryUrl);
+  return match?.[1];
 }
 
 async function readRenderAsset(name: string) {

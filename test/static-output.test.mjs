@@ -115,12 +115,19 @@ test("generates API reference pages from configured package exports", async () =
     path.join(docs, "config.json"),
     JSON.stringify({ reference: { packageJson: "../packages/fixture-lib/package.json" } }),
   );
+  await writeFile(
+    path.join(workspace, "package.json"),
+    JSON.stringify({ repository: "github:acme/fixture-lib" }),
+  );
 
   await runCli([docs, "--out", outDir]);
 
   const referenceHtml = await readFile(path.join(outDir, "reference", "index.html"), "utf8");
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /FixtureOptions/);
+  assert.match(referenceHtml, /<strong>Properties<\/strong>/);
+  assert.match(referenceHtml, /The display name\./);
+  assert.match(referenceHtml, /github\.com\/search\?q=repo%3Aacme\/fixture-lib/);
 });
 
 test("renders mermaid diagrams to static svg", async () => {
@@ -156,6 +163,9 @@ async function writeExportedDeclarations(packageRoot) {
  * Options for fixture generation.
  */
 export interface FixtureOptions {
+  /**
+   * The display name.
+   */
   name: string;
 }
 

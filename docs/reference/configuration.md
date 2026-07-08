@@ -119,3 +119,8 @@ under `/reference/`.
 If `reference.packageJson` is not configured, lildocs also checks for a
 `package.json` next to the docs root. Sibling package manifests without an
 `exports` field are ignored.
+
+Reference pages are generated with `exports-md`. Package export maps follow
+relative imports and re-exports by default. Property comments render below
+declaration blocks. When the nearest package metadata points to a GitHub
+repository, generated symbol sections include GitHub code search links.

@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { generateMarkdownForModule } from "exports-md";
+import { generateMarkdownForModule, type GenerateMarkdownOptions } from "exports-md";
 import type { AdditionalPage } from "./content.js";
 import { LildocsError } from "./errors.js";
 import { toPosixPath } from "./paths.js";
@@ -18,6 +18,7 @@ export async function buildReferencePages(options: {
   cwd: string;
   docsRoot: string;
   reference?: ReferenceOptions;
+  githubRepository?: string;
 }): Promise<AdditionalPage[]> {
   const packageJson = await resolveReferencePackageJson(options);
   if (!packageJson) {
@@ -33,8 +34,15 @@ export async function buildReferencePages(options: {
   try {
     await generateMarkdownForModule(packageJson.packagePath, {
       cwd: options.cwd,
+      propertyDocs: "list",
+      github: options.githubRepository
+        ? {
+            repository: options.githubRepository,
+            searchLinks: true,
+          }
+        : undefined,
       outDir: tempDir,
-    });
+    } satisfies GenerateMarkdownOptions);
 
     const markdownPaths = await collectMarkdownPaths(tempDir);
     return Promise.all(

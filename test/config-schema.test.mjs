@@ -64,9 +64,11 @@ test("config schema supports navigation feel options", async () => {
 
 test("config schema supports reference generation options", async () => {
   const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+  const properties = schema.properties.reference.properties;
 
-  assert.equal(schema.properties.reference.properties.packageJson.type, "string");
-  assert.equal(schema.properties.reference.properties.packageJson.minLength, 1);
+  assert.deepEqual(Object.keys(properties), ["packageJson"]);
+  assert.equal(properties.packageJson.type, "string");
+  assert.equal(properties.packageJson.minLength, 1);
   assert.equal(schema.properties.reference.additionalProperties, false);
 });
 
