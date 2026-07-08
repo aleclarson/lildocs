@@ -35,6 +35,8 @@ export async function buildReferencePages(options: {
     await generateMarkdownForModule(packageJson.packagePath, {
       cwd: options.cwd,
       propertyDocs: "list",
+      groupBySyntax: true,
+      sortByName: true,
       github: options.githubRepository
         ? {
             repository: options.githubRepository,
