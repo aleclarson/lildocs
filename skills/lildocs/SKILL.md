@@ -106,6 +106,30 @@ Keep prerequisite information before the steps that depend on it. Keep
 conceptual tradeoffs before the choice they influence. Put warnings immediately
 before the action they can change.
 
+## Callouts
+
+lildocs supports GitHub-style Markdown callouts. Use them when a detail changes
+how the reader should interpret or perform the surrounding task:
+
+- `NOTE`: useful context that prevents confusion but does not change the task
+- `TIP`: optional advice that improves the result or saves time
+- `IMPORTANT`: required information that readers must know before continuing
+- `WARNING`: risk, data loss, compatibility, or irreversible action to check
+- `CAUTION`: hazardous or easy-to-misuse behavior that needs extra restraint
+
+Keep callouts close to the step, option, or concept they affect. Do not use a
+callout for ordinary prose, page summaries, or content that belongs in the main
+flow.
+
+```md
+> [!NOTE]
+> Search indexes are generated at build time, so changed pages require a new
+> build before local search reflects them.
+
+> [!WARNING]
+> Delete the output directory only when it contains generated site files.
+```
+
 ## Public API Documentation
 
 When documentation touches TypeScript library APIs, keep factual API behavior
