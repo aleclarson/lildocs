@@ -151,32 +151,50 @@ export function SearchBox({
       }}
     />
     @if (open) {
-      <div id="lildocs-search-results" class="searchResults" role="listbox">
-        @if (matches.length === 0) {
-          <div class="searchEmpty">
-            <p>No results</p>
-            @if (issueUrl) {
-              <a href={issueUrlForQuery(issueUrl, query)}>Create a GitHub issue</a>
-            }
-          </div>
-        } @else {
-          @for (const match of matches; index matchIndex; key `${match.entry.route}:${match.title}`) {
-            const selected = matchIndex === selectedIndex;
-            <a
-              ref={selected ? selectedRef : undefined}
-              href={new URL(match.entry.route, siteRoot).href}
-              data-search-result="true"
-              class={selected ? "selected" : undefined}
-              role="option"
-              aria-selected={selected}
-              onMouseOver={() => setSelectedIndex(matchIndex)}
-              onClick={clearSearch}
-            >
-              {renderHighlighted(match.title, match.terms)}
-              <span>{renderHighlighted(match.subtitle, match.terms)}</span>
-            </a>
+      <div id="lildocs-search-results" class="searchResults" aria-live="polite">
+        <div class="searchResultsContent">
+          <header class="searchResultsHeader">
+            <p class="searchResultsEyebrow">Search</p>
+            <h2>
+              Results for <span>{query as string}</span>
+            </h2>
+            <p class="searchResultsSummary">
+              {matches.length} {matches.length === 1 ? "result" : "results"}
+            </p>
+          </header>
+          @if (matches.length === 0) {
+            <section class="searchEmpty">
+              <p>No pages match this search.</p>
+              @if (issueUrl) {
+                <a href={issueUrlForQuery(issueUrl, query)}>Create a GitHub issue</a>
+              }
+            </section>
+          } @else {
+            <div class="searchResultList" role="listbox">
+              @for (const match of matches; index matchIndex; key `${match.entry.route}:${match.title}`) {
+                const selected = matchIndex === selectedIndex;
+                <a
+                  ref={selected ? selectedRef : undefined}
+                  href={new URL(match.entry.route, siteRoot).href}
+                  data-search-result="true"
+                  class={`searchResult${selected ? " selected" : ""}`}
+                  role="option"
+                  aria-selected={selected}
+                  onMouseOver={() => setSelectedIndex(matchIndex)}
+                  onClick={clearSearch}
+                >
+                  <span class="searchResultType">
+                    {match.entry.kind === "page" ? "Page" : "Section"}
+                  </span>
+                  <span class="searchResultTitle">{renderHighlighted(match.title, match.terms)}</span>
+                  <span class="searchResultSnippet">
+                    {renderHighlighted(match.subtitle, match.terms)}
+                  </span>
+                </a>
+              }
+            </div>
           }
-        }
+        </div>
       </div>
     }
   </>

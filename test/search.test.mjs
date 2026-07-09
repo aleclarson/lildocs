@@ -80,6 +80,8 @@ test("emits search UI and Vite frontend bundle", async () => {
   assert.match(frontendScript, /renderHighlighted/);
   assert.match(frontendScript, /titleMatches\.length < 4/);
   assert.match(frontendScript, /embeddedIndex/);
+  assert.match(frontendScript, /searchResultsHeader/);
+  assert.match(frontendScript, /searchResultType/);
   assert.match(frontendScript, /Create a GitHub issue/);
   assert.match(frontendScript, /issueUrlForQuery/);
   assert.doesNotMatch(html, /window\.lildocsIssueUrl/);
@@ -179,8 +181,10 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchResults \{[^}]*position: fixed/);
   assert.match(css, /\.searchResults \{[^}]*left: var\(--ld-sidebar-width\)/);
   assert.match(css, /\.searchResults \{[^}]*bottom: 0/);
-  assert.match(css, /\.searchResults a \{[^}]*font-size: 1\.12rem/);
-  assert.match(css, /\.searchResults a\.selected,\n\.searchResults a:hover \{[^}]*background: var\(--ld-color-code-background\)/);
+  assert.match(css, /\.sidebar \{[^}]*z-index: 20/);
+  assert.match(css, /\.searchResultsHeader h2 \{[^}]*font-family: var\(--ld-font-heading\)/);
+  assert.match(css, /\.searchResultTitle \{[^}]*font-size: clamp\(1\.2rem, 2vw, 1\.5rem\)/);
+  assert.match(css, /\.searchResult\.selected,\n\.searchResult:hover \{[^}]*background: color-mix/);
   assert.match(css, /\.searchResults \.searchEmpty a \{[^}]*color: var\(--ld-color-link\)/);
   assert.match(css, /\.searchResults \.searchEmpty a:hover,\n\.searchResults \.searchEmpty a:focus-visible \{[^}]*background: transparent/);
   assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
