@@ -183,12 +183,12 @@ html.is-animating .transition-scale {
   align-self: start;
   max-height: 100vh;
   overflow: auto;
-  padding-block: 28px 24px;
+  padding-block: 70px 24px;
 }
 
 .content {
   min-width: 0;
-  padding-block: 28px 64px;
+  padding-block: 70px 64px;
   line-height: 1.65;
 }
 
