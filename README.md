@@ -64,4 +64,4 @@ The project uses:
 - `tsdown` for the CLI bundle and Vite for the frontend bundle/dev server
 - `oxlint` for linting
 - Prettier with the TSRX plugin for formatting
-- Node's built-in `node:test` runner
+- Vitest with the Octane Vite compiler plugin

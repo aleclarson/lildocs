@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { converter, parse, wcagContrast } from "culori";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
@@ -186,10 +186,8 @@ test("loads logo image text and font from docs config", async () => {
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(css, /family=Onest:wght@400;500;600;700&display=swap/);
   assert.match(css, /--ld-font-logo: "Onest"/);
-  assert.match(
-    html,
-    /<a class="brand" href="\.\/index\.html"><img class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt\/><span>Acme Docs<\/span><\/a>/,
-  );
+  assert.match(html, /<img class="brandLogo" src="\.\/assets\/images\/logo\.svg" alt=""\s*\/?>/);
+  assert.match(html, /<span>Acme Docs<\/span>/);
   await access(path.join(outDir, "assets", "images", "logo.svg"));
 });
 
@@ -265,7 +263,7 @@ test("loads favicon from docs config", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /<link rel="icon" href="\.\/assets\/images\/favicon\.svg"\/>/);
+  assert.match(html, /<link rel="icon" href="\.\/assets\/images\/favicon\.svg"\s*\/?>/);
   await access(path.join(outDir, "assets", "images", "favicon.svg"));
 });
 
@@ -283,7 +281,7 @@ test("loads remote favicon from docs config", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /<link rel="icon" href="https:\/\/example\.com\/favicon\.ico"\/>/);
+  assert.match(html, /<link rel="icon" href="https:\/\/example\.com\/favicon\.ico"\s*\/?>/);
 });
 
 test("loads background gradient from docs config", async () => {

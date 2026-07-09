@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { frontendEntryPath, fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
 
 test("deploy builds GitHub Pages-ready output", async () => {

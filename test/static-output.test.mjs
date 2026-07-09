@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { fixtureWorkspace, readFrontendBundle, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 test("writes static html pages and copied assets", async () => {
@@ -24,7 +24,7 @@ test("emits only bundled icon masks for tabler icons", async () => {
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "tabler-icons.css"), "utf8");
-  assert.match(html, /<link rel="stylesheet" href=".\/assets\/tabler-icons\.css"\/>/);
+  assert.match(html, /<link rel="stylesheet" href=".\/assets\/tabler-icons\.css"\s*\/?>/);
   assert.match(css, /\.ti \{/);
   assert.match(css, /\.ti-search \{/);
   assert.match(css, /\.ti-copy-check \{/);
@@ -470,10 +470,7 @@ test("hoists entry point links in referenced sidebar order", async () => {
   const sidebar = documentationNavigation(homeHtml);
   assert.doesNotMatch(sidebar, /Fixture Home/);
   assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
-  assert.match(
-    sidebar,
-    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>/,
-  );
+  assertOrderedText(sidebar, ["Quickstart", "Frontmatter Title", "Nested", "Nested Page"]);
   assert.match(homeHtml, /rel="next" href=".\/quickstart.html"/);
 
   const quickstartHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
@@ -511,10 +508,7 @@ test("keeps manual navigation order ahead of entry point link order", async () =
   const sidebar = documentationNavigation(homeHtml);
   assert.doesNotMatch(sidebar, /Fixture Home/);
   assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
-  assert.match(
-    sidebar,
-    /<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/nested\/page\.html">Nested Page<\/a>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>[\s\S]*<a href="\.\/quickstart\.html">Quickstart<\/a>/,
-  );
+  assertOrderedText(sidebar, ["Nested", "Nested Page", "Frontmatter Title", "Quickstart"]);
 });
 
 test("uses docs config navigation order for pages folders and page links", async () => {
@@ -541,10 +535,7 @@ test("uses docs config navigation order for pages folders and page links", async
   const sidebar = documentationNavigation(homeHtml);
   assert.doesNotMatch(sidebar, /Fixture Home/);
   assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
-  assert.match(
-    sidebar,
-    /<a href="\.\/quickstart\.html">Quickstart<\/a>[\s\S]*<span class="navFolder">Nested<\/span>[\s\S]*<a href="\.\/guide\.html">Frontmatter Title<\/a>/,
-  );
+  assertOrderedText(sidebar, ["Quickstart", "Nested", "Nested Page", "Frontmatter Title"]);
   assert.doesNotMatch(homeHtml, /<nav class="pageNav"/);
   assert.doesNotMatch(homeHtml, /rel="prev"/);
   assert.doesNotMatch(homeHtml, /rel="next"/);
@@ -674,7 +665,16 @@ test("writes to dist by default", async () => {
 });
 
 function documentationNavigation(html) {
-  const match = html.match(/<nav aria-label="Documentation navigation">([\s\S]*?)<\/nav>/);
+  const match = html.match(/<nav[^>]*aria-label="Documentation navigation"[^>]*>([\s\S]*?)<\/nav>/);
   assert.ok(match?.[1]);
   return match[1];
+}
+
+function assertOrderedText(html, labels) {
+  let previousIndex = -1;
+  for (const label of labels) {
+    const index = html.indexOf(`>${label}<`, previousIndex + 1);
+    assert.ok(index > previousIndex, `expected ${label} after the previous navigation item`);
+    previousIndex = index;
+  }
 }

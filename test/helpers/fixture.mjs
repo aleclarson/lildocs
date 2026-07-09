@@ -68,6 +68,11 @@ export async function writeDocFile(docs, relativePath, contents) {
 export async function runCli(args, options = {}) {
   const env = { ...process.env };
   delete env.GITHUB_REPOSITORY;
+  delete env.NODE_ENV;
+  delete env.VITEST;
+  delete env.VITEST_MODE;
+  delete env.VITEST_POOL_ID;
+  delete env.VITEST_WORKER_ID;
 
   return execFileAsync(process.execPath, [cliPath, ...args], {
     cwd: process.cwd(),

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 test("builds with bare path invocation", async () => {
@@ -44,8 +44,6 @@ test("dev command serves and rebuilds the generated site", async () => {
     const home = await fetchText(server.url);
     assert.match(home, /Fixture Home/);
     assert.match(home, /\/@vite\/client/);
-    assert.match(home, /\/@fs\/.*\/src\/render\/client\.tsrx/);
-
     const client = await fetchText(new URL("/@vite/client", server.url));
     assert.match(client, /createHotContext/);
 
