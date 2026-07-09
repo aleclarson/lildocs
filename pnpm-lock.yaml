@@ -17,6 +17,9 @@ importers:
       culori:
         specifier: ^4.0.2
         version: 4.0.2
+      entities:
+        specifier: ^8.0.0
+        version: 8.0.0
       exports-md:
         specifier: ^0.2.5
         version: 0.2.5
@@ -650,6 +653,10 @@ packages:
   entities@7.0.1:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
+
+  entities@8.0.0:
+    resolution: {integrity: sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA==}
+    engines: {node: '>=20.19.0'}
 
   esprima@4.0.1:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
@@ -1566,6 +1573,8 @@ snapshots:
   empathic@2.0.1: {}
 
   entities@7.0.1: {}
+
+  entities@8.0.0: {}
 
   esprima@4.0.1: {}
 

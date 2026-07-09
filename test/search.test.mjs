@@ -79,6 +79,26 @@ test("preserves paragraph and sentence boundaries for search result excerpts", a
   );
 });
 
+test("decodes HTML entities in search result text", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "entities.md",
+    "# Encoded text\n\n## Vite And Browser\n\n`connect({ endpoint: '/__scoped_logs', scope: 'browser' })` & ©\n\n`<literal-element>`",
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const index = JSON.parse(await readFile(path.join(outDir, "search-index.json"), "utf8"));
+  const section = index.find((entry) => entry.kind === "section" && entry.title === "Vite And Browser");
+  assert.match(section?.excerpt ?? "", /endpoint: '\/__scoped_logs'/);
+  assert.match(section?.excerpt ?? "", /scope: 'browser'/);
+  assert.match(section?.excerpt ?? "", /& ©/);
+  assert.match(section?.excerpt ?? "", /<literal-element>/);
+  assert.doesNotMatch(section?.excerpt ?? "", /&(?:#\d+|#x[\da-f]+|\w+);/i);
+});
+
 test("emits search UI and Vite frontend bundle", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

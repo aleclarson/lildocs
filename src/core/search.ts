@@ -1,3 +1,4 @@
+import { decodeHTML } from "entities";
 import { Lexer, Parser } from "marked";
 import type { Heading, Page } from "./content.js";
 
@@ -42,13 +43,15 @@ export function markdownToPlainText(markdown: string) {
 }
 
 export function markdownToExcerpt(markdown: string) {
-  return Parser.parse(Lexer.lex(markdown, { gfm: true }))
+  const text = Parser.parse(Lexer.lex(markdown, { gfm: true }))
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(
       /<\/(?:p|h[1-6]|li|blockquote|pre|tr|div|section|article)>/gi,
       "\n\n",
     )
-    .replace(/<[^>]+>/g, "")
+    .replace(/<[^>]+>/g, "");
+
+  return decodeHTML(text)
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
