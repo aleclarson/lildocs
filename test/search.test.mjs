@@ -41,6 +41,26 @@ Unique local substring.
   assert.ok(localFiles?.text.includes("Unique local substring"));
 });
 
+test("indexes Markdown links by label instead of destination", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "link-labels.md",
+    "# Link labels\n\n## Example\n\nSee [Link label](https://example.com/hidden-link-target).\n",
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const index = JSON.parse(await readFile(path.join(outDir, "search-index.json"), "utf8"));
+  const page = index.find((entry) => entry.kind === "page" && entry.title === "Link labels");
+  const section = index.find((entry) => entry.kind === "section" && entry.title === "Example");
+  assert.match(page?.text ?? "", /Link label/);
+  assert.doesNotMatch(page?.text ?? "", /hidden link target/);
+  assert.match(section?.text ?? "", /Link label/);
+  assert.doesNotMatch(section?.text ?? "", /hidden link target/);
+});
+
 test("emits search UI and Vite frontend bundle", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -157,11 +177,15 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
   assert.match(css, /\.searchResults \{[^}]*font-family: var\(--ld-font-body\)/);
   assert.match(css, /\.searchResults \{[^}]*position: fixed/);
+  assert.match(css, /\.searchResults \{[^}]*left: var\(--ld-sidebar-width\)/);
+  assert.match(css, /\.searchResults \{[^}]*bottom: 0/);
   assert.match(css, /\.searchResults a \{[^}]*font-size: 1\.12rem/);
   assert.match(css, /\.searchResults a\.selected,\n\.searchResults a:hover \{[^}]*background: var\(--ld-color-code-background\)/);
   assert.match(css, /\.searchResults \.searchEmpty a \{[^}]*color: var\(--ld-color-link\)/);
   assert.match(css, /\.searchResults \.searchEmpty a:hover,\n\.searchResults \.searchEmpty a:focus-visible \{[^}]*background: transparent/);
   assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
+  assert.match(css, /\.tocRepoLink \{[^}]*font-size: 0\.8rem/);
+  assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
 });
 
 test("emits collapsible sidebar controls with Tabler icons", async () => {

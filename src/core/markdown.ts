@@ -13,7 +13,7 @@ import {
   rootRelativeUrl,
   toPosixPath,
 } from "./paths.js";
-import { normalizeSearchText } from "./search.js";
+import { markdownToPlainText } from "./search.js";
 
 export type AssetCopy = {
   from: string;
@@ -100,7 +100,7 @@ export async function renderMarkdownPage(
   return {
     html,
     assets,
-    text: normalizeSearchText(page.markdown),
+    text: markdownToPlainText(page.markdown),
   };
 }
 

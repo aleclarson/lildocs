@@ -1,3 +1,4 @@
+import { Lexer, Parser } from "marked";
 import type { Heading, Page } from "./content.js";
 
 export type SearchEntry = {
@@ -18,7 +19,7 @@ export function buildSearchIndex(pages: Page[]): SearchEntry[] {
       pageTitle: page.title,
       route: page.route,
       headings: page.headings.map((heading) => heading.text),
-      text: normalizeSearchText(page.searchText ?? page.markdown),
+      text: normalizeSearchText(page.searchText ?? markdownToPlainText(page.markdown)),
     },
     ...buildSectionEntries(page),
   ]);
@@ -30,6 +31,10 @@ export function normalizeSearchText(value: string) {
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+export function markdownToPlainText(markdown: string) {
+  return normalizeSearchText(Parser.parse(Lexer.lex(markdown, { gfm: true })));
 }
 
 function buildSectionEntries(page: Page): SearchEntry[] {
@@ -49,7 +54,7 @@ function buildSectionEntries(page: Page): SearchEntry[] {
       pageTitle: page.title,
       route: `${page.route}#${activeSection.heading.id}`,
       headings: activeSection.path.map((heading) => heading.text),
-      text: normalizeSearchText(activeSection.lines.join("\n")),
+      text: markdownToPlainText(activeSection.lines.join("\n")),
       depth: activeSection.heading.depth,
     });
   };

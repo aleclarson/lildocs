@@ -607,16 +607,15 @@ html.is-animating .transition-scale {
 
 .searchResults {
   position: fixed;
-  top: 72px;
-  left: calc(var(--ld-sidebar-width) + clamp(24px, 5vw, 84px));
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: var(--ld-sidebar-width);
   z-index: 30;
-  width: min(760px, calc(100vw - var(--ld-sidebar-width) - clamp(48px, 10vw, 168px)));
-  max-height: calc(100vh - 96px);
+  width: auto;
+  max-height: none;
   overflow: auto;
-  border: 1px solid var(--ld-color-border);
-  border-radius: 8px;
   background: var(--ld-color-background);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 12%);
   color: var(--ld-color-text);
   font-family: var(--ld-font-body);
   line-height: 1.4;
@@ -673,13 +672,13 @@ html.is-animating .transition-scale {
 .tocRepoLink {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 28px;
-  padding-top: 18px;
+  gap: 7px;
+  margin-top: 20px;
+  padding-top: 12px;
   border-top: 1px solid var(--ld-color-border);
   color: var(--ld-color-text);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -689,8 +688,8 @@ html.is-animating .transition-scale {
 }
 
 .tocRepoLink .repoIcon {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 }
 
 @media (min-width: 861px) {
@@ -730,6 +729,7 @@ html.is-animating .transition-scale {
     position: absolute;
     top: calc(100% + 8px);
     right: 20px;
+    bottom: auto;
     left: 20px;
     width: auto;
     max-height: 56vh;
