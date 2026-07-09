@@ -73,7 +73,7 @@ highlighting theme configuration. `background.gradient` and
 come from the active light or dark theme.
 
 Local themes can also tune code foreground color, sidebar background color, and
-the Shiki theme used for syntax highlighting:
+the Shiki theme used for syntax highlighting and Mermaid diagrams:
 
 ```ts
 export default {

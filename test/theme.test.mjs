@@ -486,10 +486,15 @@ test("maps shiki theme names to lildocs css variables", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(css, /--ld-color-background: #24292e/);
   assert.match(css, /--ld-color-text: #e1e4e8/);
+  assert.match(css, /--ld-mermaid-bg: #24292e/);
+  assert.match(css, /--ld-mermaid-line: #444d56/);
+  assert.match(css, /--ld-mermaid-accent: #005cc5/);
   assert.match(html, /class="shiki github-dark"/);
   assert.doesNotMatch(html, /class="shiki github-light"/);
+  assert.match(homeHtml, /--accent:var\(--ld-mermaid-accent\)/);
 });
 
 test("lightens dark theme borders above the page background", async () => {

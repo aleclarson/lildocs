@@ -1,4 +1,10 @@
-import { renderMermaidSVG, type RenderOptions } from "beautiful-mermaid";
+import {
+  fromShikiTheme,
+  renderMermaidSVG,
+  type DiagramColors,
+  type RenderOptions,
+} from "beautiful-mermaid";
+import { bundledThemes } from "shiki";
 import { LildocsError } from "./errors.js";
 
 export type MermaidRenderOptions = {
@@ -6,16 +12,13 @@ export type MermaidRenderOptions = {
 };
 
 export type MermaidThemeConfig = {
-  bg: string;
-  fg: string;
-  accent?: string;
-  muted?: string;
-  surface?: string;
-  border?: string;
+  light: string;
+  dark?: string;
   fontFamily?: string;
 };
 
 export type MermaidRenderer = {
+  css: string;
   render: (source: string, idHint: string) => Promise<string>;
   close: () => Promise<void>;
 };
@@ -23,12 +26,21 @@ export type MermaidRenderer = {
 export async function createMermaidRenderer(
   options: MermaidRenderOptions,
 ): Promise<MermaidRenderer> {
+  const lightColors = await loadShikiColors(options.themeConfig.light);
+  const darkColors = options.themeConfig.dark
+    ? await loadShikiColors(options.themeConfig.dark)
+    : undefined;
+  const colorKeys = sharedColorKeys(lightColors, darkColors);
+  const renderOptions = toRenderOptions(
+    colorKeys,
+    options.themeConfig.fontFamily,
+  );
+
   return {
+    css: toThemeCss(lightColors, darkColors, colorKeys),
     async render(source, idHint) {
       try {
-        const svg = addImageRole(
-          renderMermaidSVG(source, toRenderOptions(options.themeConfig)),
-        );
+        const svg = addImageRole(renderMermaidSVG(source, renderOptions));
         return `<figure class="mermaidDiagram" id="${escapeHtml(idHint)}">${svg}</figure>`;
       } catch (error) {
         throw new LildocsError(
@@ -40,16 +52,89 @@ export async function createMermaidRenderer(
   };
 }
 
-function toRenderOptions(themeConfig: MermaidThemeConfig): RenderOptions {
+type DiagramColorKey = keyof Omit<DiagramColors, "bg" | "fg">;
+
+const optionalColorKeys: DiagramColorKey[] = [
+  "line",
+  "accent",
+  "muted",
+  "surface",
+  "border",
+];
+
+async function loadShikiColors(themeName: string) {
+  const themeLoader = bundledThemes[themeName as keyof typeof bundledThemes];
+  if (!themeLoader) {
+    throw new LildocsError(`Unknown bundled Shiki theme: ${themeName}`);
+  }
+
+  const themeModule = await themeLoader();
+  const theme = "default" in themeModule ? themeModule.default : themeModule;
+  return fromShikiTheme(theme);
+}
+
+function sharedColorKeys(
+  light: DiagramColors,
+  dark?: DiagramColors,
+): DiagramColorKey[] {
+  // Omitting a one-sided enrichment lets beautiful-mermaid derive it from
+  // each palette instead of leaking a light-only value into dark mode.
+  return optionalColorKeys.filter(
+    (key) => light[key] !== undefined && (!dark || dark[key] !== undefined),
+  );
+}
+
+function toRenderOptions(
+  colorKeys: DiagramColorKey[],
+  fontFamily?: string,
+): RenderOptions {
   return {
-    bg: themeConfig.bg,
-    fg: themeConfig.fg,
-    accent: themeConfig.accent,
-    muted: themeConfig.muted,
-    surface: themeConfig.surface,
-    border: themeConfig.border,
-    font: themeConfig.fontFamily,
+    bg: "var(--ld-mermaid-bg)",
+    fg: "var(--ld-mermaid-fg)",
+    ...Object.fromEntries(
+      colorKeys.map((key) => [key, `var(--ld-mermaid-${key})`]),
+    ),
+    font: fontFamily,
   };
+}
+
+function toThemeCss(
+  light: DiagramColors,
+  dark: DiagramColors | undefined,
+  colorKeys: DiagramColorKey[],
+) {
+  const lightVariables = toCssVariables(light, colorKeys, "  ");
+  const darkVariables = dark
+    ? toCssVariables(dark, colorKeys, "    ")
+    : undefined;
+  return `.mermaidDiagram {
+${lightVariables}
+}${
+    darkVariables
+      ? `
+
+@media (prefers-color-scheme: dark) {
+  .mermaidDiagram {
+${darkVariables}
+  }
+}`
+      : ""
+  }
+`;
+}
+
+function toCssVariables(
+  colors: DiagramColors,
+  colorKeys: DiagramColorKey[],
+  indent: string,
+) {
+  return [
+    `${indent}--ld-mermaid-bg: ${colors.bg};`,
+    `${indent}--ld-mermaid-fg: ${colors.fg};`,
+    ...colorKeys.map(
+      (key) => `${indent}--ld-mermaid-${key}: ${colors[key] as string};`,
+    ),
+  ].join("\n");
 }
 
 function addImageRole(svg: string) {

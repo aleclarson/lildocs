@@ -143,6 +143,14 @@ test("renders mermaid diagrams to static svg", async () => {
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<figure class="mermaidDiagram" id="mermaid-index-1">/);
   assert.match(html, /<svg role="img"/);
+  assert.match(html, /--bg:var\(--ld-mermaid-bg\)/);
+  assert.match(html, /--line:var\(--ld-mermaid-line\)/);
+  assert.match(css, /--ld-mermaid-bg: #ffffff/);
+  assert.match(css, /--ld-mermaid-line: #393a3450/);
+  assert.match(
+    css,
+    /@media \(prefers-color-scheme: dark\) \{\s*\.mermaidDiagram \{[^}]*--ld-mermaid-bg: #121212;[^}]*--ld-mermaid-line: #dedcd550/,
+  );
   assert.match(
     css,
     /\.tableFullscreenDialog,\s*\.mermaidFullscreenDialog \{[^}]*width: 100vw;[^}]*height: 100vh/,
@@ -393,8 +401,12 @@ test("uses the local theme shiki theme for code blocks", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /class="shiki github-dark"/);
   assert.doesNotMatch(html, /class="shiki github-light"/);
+  assert.match(css, /--ld-mermaid-accent: #005cc5/);
+  assert.match(homeHtml, /--accent:var\(--ld-mermaid-accent\)/);
 });
 
 test("omits frontmatter from rendered content", async () => {

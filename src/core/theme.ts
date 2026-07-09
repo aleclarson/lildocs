@@ -368,12 +368,8 @@ export function themeToMermaidConfig(
 ): MermaidThemeConfig {
   const fonts = resolveThemeFonts(theme.light, fontOverrides);
   return {
-    bg: theme.light.color.background,
-    fg: theme.light.color.text,
-    accent: theme.light.color.link,
-    muted: theme.light.color.mutedText,
-    surface: theme.light.color.codeBackground,
-    border: theme.light.color.border,
+    light: theme.light.shiki?.theme ?? "github-light",
+    dark: theme.dark?.shiki?.theme,
     fontFamily: fonts.body,
   };
 }
