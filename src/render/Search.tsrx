@@ -7,6 +7,7 @@ export type SearchEntry = {
   pageTitle: string;
   headings: string[];
   text: string;
+  excerpt: string;
   depth?: number;
 };
 
@@ -275,7 +276,7 @@ function matchEntry(
   if (bodyScore > 0) {
     return {
       entry,
-      title: matchingSnippet(entry.text, terms),
+      title: matchingSnippet(entry.excerpt, terms),
       subtitle: subtitleForEntry(entry),
       score: 20 + bodyScore,
       terms,
@@ -318,18 +319,20 @@ function subtitleForEntry(entry: SearchEntry) {
 }
 
 function matchingSnippet(text: string, terms: string[]) {
-  const lowerText = text.toLowerCase();
-  const starts = terms
-    .map((term) => lowerText.indexOf(term))
-    .filter((index) => index >= 0)
-    .toSorted((a, b) => a - b);
-  const matchStart = starts[0] ?? 0;
-  const start = Math.max(0, matchStart - 36);
-  const end = Math.min(text.length, matchStart + 96);
-  const prefix = start > 0 ? "... " : "";
-  const suffix = end < text.length ? " ..." : "";
+  const paragraphs = text.split(/\n{2,}/).map(normalizeSnippetPart).filter(Boolean);
+  const paragraph = paragraphs.find((part) => containsTerms(part, terms)) ?? paragraphs[0] ?? "";
+  const sentences = paragraph.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(normalizeSnippetPart) ?? [];
 
-  return `${prefix}${text.slice(start, end).trim()}${suffix}`;
+  return sentences.find((sentence) => containsTerms(sentence, terms)) ?? paragraph;
+}
+
+function containsTerms(value: string, terms: string[]) {
+  const normalized = value.toLocaleLowerCase();
+  return terms.every((term) => normalized.includes(term));
+}
+
+function normalizeSnippetPart(value: string) {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function renderHighlighted(value: string, terms: string[]) {

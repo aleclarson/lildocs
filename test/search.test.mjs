@@ -61,6 +61,25 @@ test("indexes Markdown links by label instead of destination", async () => {
   assert.doesNotMatch(section?.text ?? "", /hidden link target/);
 });
 
+test("preserves paragraph and sentence boundaries for search result excerpts", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(
+    docs,
+    "excerpt.md",
+    "# Excerpts\n\n## Example\n\nFirst paragraph. The matching phrase is here. Last sentence.\n\nSeparate paragraph.",
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  const index = JSON.parse(await readFile(path.join(outDir, "search-index.json"), "utf8"));
+  const section = index.find((entry) => entry.kind === "section" && entry.title === "Example");
+  assert.equal(
+    section?.excerpt,
+    "First paragraph. The matching phrase is here. Last sentence.\n\nSeparate paragraph.",
+  );
+});
+
 test("emits search UI and Vite frontend bundle", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -77,6 +96,7 @@ test("emits search UI and Vite frontend bundle", async () => {
   assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
   assert.match(frontendScript, /matchEntry/);
   assert.match(frontendScript, /matchingSnippet/);
+  assert.match(frontendScript, /containsTerms/);
   assert.match(frontendScript, /renderHighlighted/);
   assert.match(frontendScript, /titleMatches\.length < 4/);
   assert.match(frontendScript, /embeddedIndex/);
@@ -181,6 +201,7 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchResults \{[^}]*position: fixed/);
   assert.match(css, /\.searchResults \{[^}]*left: var\(--ld-sidebar-width\)/);
   assert.match(css, /\.searchResults \{[^}]*bottom: 0/);
+  assert.match(css, /\.searchResultsContent \{[^}]*padding-top: 70px/);
   assert.match(css, /\.sidebar \{[^}]*z-index: 20/);
   assert.match(css, /\.searchResultsHeader h2 \{[^}]*font-family: var\(--ld-font-heading\)/);
   assert.match(css, /\.searchResultTitle \{[^}]*font-size: clamp\(1\.2rem, 2vw, 1\.5rem\)/);

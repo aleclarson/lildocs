@@ -626,7 +626,7 @@ html.is-animating .transition-scale {
   width: min(100%, 900px);
   min-height: 100%;
   margin-inline: auto;
-  padding: clamp(40px, 8vh, 96px) clamp(28px, 7vw, 112px);
+  padding-top: 70px;
 }
 
 .searchResultsHeader {
@@ -802,10 +802,6 @@ html.is-animating .transition-scale {
     left: 20px;
     width: auto;
     max-height: 56vh;
-  }
-
-  .searchResultsContent {
-    padding: 28px 20px;
   }
 
   .contentGrid {

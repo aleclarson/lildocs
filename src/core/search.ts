@@ -8,6 +8,7 @@ export type SearchEntry = {
   route: string;
   headings: string[];
   text: string;
+  excerpt: string;
   depth?: number;
 };
 
@@ -20,6 +21,7 @@ export function buildSearchIndex(pages: Page[]): SearchEntry[] {
       route: page.route,
       headings: page.headings.map((heading) => heading.text),
       text: normalizeSearchText(page.searchText ?? markdownToPlainText(page.markdown)),
+      excerpt: markdownToExcerpt(page.markdown),
     },
     ...buildSectionEntries(page),
   ]);
@@ -34,7 +36,17 @@ export function normalizeSearchText(value: string) {
 }
 
 export function markdownToPlainText(markdown: string) {
-  return normalizeSearchText(Parser.parse(Lexer.lex(markdown, { gfm: true })));
+  return normalizeSearchText(markdownToExcerpt(markdown));
+}
+
+export function markdownToExcerpt(markdown: string) {
+  return Parser.parse(Lexer.lex(markdown, { gfm: true }))
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(?:p|h[1-6]|li|blockquote|pre|tr|div|section|article)>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function buildSectionEntries(page: Page): SearchEntry[] {
@@ -55,6 +67,7 @@ function buildSectionEntries(page: Page): SearchEntry[] {
       route: `${page.route}#${activeSection.heading.id}`,
       headings: activeSection.path.map((heading) => heading.text),
       text: markdownToPlainText(activeSection.lines.join("\n")),
+      excerpt: markdownToExcerpt(activeSection.lines.join("\n")),
       depth: activeSection.heading.depth,
     });
   };
