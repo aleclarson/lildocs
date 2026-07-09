@@ -523,6 +523,103 @@ html.is-animating .transition-scale {
   border-collapse: collapse;
 }
 
+.tableFrame {
+  margin-block: 1em;
+}
+
+.tableToolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.tableViewport {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.content .tableViewport table {
+  display: table;
+  margin: 0;
+}
+
+.tableExpandButton,
+.tableFullscreenClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--ld-color-border);
+  border-radius: 10px;
+  background: var(--ld-color-background);
+  color: var(--ld-color-muted-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tableExpandButton .ti,
+.tableFullscreenClose .ti {
+  font-size: 18px;
+}
+
+.tableExpandButton:hover,
+.tableExpandButton:focus-visible,
+.tableFullscreenClose:hover,
+.tableFullscreenClose:focus-visible {
+  border-color: var(--ld-color-link);
+  color: var(--ld-color-link);
+}
+
+.tableFullscreenDialog {
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ld-color-background);
+  color: var(--ld-color-text);
+}
+
+.tableFullscreenDialog::backdrop {
+  background: color-mix(in srgb, black 35%, transparent);
+}
+
+.tableFullscreenContent {
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.tableFullscreenHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ld-color-border);
+  font-family: var(--ld-font-heading);
+}
+
+.tableFullscreenViewport {
+  overflow: auto;
+  padding: 20px;
+}
+
+.tableFullscreenViewport table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+html.tableFullscreenOpen {
+  overflow: hidden;
+}
+
 .markdown-alert {
   margin-block: 18px;
   padding: 8px 16px;
@@ -568,7 +665,9 @@ html.is-animating .transition-scale {
 }
 
 .content th,
-.content td {
+.content td,
+.tableFullscreenViewport th,
+.tableFullscreenViewport td {
   padding: 8px;
   border: 1px solid var(--ld-color-border);
 }

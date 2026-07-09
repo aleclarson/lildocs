@@ -4,12 +4,14 @@ import { initHeadingLinks } from "./heading-links.js";
 import { initNavigation } from "./navigation.js";
 import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
 import { initSidebar } from "./sidebar.js";
+import { initTableViewer } from "./table-viewer.js";
 import type { SearchEntry } from "./Search.tsrx";
 
 initCopyCode();
 initHeadingLinks();
 initNavigation();
 initSidebar();
+initTableViewer();
 
 void mountSearch();
 

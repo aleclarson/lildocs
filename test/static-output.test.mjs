@@ -29,6 +29,8 @@ test("emits only bundled icon masks for tabler icons", async () => {
   assert.match(css, /\.ti-search \{/);
   assert.match(css, /\.ti-copy-check \{/);
   assert.match(css, /\.ti-alert-triangle \{/);
+  assert.match(css, /\.ti-arrows-maximize \{/);
+  assert.match(css, /\.ti-arrows-minimize \{/);
   assert.doesNotMatch(css, /@font-face/);
   assert.doesNotMatch(css, /tabler-icons\.(?:woff2?|ttf)/);
   await assert.rejects(() => access(path.join(outDir, "assets", "fonts", "tabler-icons.woff2")), {
@@ -196,8 +198,19 @@ test("renders gfm tables task lists and strikethrough", async () => {
 
   const html = await readFile(path.join(outDir, "guide.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<table>/);
   assert.match(css, /\.content table \{[^}]*display: block;[^}]*max-width: 100%;[^}]*overflow-x: auto/);
+  assert.match(css, /\.tableFullscreenDialog \{[^}]*width: 100vw;[^}]*height: 100vh/);
+  assert.match(css, /\.tableFullscreenViewport \{[^}]*overflow: auto/);
+  assert.match(frontendScript, /Expand table/);
+  assert.match(frontendScript, /ti ti-arrows-maximize/);
+  assert.match(frontendScript, /ti ti-arrows-minimize/);
+  assert.match(frontendScript, /table\.cloneNode\(true\)/);
+  assert.match(frontendScript, /dialog\.showModal\(\)/);
+  assert.match(frontendScript, /dialog\.addEventListener\("cancel"/);
+  assert.match(frontendScript, /event\.preventDefault\(\)/);
+  assert.match(frontendScript, /lildocs:page-view/);
   assert.match(html, /type="checkbox"/);
   assert.match(html, /<del>Removed copy<\/del>/);
 });
