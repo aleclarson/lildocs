@@ -183,7 +183,8 @@ flowchart LR
 Mermaid diagrams work out of the box. lildocs keeps client-side JavaScript
 limited to search and progressive enhancement. Mermaid rendering happens during
 the build, so generated pages contain static SVG and do not load Mermaid from a
-CDN or require Mermaid client JavaScript. Invalid Mermaid syntax fails the build
+CDN or require Mermaid client JavaScript. Readers can expand a rendered diagram
+to fill the viewport. Invalid Mermaid syntax fails the build
 with the page and diagram number in the error message.
 
 ## Search

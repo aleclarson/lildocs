@@ -524,17 +524,20 @@ html.is-animating .transition-scale {
   border-collapse: collapse;
 }
 
-.tableFrame {
+.tableFrame,
+.mermaidFrame {
   margin-block: 1em;
 }
 
-.tableToolbar {
+.tableToolbar,
+.mermaidToolbar {
   display: flex;
   justify-content: flex-end;
   margin-top: 8px;
 }
 
-.tableViewport {
+.tableViewport,
+.mermaidViewport {
   max-width: 100%;
   overflow-x: auto;
 }
@@ -544,7 +547,12 @@ html.is-animating .transition-scale {
   margin: 0;
 }
 
+.content .mermaidViewport .mermaidDiagram {
+  margin: 0;
+}
+
 .tableExpandButton,
+.mermaidExpandButton,
 .tableFullscreenClose {
   display: inline-flex;
   align-items: center;
@@ -562,19 +570,23 @@ html.is-animating .transition-scale {
 }
 
 .tableExpandButton .ti,
+.mermaidExpandButton .ti,
 .tableFullscreenClose .ti {
   font-size: 18px;
 }
 
 .tableExpandButton:hover,
 .tableExpandButton:focus-visible,
+.mermaidExpandButton:hover,
+.mermaidExpandButton:focus-visible,
 .tableFullscreenClose:hover,
 .tableFullscreenClose:focus-visible {
   border-color: var(--ld-color-link);
   color: var(--ld-color-link);
 }
 
-.tableFullscreenDialog {
+.tableFullscreenDialog,
+.mermaidFullscreenDialog {
   width: 100vw;
   max-width: none;
   height: 100vh;
@@ -587,7 +599,8 @@ html.is-animating .transition-scale {
   font-family: var(--ld-font-body);
 }
 
-.tableFullscreenDialog::backdrop {
+.tableFullscreenDialog::backdrop,
+.mermaidFullscreenDialog::backdrop {
   background: color-mix(in srgb, black 35%, transparent);
 }
 
@@ -613,6 +626,31 @@ html.is-animating .transition-scale {
   font-size: 105%;
 }
 
+.mermaidFullscreenViewport {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px;
+  place-items: center;
+}
+
+.mermaidFullscreenViewport .mermaidDiagram {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaidFullscreenViewport .mermaidDiagram svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .tableFullscreenViewport table {
   display: table;
   width: max-content;
@@ -621,7 +659,8 @@ html.is-animating .transition-scale {
   border-collapse: collapse;
 }
 
-html.tableFullscreenOpen {
+html.tableFullscreenOpen,
+html.mermaidFullscreenOpen {
   overflow: hidden;
 }
 

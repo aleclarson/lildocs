@@ -139,8 +139,21 @@ test("renders mermaid diagrams to static svg", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<figure class="mermaidDiagram" id="mermaid-index-1">/);
   assert.match(html, /<svg role="img"/);
+  assert.match(
+    css,
+    /\.tableFullscreenDialog,\s*\.mermaidFullscreenDialog \{[^}]*width: 100vw;[^}]*height: 100vh/,
+  );
+  assert.match(
+    css,
+    /\.mermaidFullscreenViewport \{[^}]*display: grid;[^}]*place-items: center/,
+  );
+  assert.match(frontendScript, /Expand diagram/);
+  assert.match(frontendScript, /View diagram in full screen/);
+  assert.match(frontendScript, /mermaidFullscreenOpen/);
   assert.doesNotMatch(html, /mermaid\.initialize/);
   assert.doesNotMatch(html, /cdn\.jsdelivr\.net\/npm\/mermaid/);
 });
@@ -201,13 +214,16 @@ test("renders gfm tables task lists and strikethrough", async () => {
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<table>/);
   assert.match(css, /\.content table \{[^}]*display: block;[^}]*max-width: 100%;[^}]*overflow-x: auto/);
-  assert.match(css, /\.tableFullscreenDialog \{[^}]*width: 100vw;[^}]*height: 100vh/);
+  assert.match(
+    css,
+    /\.tableFullscreenDialog,\s*\.mermaidFullscreenDialog \{[^}]*width: 100vw;[^}]*height: 100vh/,
+  );
   assert.match(css, /\.tableFullscreenViewport \{[^}]*overflow: auto/);
-  assert.match(css, /\.tableToolbar \{[^}]*margin-top: 8px/);
+  assert.match(css, /\.tableToolbar,\s*\.mermaidToolbar \{[^}]*margin-top: 8px/);
   assert.match(frontendScript, /Expand table/);
   assert.match(frontendScript, /ti ti-arrows-maximize/);
   assert.match(frontendScript, /ti ti-arrows-minimize/);
-  assert.match(frontendScript, /table\.cloneNode\(true\)/);
+  assert.match(frontendScript, /source\.cloneNode\(true\)/);
   assert.match(frontendScript, /frame\.append\(viewport, toolbar\)/);
   assert.match(frontendScript, /tableFullscreenViewport content/);
   assert.match(frontendScript, /dialog\.showModal\(\)/);

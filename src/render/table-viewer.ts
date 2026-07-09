@@ -2,9 +2,11 @@ let activeDialog: HTMLDialogElement | undefined;
 
 export function initTableViewer() {
   enhanceTables();
+  enhanceMermaidDiagrams();
   document.addEventListener("lildocs:page-view", () => {
     activeDialog?.close();
     enhanceTables();
+    enhanceMermaidDiagrams();
   });
 }
 
@@ -31,7 +33,16 @@ function enhanceTables() {
     const viewport = document.createElement("div");
     viewport.className = "tableViewport";
 
-    button.addEventListener("click", () => openTableDialog(table, button));
+    button.addEventListener("click", () =>
+      openFullscreenDialog(table, button, {
+        dialogClass: "tableFullscreenDialog",
+        dialogLabel: "Full screen table",
+        title: table.querySelector("caption")?.textContent?.trim() || "Table",
+        closeLabel: "Minimize table",
+        viewportClass: "tableFullscreenViewport content",
+        openClass: "tableFullscreenOpen",
+      }),
+    );
     table.before(frame);
     toolbar.append(button);
     viewport.append(table);
@@ -39,29 +50,81 @@ function enhanceTables() {
   }
 }
 
-function openTableDialog(table: HTMLTableElement, opener: HTMLButtonElement) {
+function enhanceMermaidDiagrams() {
+  const diagrams = document.querySelectorAll<HTMLElement>(
+    ".content article .mermaidDiagram",
+  );
+  for (const diagram of Array.from(diagrams)) {
+    if (diagram.closest(".mermaidFrame")) {
+      continue;
+    }
+
+    const frame = document.createElement("div");
+    frame.className = "mermaidFrame";
+    const toolbar = document.createElement("div");
+    toolbar.className = "mermaidToolbar";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "mermaidExpandButton";
+    button.title = "Expand diagram";
+    button.setAttribute("aria-label", "View diagram in full screen");
+    button.innerHTML =
+      '<span class="ti ti-arrows-maximize" aria-hidden="true"></span>';
+    const viewport = document.createElement("div");
+    viewport.className = "mermaidViewport";
+
+    button.addEventListener("click", () =>
+      openFullscreenDialog(diagram, button, {
+        dialogClass: "mermaidFullscreenDialog",
+        dialogLabel: "Full screen diagram",
+        title: "Diagram",
+        closeLabel: "Minimize diagram",
+        viewportClass: "mermaidFullscreenViewport content",
+        openClass: "mermaidFullscreenOpen",
+      }),
+    );
+    diagram.before(frame);
+    toolbar.append(button);
+    viewport.append(diagram);
+    frame.append(viewport, toolbar);
+  }
+}
+
+type FullscreenDialogOptions = {
+  dialogClass: string;
+  dialogLabel: string;
+  title: string;
+  closeLabel: string;
+  viewportClass: string;
+  openClass: string;
+};
+
+function openFullscreenDialog(
+  source: HTMLElement,
+  opener: HTMLButtonElement,
+  options: FullscreenDialogOptions,
+) {
   activeDialog?.close();
 
   const dialog = document.createElement("dialog");
-  dialog.className = "tableFullscreenDialog";
-  dialog.setAttribute("aria-label", "Full screen table");
+  dialog.className = options.dialogClass;
+  dialog.setAttribute("aria-label", options.dialogLabel);
   const content = document.createElement("div");
   content.className = "tableFullscreenContent";
   const header = document.createElement("header");
   header.className = "tableFullscreenHeader";
   const title = document.createElement("strong");
-  title.textContent =
-    table.querySelector("caption")?.textContent?.trim() || "Table";
+  title.textContent = options.title;
   const closeButton = document.createElement("button");
   closeButton.type = "button";
   closeButton.className = "tableFullscreenClose";
-  closeButton.title = "Minimize table";
-  closeButton.setAttribute("aria-label", "Minimize table");
+  closeButton.title = options.closeLabel;
+  closeButton.setAttribute("aria-label", options.closeLabel);
   closeButton.innerHTML =
     '<span class="ti ti-arrows-minimize" aria-hidden="true"></span>';
   const viewport = document.createElement("div");
-  viewport.className = "tableFullscreenViewport content";
-  viewport.append(table.cloneNode(true));
+  viewport.className = options.viewportClass;
+  viewport.append(source.cloneNode(true));
 
   closeButton.addEventListener("click", () => dialog.close());
   dialog.addEventListener("cancel", (event) => {
@@ -76,7 +139,7 @@ function openTableDialog(table: HTMLTableElement, opener: HTMLButtonElement) {
   dialog.addEventListener(
     "close",
     () => {
-      document.documentElement.classList.remove("tableFullscreenOpen");
+      document.documentElement.classList.remove(options.openClass);
       dialog.remove();
       if (activeDialog === dialog) {
         activeDialog = undefined;
@@ -92,7 +155,7 @@ function openTableDialog(table: HTMLTableElement, opener: HTMLButtonElement) {
   content.append(header, viewport);
   dialog.append(content);
   document.body.append(dialog);
-  document.documentElement.classList.add("tableFullscreenOpen");
+  document.documentElement.classList.add(options.openClass);
   activeDialog = dialog;
   dialog.showModal();
 }
