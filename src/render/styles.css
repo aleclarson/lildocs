@@ -34,9 +34,10 @@ body {
 }
 
 .pageShell {
-  width: 92vw;
-  max-width: 1280px;
-  margin-inline: auto;
+  --ld-sidebar-width: clamp(240px, 20vw, 300px);
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: var(--ld-sidebar-width) minmax(0, 1fr);
   color: var(--ld-color-text);
   font-family: var(--ld-font-body);
 }
@@ -50,13 +51,34 @@ body {
   background-repeat: no-repeat;
 }
 
-.siteHeader {
-  min-height: 64px;
+.sidebar {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+  border-right: 1px solid var(--ld-color-border);
+  background: var(--ld-color-sidebar-background);
+  transition:
+    padding var(--ld-navigation-duration) var(--ld-navigation-easing),
+    border-color var(--ld-navigation-duration) var(--ld-navigation-easing);
+}
+
+.sidebarContents {
+  display: grid;
+  gap: 24px;
+  min-width: var(--ld-sidebar-width);
+  transition: opacity var(--ld-navigation-duration) var(--ld-navigation-easing);
+}
+
+.sidebarHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  border-bottom: 1px solid var(--ld-color-border);
+  gap: 12px;
 }
 
 .brand {
@@ -77,10 +99,47 @@ body {
   object-fit: contain;
 }
 
+.sidebarToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--ld-color-border);
+  border-radius: 6px;
+  background: var(--ld-color-background);
+  color: var(--ld-color-muted-text);
+  cursor: pointer;
+}
+
+.sidebarToggle:hover,
+.sidebarToggle:focus-visible {
+  border-color: var(--ld-color-link);
+  color: var(--ld-color-link);
+}
+
+.sidebarToggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ld-color-link) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.sidebarFloatingControls {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 20;
+  display: none;
+  gap: 8px;
+}
+
 .contentGrid {
   display: grid;
-  grid-template-columns: minmax(180px, 18vw) minmax(0, 1fr) minmax(160px, 16vw);
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 16vw);
+  gap: clamp(28px, 5vw, 72px);
+  width: min(100% - 48px, 1280px);
+  margin-inline: auto;
 }
 
 html.is-changing :where(.transition-fade, .transition-slide, .transition-scale) {
@@ -115,7 +174,6 @@ html.is-animating .transition-scale {
   }
 }
 
-.sidebar,
 .toc {
   position: sticky;
   top: 0;
@@ -123,11 +181,6 @@ html.is-animating .transition-scale {
   max-height: 100vh;
   overflow: auto;
   padding-block: 28px 24px;
-}
-
-.sidebar {
-  overscroll-behavior: contain;
-  padding-bottom: calc(24px + 40vh);
 }
 
 .content {
@@ -505,36 +558,6 @@ html.is-animating .transition-scale {
   padding-left: 12px;
 }
 
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.repoButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 auto;
-  border: 1px solid var(--ld-color-border);
-  border-radius: 6px;
-  color: var(--ld-color-muted-text);
-  text-decoration: none;
-}
-
-.repoButton:hover,
-.repoButton:focus-visible {
-  border-color: var(--ld-color-link);
-  color: var(--ld-color-link);
-}
-
-.repoButton:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--ld-color-link) 45%, transparent);
-  outline-offset: 2px;
-}
-
 .repoIcon {
   display: block;
   width: 20px;
@@ -546,9 +569,7 @@ html.is-animating .transition-scale {
 
 .searchBox {
   position: relative;
-  flex: 1 1 min(340px, 42vw);
   min-width: 0;
-  width: min(340px, 42vw);
 }
 
 .searchIcon {
@@ -583,12 +604,12 @@ html.is-animating .transition-scale {
 }
 
 .searchResults {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 10;
-  width: min(420px, 88vw);
-  max-height: 56vh;
+  position: fixed;
+  top: 72px;
+  left: calc(var(--ld-sidebar-width) + clamp(24px, 5vw, 84px));
+  z-index: 30;
+  width: min(760px, calc(100vw - var(--ld-sidebar-width) - clamp(48px, 10vw, 168px)));
+  max-height: calc(100vh - 96px);
   overflow: auto;
   border: 1px solid var(--ld-color-border);
   border-radius: 8px;
@@ -603,11 +624,13 @@ html.is-animating .transition-scale {
 .searchResults p {
   display: block;
   margin: 0;
-  padding: 10px 12px;
+  padding: 16px 20px;
 }
 
 .searchResults a {
   color: var(--ld-color-text);
+  font-size: 1.12rem;
+  font-weight: 650;
   text-decoration: none;
 }
 
@@ -618,8 +641,10 @@ html.is-animating .transition-scale {
 
 .searchResults span {
   display: block;
+  margin-top: 4px;
   color: var(--ld-color-muted-text);
-  font-size: 0.84rem;
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .searchEmpty p {
@@ -643,43 +668,79 @@ html.is-animating .transition-scale {
   color: inherit;
 }
 
+.tocRepoLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--ld-color-border);
+  color: var(--ld-color-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tocRepoLink:hover,
+.tocRepoLink:focus-visible {
+  color: var(--ld-color-link);
+}
+
+.tocRepoLink .repoIcon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (min-width: 861px) {
+  html.sidebar-collapsed .pageShell {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+
+  html.sidebar-collapsed .sidebar {
+    padding-inline: 0;
+    border-color: transparent;
+  }
+
+  html.sidebar-collapsed .sidebarContents {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  html.sidebar-collapsed .sidebarFloatingControls {
+    display: flex;
+  }
+}
+
 @media (max-width: 860px) {
   .pageShell {
-    width: 94vw;
+    display: block;
   }
 
-  .siteHeader {
-    align-items: stretch;
-    flex-direction: column;
-    padding-block: 14px;
-  }
-
-  .headerActions {
-    width: 100%;
-  }
-
-  .searchBox {
-    width: 100%;
+  .sidebar {
+    position: static;
+    height: auto;
+    max-height: none;
+    border-bottom: 1px solid var(--ld-color-border);
+    border-right: 0;
   }
 
   .searchResults {
-    right: auto;
-    left: 0;
-    width: 100%;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 20px;
+    left: 20px;
+    width: auto;
+    max-height: 56vh;
   }
 
   .contentGrid {
     display: block;
+    width: 94vw;
   }
 
-  .sidebar,
   .toc {
     position: static;
     max-height: none;
     border-bottom: 1px solid var(--ld-color-border);
-  }
-
-  .sidebar {
-    padding-bottom: 24px;
   }
 }

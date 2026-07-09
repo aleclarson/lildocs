@@ -2,6 +2,7 @@ import { createRoot } from "octane";
 import { initCopyCode } from "./copy-code.js";
 import { initNavigation } from "./navigation.js";
 import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
+import { initSidebar } from "./sidebar.js";
 import type { SearchEntry } from "./Search.tsrx";
 
 declare global {
@@ -13,6 +14,7 @@ declare global {
 
 initCopyCode();
 initNavigation();
+initSidebar();
 
 void mountSearch();
 

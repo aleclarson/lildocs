@@ -36,6 +36,7 @@ export function Layout({
   const transition = navigation?.transition ?? "fade";
   const repoIconUrl = rootRelativeUrl(page.route, "assets/github-icon.svg");
   const issueUrl = issueUrlForRepository(repositoryUrl);
+  const repositoryLabel = repositoryLabelForUrl(repositoryUrl);
 
   <>
     <meta charSet="utf-8" />
@@ -50,30 +51,27 @@ export function Layout({
       <link rel="stylesheet" href={assetSrc(page.route, stylePath)} />
     }
     <div class="pageShell">
-      <header class="siteHeader">
-        <a class="brand" href={relativeUrl(page.route, "index.html")}>
-          @if (logo.image) {
-            <img class="brandLogo" src={assetSrc(page.route, logo.image)} alt="" />
-          }
-          @if (logo.text) {
-            <span>{logo.text as string}</span>
-          }
-        </a>
-        <div class="headerActions">
-          @if (repositoryUrl) {
-            <a
-              class="repoButton"
-              href={repositoryUrl}
-              aria-label="View repository on GitHub"
-              title="View repository on GitHub"
-            >
-              <span
-                class="repoIcon"
-                aria-hidden="true"
-                style={`--ld-repo-icon: url(${repoIconUrl})`}
-              />
+      <aside id="lildocs-sidebar" class="sidebar">
+        <div class="sidebarContents">
+          <div class="sidebarHeader">
+            <a class="brand" href={relativeUrl(page.route, "index.html")}>
+              @if (logo.image) {
+                <img class="brandLogo" src={assetSrc(page.route, logo.image)} alt="" />
+              }
+              @if (logo.text) {
+                <span>{logo.text as string}</span>
+              }
             </a>
-          }
+            <button
+              id="lildocs-sidebar-toggle"
+              class="sidebarToggle"
+              type="button"
+              aria-label="Collapse sidebar"
+              aria-controls="lildocs-sidebar"
+            >
+              <span class="ti ti-layout-sidebar-left-collapse" aria-hidden="true" />
+            </button>
+          </div>
           <div id="lildocs-search-root" class="searchBox">
             <span class="searchIcon ti ti-search" aria-hidden="true" />
             <input
@@ -83,14 +81,31 @@ export function Layout({
               aria-label="Search docs"
             />
           </div>
-        </div>
-      </header>
-      <div id="swup" class="contentGrid">
-        <aside class="sidebar">
-          <nav aria-label="Documentation navigation">
+          <nav id="lildocs-sidebar-navigation" aria-label="Documentation navigation">
             <NavList items={nav} currentRoute={page.route} pageRoute={page.route} />
           </nav>
-        </aside>
+        </div>
+      </aside>
+      <div class="sidebarFloatingControls">
+        <button
+          id="lildocs-sidebar-expand"
+          class="sidebarToggle"
+          type="button"
+          aria-label="Expand sidebar"
+          aria-controls="lildocs-sidebar"
+        >
+          <span class="ti ti-layout-sidebar-left-expand" aria-hidden="true" />
+        </button>
+        <button
+          id="lildocs-floating-search"
+          class="sidebarToggle"
+          type="button"
+          aria-label="Search docs"
+        >
+          <span class="ti ti-search" aria-hidden="true" />
+        </button>
+      </div>
+      <div id="swup" class="contentGrid">
         <main class={`content transition-${transition}`}>
           <article>
             <GroupBreadcrumbs route={page.route} />
@@ -99,7 +114,12 @@ export function Layout({
           <PageNav pageNavigation={pageNavigation} />
         </main>
         <aside class={`toc transition-${transition}`}>
-          <Toc headings={page.headings} />
+          <Toc
+            headings={page.headings}
+            repositoryUrl={repositoryUrl}
+            repositoryLabel={repositoryLabel}
+            repoIconUrl={repoIconUrl}
+          />
         </aside>
       </div>
     </div>
@@ -140,6 +160,24 @@ function issueUrlForRepository(repositoryUrl: string | undefined) {
   }
 
   return `https://github.com/${owner}/${repo}/issues/new`;
+}
+
+function repositoryLabelForUrl(repositoryUrl: string | undefined) {
+  if (!repositoryUrl) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(repositoryUrl);
+    if (url.hostname !== "github.com") {
+      return undefined;
+    }
+
+    const [owner, repo] = url.pathname.split("/").filter(Boolean);
+    return owner && repo ? `${owner}/${repo}` : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function assetSrc(pageRoute: string, image: string) {
@@ -224,20 +262,42 @@ function isActiveBranch(item: NavItem, currentRoute: string): boolean {
   );
 }
 
-function Toc({ headings }: { headings: Heading[] }) @{
+function Toc({
+  headings,
+  repositoryUrl,
+  repositoryLabel,
+  repoIconUrl,
+}: {
+  headings: Heading[];
+  repositoryUrl?: string;
+  repositoryLabel?: string;
+  repoIconUrl: string;
+}) @{
   const tocHeadings = headings.filter((heading) => heading.depth > 1 && heading.depth < 4);
-  if (tocHeadings.length === 0) {
+  if (tocHeadings.length === 0 && !repositoryLabel) {
     return null;
   }
 
   <nav aria-label="Table of contents">
-    <p>On this page</p>
-    <ul>
-      @for (const heading of tocHeadings; key heading.id) {
-        <li class={`tocDepth${heading.depth}`}>
-          <a href={`#${heading.id}`}>{heading.text as string}</a>
-        </li>
-      }
-    </ul>
+    @if (tocHeadings.length > 0) {
+      <p>On this page</p>
+      <ul>
+        @for (const heading of tocHeadings; key heading.id) {
+          <li class={`tocDepth${heading.depth}`}>
+            <a href={`#${heading.id}`}>{heading.text as string}</a>
+          </li>
+        }
+      </ul>
+    }
+    @if (repositoryUrl && repositoryLabel) {
+      <a class="tocRepoLink" href={repositoryUrl} aria-label="View repository on GitHub">
+        <span
+          class="repoIcon"
+          aria-hidden="true"
+          style={`--ld-repo-icon: url(${repoIconUrl})`}
+        />
+        <span>{repositoryLabel as string}</span>
+      </a>
+    }
   </nav>
 }

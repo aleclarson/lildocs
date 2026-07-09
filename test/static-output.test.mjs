@@ -293,10 +293,12 @@ test("emits swup navigation enhancement assets", async () => {
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<div id="swup" class="contentGrid">/);
+  assert.match(html, /id="lildocs-sidebar-navigation" aria-label="Documentation navigation"/);
   assert.match(html, /<main class="content transition-fade">/);
   assert.match(html, /<aside class="toc transition-fade">/);
   assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
   assert.match(frontendScript, /window\.location\.protocol === "file:"/);
+  assert.match(frontendScript, /#lildocs-sidebar-navigation/);
   assert.match(frontendScript, /page:view/);
 });
 

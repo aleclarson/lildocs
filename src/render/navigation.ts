@@ -6,7 +6,7 @@ export function initNavigation() {
   }
 
   const swup = new Swup({
-    containers: ["#swup"],
+    containers: ["#swup", "#lildocs-sidebar-navigation"],
     animationSelector: '[class*="transition-"]',
   });
 

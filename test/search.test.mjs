@@ -65,7 +65,7 @@ test("emits search UI and Vite frontend bundle", async () => {
   assert.doesNotMatch(html, /window\.lildocsIssueUrl/);
 });
 
-test("emits GitHub repository button from nearest package metadata", async () => {
+test("emits GitHub repository link at the bottom of the table of contents", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
   await writeFile(
@@ -83,9 +83,10 @@ test("emits GitHub repository button from nearest package metadata", async () =>
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
+  const guideHtml = await readFile(path.join(outDir, "guide.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
-  assert.match(html, /class="repoButton"/);
+  assert.match(html, /class="tocRepoLink"/);
   assert.match(
     html,
     /<span class="repoIcon" aria-hidden="true" style="--ld-repo-icon: url\(\.\/assets\/github-icon\.svg\)"><\/span>/,
@@ -94,7 +95,8 @@ test("emits GitHub repository button from nearest package metadata", async () =>
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
   assert.match(html, /window\.lildocsIssueUrl = "https:\/\/github\.com\/example\/project\/issues\/new"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
-  assert.ok(html.indexOf('class="repoButton"') < html.indexOf('class="searchBox"'));
+  assert.match(html, /<span>example\/project<\/span>/);
+  assert.ok(guideHtml.indexOf("On this page") < guideHtml.indexOf('class="tocRepoLink"'));
   assert.match(css, /mask: var\(--ld-repo-icon\) center \/ contain no-repeat/);
   assert.match(icon, /viewBox="0 0 256 250"/);
 });
@@ -133,6 +135,8 @@ test("search script preloads links and supports keyboard result selection", asyn
   assert.match(frontendScript, /event\.key === "ArrowDown"/);
   assert.match(frontendScript, /event\.key === "ArrowUp"/);
   assert.match(frontendScript, /event\.key === "Enter"/);
+  assert.match(frontendScript, /event\.key\.toLowerCase\(\) === "k"/);
+  assert.match(frontendScript, /lildocs:search-toggle/);
   assert.match(frontendScript, /selected\.click\(\)/);
   assert.match(frontendScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
   assert.match(frontendScript, /Missing docs for/);
@@ -152,8 +156,33 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchBox input:focus \{[^}]*border-color: var\(--ld-color-link\)/);
   assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
   assert.match(css, /\.searchResults \{[^}]*font-family: var\(--ld-font-body\)/);
+  assert.match(css, /\.searchResults \{[^}]*position: fixed/);
+  assert.match(css, /\.searchResults a \{[^}]*font-size: 1\.12rem/);
   assert.match(css, /\.searchResults a\.selected,\n\.searchResults a:hover \{[^}]*background: var\(--ld-color-code-background\)/);
   assert.match(css, /\.searchResults \.searchEmpty a \{[^}]*color: var\(--ld-color-link\)/);
   assert.match(css, /\.searchResults \.searchEmpty a:hover,\n\.searchResults \.searchEmpty a:focus-visible \{[^}]*background: transparent/);
   assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
+});
+
+test("emits collapsible sidebar controls with Tabler icons", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const html = await readFile(path.join(outDir, "index.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  const frontendScript = await readFrontendBundle(outDir);
+  const icons = await readFile(path.join(outDir, "assets", "tabler-icons.css"), "utf8");
+  assert.match(html, /id="lildocs-sidebar" class="sidebar"/);
+  assert.match(html, /id="lildocs-sidebar-toggle"/);
+  assert.match(html, /ti ti-layout-sidebar-left-collapse/);
+  assert.match(html, /id="lildocs-sidebar-expand"/);
+  assert.match(html, /ti ti-layout-sidebar-left-expand/);
+  assert.match(html, /id="lildocs-floating-search"/);
+  assert.match(css, /html\.sidebar-collapsed \.pageShell/);
+  assert.match(css, /html\.sidebar-collapsed \.sidebarFloatingControls/);
+  assert.match(frontendScript, /sidebar-collapsed/);
+  assert.match(icons, /\.ti-layout-sidebar-left-collapse/);
+  assert.match(icons, /\.ti-layout-sidebar-left-expand/);
 });

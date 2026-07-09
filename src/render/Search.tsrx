@@ -54,6 +54,33 @@ export function SearchBox({
     return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
   }, [anchorElement]);
 
+  useEffect(() => {
+    const toggleSearch = () => {
+      if (document.activeElement === inputRef.current) {
+        inputRef.current?.blur();
+        setOpen(false);
+        return;
+      }
+
+      document.documentElement.classList.remove("sidebar-collapsed");
+      inputRef.current?.focus();
+      setOpen(Boolean(query.trim()));
+    };
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        toggleSearch();
+      }
+    };
+
+    document.addEventListener("lildocs:search-toggle", toggleSearch);
+    document.addEventListener("keydown", handleShortcut);
+    return () => {
+      document.removeEventListener("lildocs:search-toggle", toggleSearch);
+      document.removeEventListener("keydown", handleShortcut);
+    };
+  }, [query]);
+
   const clearSearch = () => {
     setQuery("");
     setSelectedIndex(-1);
