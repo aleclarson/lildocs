@@ -1,8 +1,3 @@
-import "@fontsource/courier-prime/400.css";
-import "@fontsource/courier-prime/700.css";
-import "@fontsource/merriweather/400.css";
-import "@fontsource/merriweather/700.css";
-import "@fontsource/varela-round/400.css";
 import { createRoot } from "octane";
 import { initCopyCode } from "./copy-code.js";
 import { initNavigation } from "./navigation.js";

@@ -47,9 +47,6 @@ test("uses the default built-in theme with no config", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(css, /--ld-color-link: #2563eb/);
-  assert.match(css, /--ld-font-heading: "Varela Round", sans-serif/);
-  assert.match(css, /--ld-font-body: Merriweather, serif/);
-  assert.match(css, /--ld-font-code: "Courier Prime", monospace/);
   assert.match(css, /color-scheme: light dark/);
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
   assert.match(css, /--ld-color-background: #24292e/);

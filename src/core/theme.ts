@@ -101,9 +101,9 @@ const themes: Record<string, Theme> = {
       sidebarBackground: "#fafafa",
     },
     font: {
-      heading: '"Varela Round", sans-serif',
-      body: "Merriweather, serif",
-      code: '"Courier Prime", monospace',
+      heading: "system-ui, sans-serif",
+      body: "system-ui, sans-serif",
+      code: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
     },
     shiki: {
       theme: "github-light",
@@ -496,9 +496,9 @@ function mapShikiThemeToTheme(
       sidebarBackground,
     },
     font: {
-      heading: '"Varela Round", sans-serif',
-      body: "Merriweather, serif",
-      code: '"Courier Prime", monospace',
+      heading: "system-ui, sans-serif",
+      body: "system-ui, sans-serif",
+      code: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
     },
     shiki: {
       theme: themeName,
