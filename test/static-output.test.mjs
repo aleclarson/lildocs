@@ -284,6 +284,22 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   assert.match(frontendScript, /ti ti-copy-check copyCodeIcon/);
 });
 
+test("copies heading links with fragments except for the page heading", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+
+  await runCli([docs, "--out", outDir]);
+
+  const frontendScript = await readFrontendBundle(outDir);
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(frontendScript, /heading\.tagName === "H1" \? "" : heading\.id/);
+  assert.match(frontendScript, /navigator\.clipboard/);
+  assert.match(frontendScript, /document\.execCommand\("copy"\)/);
+  assert.match(frontendScript, /headingLinkCopied/);
+  assert.match(css, /\[id\] \{[^}]*cursor: copy/);
+  assert.match(css, /\.headingLinkCopied::after \{[^}]*content: "Link copied"/);
+});
+
 test("emits swup navigation enhancement assets", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

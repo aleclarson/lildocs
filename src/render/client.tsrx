@@ -1,11 +1,13 @@
 import { createRoot } from "octane";
 import { initCopyCode } from "./copy-code.js";
+import { initHeadingLinks } from "./heading-links.js";
 import { initNavigation } from "./navigation.js";
 import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
 import { initSidebar } from "./sidebar.js";
 import type { SearchEntry } from "./Search.tsrx";
 
 initCopyCode();
+initHeadingLinks();
 initNavigation();
 initSidebar();
 
