@@ -1,14 +1,5 @@
 {
   "$schema": "../schemas/config.schema.json",
-  "theme": {
-    "light": "github-light",
-    "dark": "github-dark"
-  },
-  "font": {
-    "heading": "Varela Round",
-    "body": "Merriweather",
-    "code": "Courier Prime"
-  },
   "link": {
     "underline": "hover"
   },
