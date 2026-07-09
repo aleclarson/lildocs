@@ -1,0 +1,5 @@
+minimumReleaseAgeExclude:
+  - "@fontsource/courier-prime"
+  - "@fontsource/merriweather"
+  - "@fontsource/varela-round"
+  - exports-md@0.2.5
