@@ -203,10 +203,13 @@ test("renders gfm tables task lists and strikethrough", async () => {
   assert.match(css, /\.content table \{[^}]*display: block;[^}]*max-width: 100%;[^}]*overflow-x: auto/);
   assert.match(css, /\.tableFullscreenDialog \{[^}]*width: 100vw;[^}]*height: 100vh/);
   assert.match(css, /\.tableFullscreenViewport \{[^}]*overflow: auto/);
+  assert.match(css, /\.tableToolbar \{[^}]*margin-top: 8px/);
   assert.match(frontendScript, /Expand table/);
   assert.match(frontendScript, /ti ti-arrows-maximize/);
   assert.match(frontendScript, /ti ti-arrows-minimize/);
   assert.match(frontendScript, /table\.cloneNode\(true\)/);
+  assert.match(frontendScript, /frame\.append\(viewport, toolbar\)/);
+  assert.match(frontendScript, /tableFullscreenViewport content/);
   assert.match(frontendScript, /dialog\.showModal\(\)/);
   assert.match(frontendScript, /dialog\.addEventListener\("cancel"/);
   assert.match(frontendScript, /event\.preventDefault\(\)/);

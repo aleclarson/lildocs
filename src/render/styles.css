@@ -531,7 +531,7 @@ html.is-animating .transition-scale {
 .tableToolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 8px;
+  margin-top: 8px;
 }
 
 .tableViewport {
@@ -584,6 +584,7 @@ html.is-animating .transition-scale {
   border: 0;
   background: var(--ld-color-background);
   color: var(--ld-color-text);
+  font-family: var(--ld-font-body);
 }
 
 .tableFullscreenDialog::backdrop {
@@ -609,11 +610,14 @@ html.is-animating .transition-scale {
 .tableFullscreenViewport {
   overflow: auto;
   padding: 20px;
+  font-size: 105%;
 }
 
 .tableFullscreenViewport table {
+  display: table;
   width: max-content;
   min-width: 100%;
+  overflow: visible;
   border-collapse: collapse;
 }
 

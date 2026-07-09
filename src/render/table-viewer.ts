@@ -35,7 +35,7 @@ function enhanceTables() {
     table.before(frame);
     toolbar.append(button);
     viewport.append(table);
-    frame.append(toolbar, viewport);
+    frame.append(viewport, toolbar);
   }
 }
 
@@ -60,7 +60,7 @@ function openTableDialog(table: HTMLTableElement, opener: HTMLButtonElement) {
   closeButton.innerHTML =
     '<span class="ti ti-arrows-minimize" aria-hidden="true"></span>';
   const viewport = document.createElement("div");
-  viewport.className = "tableFullscreenViewport";
+  viewport.className = "tableFullscreenViewport content";
   viewport.append(table.cloneNode(true));
 
   closeButton.addEventListener("click", () => dialog.close());
