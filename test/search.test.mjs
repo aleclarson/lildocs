@@ -196,6 +196,9 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchBox input::placeholder \{[^}]*color: var\(--ld-color-muted-text\)/);
   assert.match(css, /\.searchBox input:focus \{[^}]*border-color: var\(--ld-color-link\)/);
   assert.match(css, /\.searchBox input:focus \{[^}]*outline: none/);
+  assert.match(css, /\.searchBox input \{[^}]*border-radius: 10px/);
+  assert.match(css, /\.sidebarToggle \{[^}]*border-radius: 10px/);
+  assert.match(css, /\.copyCodeButton \{[^}]*border-radius: 10px/);
   assert.match(css, /\.searchResults \{[^}]*font-family: var\(--ld-font-body\)/);
   assert.match(css, /\.searchResults \{[^}]*position: fixed/);
   assert.match(css, /\.searchResults \{[^}]*left: var\(--ld-sidebar-width\)/);

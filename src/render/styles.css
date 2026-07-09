@@ -111,7 +111,7 @@ body {
   flex: 0 0 auto;
   padding: 0;
   border: 1px solid var(--ld-color-border);
-  border-radius: 6px;
+  border-radius: 10px;
   background: var(--ld-color-background);
   color: var(--ld-color-muted-text);
   cursor: pointer;
@@ -448,7 +448,7 @@ html.is-animating .transition-scale {
   height: 28px;
   padding: 0;
   border: 1px solid var(--ld-color-border);
-  border-radius: 6px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--ld-color-background) 88%, transparent);
   color: var(--ld-color-muted-text);
   line-height: 1;
@@ -606,7 +606,7 @@ html.is-animating .transition-scale {
   width: 100%;
   padding: 9px 10px 9px 36px;
   border: 1px solid var(--ld-color-border);
-  border-radius: 6px;
+  border-radius: 10px;
   background: var(--ld-color-background);
   color: var(--ld-color-text);
 }
