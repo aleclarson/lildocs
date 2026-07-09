@@ -583,6 +583,9 @@ html.is-animating .transition-scale {
 }
 
 .searchResults {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
   z-index: 10;
   width: min(420px, 88vw);
   max-height: 56vh;
@@ -656,6 +659,12 @@ html.is-animating .transition-scale {
   }
 
   .searchBox {
+    width: 100%;
+  }
+
+  .searchResults {
+    right: auto;
+    left: 0;
     width: 100%;
   }
 

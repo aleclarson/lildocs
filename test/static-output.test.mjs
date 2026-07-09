@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
+import { fixtureWorkspace, readFrontendBundle, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 test("writes static html pages and copied assets", async () => {
   const { docs, workspace } = await fixtureWorkspace();
@@ -277,11 +277,11 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "code.html"), "utf8");
-  const script = await readFile(path.join(outDir, "assets", "copy-code.js"), "utf8");
-  assert.match(html, /<script src=".\/assets\/copy-code\.js"><\/script>/);
-  assert.match(script, /navigator\.clipboard\?\.writeText/);
-  assert.match(script, /ti ti-copy copyCodeIcon/);
-  assert.match(script, /ti ti-copy-check copyCodeIcon/);
+  const frontendScript = await readFrontendBundle(outDir);
+  assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
+  assert.match(frontendScript, /navigator\.clipboard\?\.writeText/);
+  assert.match(frontendScript, /ti ti-copy copyCodeIcon/);
+  assert.match(frontendScript, /ti ti-copy-check copyCodeIcon/);
 });
 
 test("emits swup navigation enhancement assets", async () => {
@@ -291,15 +291,13 @@ test("emits swup navigation enhancement assets", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  const navigationScript = await readFile(path.join(outDir, "assets", "navigation.js"), "utf8");
+  const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<div id="swup" class="contentGrid">/);
   assert.match(html, /<main class="content transition-fade">/);
   assert.match(html, /<aside class="toc transition-fade">/);
-  assert.match(html, /<script src=".\/assets\/swup\.umd\.js"><\/script>/);
-  assert.match(html, /<script src=".\/assets\/navigation\.js"><\/script>/);
-  await access(path.join(outDir, "assets", "swup.umd.js"));
-  assert.match(navigationScript, /window\.location\.protocol === "file:"/);
-  assert.match(navigationScript, /new window\.Swup/);
+  assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
+  assert.match(frontendScript, /window\.location\.protocol === "file:"/);
+  assert.match(frontendScript, /page:view/);
 });
 
 test("uses lildocs code background for shiki blocks", async () => {

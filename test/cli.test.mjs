@@ -43,10 +43,11 @@ test("dev command serves and rebuilds the generated site", async () => {
   try {
     const home = await fetchText(server.url);
     assert.match(home, /Fixture Home/);
-    assert.match(home, /\/__lildocs\/client\.js/);
+    assert.match(home, /\/@vite\/client/);
+    assert.match(home, /\/@fs\/.*\/src\/render\/client\.tsrx/);
 
-    const client = await fetchText(new URL("/__lildocs/client.js", server.url));
-    assert.match(client, /EventSource/);
+    const client = await fetchText(new URL("/@vite/client", server.url));
+    assert.match(client, /createHotContext/);
 
     await writeDocFile(docs, "index.md", "# Updated Home\n\nChanged content.");
     await waitFor(async () => {

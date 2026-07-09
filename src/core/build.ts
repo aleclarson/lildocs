@@ -1,10 +1,14 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { mergeConfigOptions, readDocsConfig } from "./config.js";
 import { buildContentModel, type Page } from "./content.js";
+import {
+  buildFrontendAssets,
+  createFrontendRenderer,
+  readRenderAsset,
+  type FrontendRenderer,
+} from "./frontend.js";
 import { resolveInput, type HomePagePreference } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
 import { createMermaidRenderer } from "./mermaid.js";
@@ -25,8 +29,8 @@ import {
   type NavigationOptions,
   type ThemeConfig,
 } from "./theme.js";
-import { renderPage } from "../render/renderPage.js";
-import type { PageNavigation } from "../render/renderPage.js";
+import type { ViteDevServer } from "vite";
+import type { PageNavigation } from "../render/types.js";
 
 export type BuildOptions = {
   input: string;
@@ -42,6 +46,7 @@ export type BuildOptions = {
   homePagePreference?: HomePagePreference;
   dev?: {
     clientScriptPath: string;
+    viteServer?: ViteDevServer;
   };
   basePath?: string;
 };
@@ -50,9 +55,6 @@ export type BuildResult = {
   outDir: string;
   pages: Page[];
 };
-
-const sourceDir = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
 
 export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const input = await resolveInput(options.input, options.cwd, {
@@ -99,11 +101,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   });
   const baseCss = await readRenderAsset("styles.css");
   const tablerIconsCss = await readRenderAsset("tabler-icons.css");
-  const searchScript = await readRenderAsset("search.js");
-  const copyCodeScript = await readRenderAsset("copy-code.js");
-  const navigationScript = await readRenderAsset("navigation.js");
   const githubIcon = await readRenderAsset("github-icon.svg");
-  const swupScript = await readSwupAsset();
   const backgroundResolution = resolveBackgroundOptions({
     cwd: options.cwd,
     docsRoot: input.docsRoot,
@@ -127,11 +125,12 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const mermaid = await createMermaidRenderer({
     themeConfig: themeToMermaidConfig(theme, fontResolution.themeFonts),
   });
-
-  await rm(outDir, { recursive: true, force: true });
-  await mkdir(path.join(outDir, "assets"), { recursive: true });
+  let frontendRenderer: FrontendRenderer | undefined;
 
   try {
+    await rm(outDir, { recursive: true, force: true });
+    await mkdir(path.join(outDir, "assets"), { recursive: true });
+
     const renderedPages = await Promise.all(
       model.pages.map((page) =>
         renderMarkdownPage(model, page, outDir, {
@@ -155,23 +154,35 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
 
     const searchIndexJson = JSON.stringify(buildSearchIndex(model.pages), null, 2);
     const pageNavigation = buildPageNavigation(model.pages);
+    const frontendAssets = options.dev
+      ? {
+          scriptPath: options.dev.clientScriptPath,
+          stylePaths: [],
+        }
+      : await buildFrontendAssets({ cwd: options.cwd, outDir });
+    const renderer = await createFrontendRenderer({
+      cwd: options.cwd,
+      viteServer: options.dev?.viteServer,
+    });
+    frontendRenderer = renderer;
 
     await Promise.all(
       model.pages.map(async (page) => {
         const nav = buildNavigation(model, page);
-        const html = renderPage(
+        const html = renderer.renderPage({
           page,
           nav,
-          pageNavigation.get(page.route),
+          pageNavigation: pageNavigation.get(page.route),
           css,
           searchIndexJson,
-          logoResolution.logo,
-          logoResolution.favicon,
+          logo: logoResolution.logo,
+          favicon: logoResolution.favicon,
           repositoryUrl,
           projectName,
-          configOptions.navigation,
-          options.dev,
-        );
+          navigation: configOptions.navigation,
+          clientScriptPath: frontendAssets.scriptPath,
+          clientStylePaths: frontendAssets.stylePaths,
+        });
         const outputPath = path.join(outDir, page.outputPath);
         await mkdir(path.dirname(outputPath), { recursive: true });
         await writeFile(outputPath, html);
@@ -180,14 +191,11 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
 
     await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
     await writeFile(path.join(outDir, "assets", "tabler-icons.css"), tablerIconsCss);
-    await writeFile(path.join(outDir, "assets", "search.js"), searchScript);
-    await writeFile(path.join(outDir, "assets", "copy-code.js"), copyCodeScript);
-    await writeFile(path.join(outDir, "assets", "swup.umd.js"), swupScript);
-    await writeFile(path.join(outDir, "assets", "navigation.js"), navigationScript);
     await writeFile(path.join(outDir, "assets", "github-icon.svg"), githubIcon);
     await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
     await copyAssets(assets);
   } finally {
+    await frontendRenderer?.close();
     await mermaid.close();
   }
 
@@ -293,19 +301,6 @@ function githubRepositoryName(repositoryUrl: string | undefined): string | undef
 
   const match = /^https:\/\/github\.com\/([^/]+\/[^/]+)$/.exec(repositoryUrl);
   return match?.[1];
-}
-
-async function readRenderAsset(name: string) {
-  const bundledPath = path.resolve(sourceDir, "render", name);
-  try {
-    return await readFile(bundledPath, "utf8");
-  } catch {
-    return readFile(path.resolve(sourceDir, "../render", name), "utf8");
-  }
-}
-
-async function readSwupAsset() {
-  return readFile(path.join(path.dirname(require.resolve("swup")), "Swup.umd.js"), "utf8");
 }
 
 function buildPageNavigation(pages: Page[]) {

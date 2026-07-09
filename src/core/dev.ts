@@ -1,12 +1,10 @@
-import { watch, type FSWatcher } from "node:fs";
-import { readdir } from "node:fs/promises";
-import http, { type ServerResponse } from "node:http";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { buildSite, type BuildResult } from "./build.js";
 import { LildocsError } from "./errors.js";
+import { createFrontendDevServer, frontendDevScriptPath } from "./frontend.js";
 import { resolveInput } from "./input.js";
 import { isHiddenOrSystemPath } from "./paths.js";
-import { serveStaticFile } from "./server.js";
 import type { BackgroundOptions, FontOverrides, LinkOptions } from "./theme.js";
 
 export type DevOptions = {
@@ -26,14 +24,6 @@ export type DevServer = {
   close: () => Promise<void>;
 };
 
-const DEV_CLIENT_PATH = "/__lildocs/client.js";
-const DEV_EVENTS_PATH = "/__lildocs/events";
-const DEV_CLIENT_SCRIPT = `
-const events = new EventSource("${DEV_EVENTS_PATH}");
-events.addEventListener("reload", () => location.reload());
-events.onerror = () => console.debug("[lildocs] live reload disconnected");
-`;
-
 export async function startDevServer(options: DevOptions): Promise<DevServer> {
   const input = await resolveInput(options.input, options.cwd, {
     homePagePreference: "readme-first",
@@ -41,8 +31,13 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
   const outDir = path.resolve(options.cwd, options.outDir);
   validateDevOutDir(options.cwd, input.docsRoot, outDir, options.outDir);
 
-  const clients = new Set<ServerResponse>();
-  let watchers: FSWatcher[] = [];
+  await mkdir(outDir, { recursive: true });
+  const vite = await createFrontendDevServer({
+    cwd: options.cwd,
+    root: outDir,
+    host: options.host,
+    port: options.port,
+  });
   let rebuildTimer: NodeJS.Timeout | undefined;
   let rebuilding = false;
   let pending = false;
@@ -67,16 +62,16 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
         link: options.link,
         homePagePreference: "readme-first",
         dev: {
-          clientScriptPath: DEV_CLIENT_PATH,
+          clientScriptPath: frontendDevScriptPath(),
+          viteServer: vite,
         },
       });
-      await refreshWatchers();
       const elapsed = Math.round(performance.now() - started);
       console.log(
         `Rebuilt ${lastSuccessfulBuild.pages.length} page${lastSuccessfulBuild.pages.length === 1 ? "" : "s"} in ${elapsed}ms`,
       );
       if (emitReload) {
-        sendReload(clients);
+        vite.ws.send({ type: "full-reload" });
       }
     } catch (error) {
       if (throwOnFailure) {
@@ -102,53 +97,18 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
     }, 150);
   }
 
-  async function refreshWatchers() {
-    for (const watcher of watchers) {
-      watcher.close();
+  vite.watcher.add(input.docsRoot);
+  vite.watcher.on("all", (_event, file) => {
+    const changedPath = path.resolve(file);
+    if (!isInside(input.docsRoot, changedPath) || shouldIgnore(changedPath, input.docsRoot, outDir)) {
+      return;
     }
-    watchers = [];
-
-    const directories = await collectWatchDirectories(input.docsRoot, outDir);
-    for (const directory of directories) {
-      watchers.push(
-        watch(directory, { persistent: true }, (_event, filename) => {
-          if (
-            filename &&
-            shouldIgnore(path.join(directory, filename.toString()), input.docsRoot, outDir)
-          ) {
-            return;
-          }
-          scheduleRebuild();
-        }),
-      );
-    }
-  }
+    scheduleRebuild();
+  });
 
   await rebuild(false, true);
 
-  const server = http.createServer((req, res) => {
-    const pathname = requestPathname(req.url);
-    if (pathname === DEV_CLIENT_PATH) {
-      res.writeHead(200, { "content-type": "text/javascript; charset=utf-8" });
-      res.end(DEV_CLIENT_SCRIPT);
-      return;
-    }
-    if (pathname === DEV_EVENTS_PATH) {
-      connectEvents(res, clients);
-      return;
-    }
-    void serveStaticFile(req, res, outDir);
-  });
-
-  await new Promise<void>((resolve, reject) => {
-    server.once("error", reject);
-    server.listen(options.port, options.host, () => {
-      server.off("error", reject);
-      resolve();
-    });
-  });
-
-  const address = server.address();
+  const address = vite.httpServer?.address();
   const actualPort = typeof address === "object" && address ? address.port : options.port;
   const url = `http://${options.host}:${actualPort}/`;
   console.log(`lildocs dev server listening at ${url}`);
@@ -159,15 +119,7 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
       if (rebuildTimer) {
         clearTimeout(rebuildTimer);
       }
-      for (const watcher of watchers) {
-        watcher.close();
-      }
-      for (const client of clients) {
-        client.end();
-      }
-      await new Promise<void>((resolve, reject) => {
-        server.close((error) => (error ? reject(error) : resolve()));
-      });
+      await vite.close();
     },
   };
 }
@@ -188,29 +140,6 @@ function validateDevOutDir(cwd: string, docsRoot: string, outDir: string, reques
   }
 }
 
-async function collectWatchDirectories(docsRoot: string, outDir: string) {
-  const directories = new Set<string>();
-
-  async function walk(directory: string) {
-    if (shouldIgnore(directory, docsRoot, outDir)) {
-      return;
-    }
-    directories.add(directory);
-    const entries = await readdir(directory, { withFileTypes: true });
-    await Promise.all(
-      entries.map(async (entry) => {
-        if (!entry.isDirectory()) {
-          return;
-        }
-        await walk(path.join(directory, entry.name));
-      }),
-    );
-  }
-
-  await walk(docsRoot);
-  return [...directories];
-}
-
 function shouldIgnore(candidate: string, docsRoot: string, outDir: string) {
   const resolved = path.resolve(candidate);
   if (resolved === outDir || isAncestor(outDir, resolved)) {
@@ -224,31 +153,6 @@ function shouldIgnore(candidate: string, docsRoot: string, outDir: string) {
     relative.startsWith(`node_modules${path.sep}`) ||
     isHiddenOrSystemPath(relative)
   );
-}
-
-function connectEvents(res: ServerResponse, clients: Set<ServerResponse>) {
-  res.writeHead(200, {
-    "cache-control": "no-cache",
-    connection: "keep-alive",
-    "content-type": "text/event-stream",
-  });
-  res.write(": connected\n\n");
-  clients.add(res);
-  res.on("close", () => clients.delete(res));
-}
-
-function sendReload(clients: Set<ServerResponse>) {
-  for (const client of clients) {
-    client.write("event: reload\ndata: {}\n\n");
-  }
-}
-
-function requestPathname(url: string | undefined) {
-  try {
-    return new URL(url ?? "/", "http://lildocs.local").pathname;
-  } catch {
-    return undefined;
-  }
 }
 
 function isAncestor(parent: string, child: string) {

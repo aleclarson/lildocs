@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
+import { fixtureWorkspace, readFrontendBundle, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
 test("generates search index from titles headings and body text", async () => {
   const { docs, workspace } = await fixtureWorkspace();
@@ -41,28 +41,27 @@ Unique local substring.
   assert.ok(localFiles?.text.includes("Unique local substring"));
 });
 
-test("emits search UI and static search script", async () => {
+test("emits search UI and Vite frontend bundle", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
 
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  const searchScript = await readFile(path.join(outDir, "assets", "search.js"), "utf8");
+  const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /id="lildocs-search-input"/);
   assert.match(html, /id="lildocs-search-index"/);
   assert.doesNotMatch(html, /fonts\.googleapis\.com\/css2\?family=Material\+Symbols\+Rounded/);
   assert.match(html, /class="searchIcon ti ti-search"/);
   assert.match(html, /id="lildocs-overlay-root"/);
-  assert.match(html, /<script type="module" src=".\/assets\/search\.js"><\/script>/);
-  assert.match(searchScript, /matchEntry/);
-  assert.match(searchScript, /matchingSnippet/);
-  assert.match(searchScript, /renderHighlighted/);
-  assert.match(searchScript, /titleMatches\.length < 4/);
-  assert.match(searchScript, /embeddedIndex/);
-  assert.match(searchScript, /setOverlayPortalRoots/);
-  assert.match(searchScript, /Create a GitHub issue/);
-  assert.match(searchScript, /issueUrlForQuery/);
+  assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
+  assert.match(frontendScript, /matchEntry/);
+  assert.match(frontendScript, /matchingSnippet/);
+  assert.match(frontendScript, /renderHighlighted/);
+  assert.match(frontendScript, /titleMatches\.length < 4/);
+  assert.match(frontendScript, /embeddedIndex/);
+  assert.match(frontendScript, /Create a GitHub issue/);
+  assert.match(frontendScript, /issueUrlForQuery/);
   assert.doesNotMatch(html, /window\.lildocsIssueUrl/);
 });
 
@@ -128,17 +127,16 @@ test("search script preloads links and supports keyboard result selection", asyn
 
   await runCli([docs, "--out", outDir]);
 
-  const searchScript = await readFile(path.join(outDir, "assets", "search.js"), "utf8");
-  assert.match(searchScript, /document\.addEventListener\("mouseover"/);
-  assert.match(searchScript, /preload\.rel = "prefetch"/);
-  assert.match(searchScript, /event\.key === "ArrowDown"/);
-  assert.match(searchScript, /event\.key === "ArrowUp"/);
-  assert.match(searchScript, /event\.key === "Enter"/);
-  assert.match(searchScript, /selected\.click\(\)/);
-  assert.match(searchScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
-  assert.match(searchScript, /onClick: clearSearch/);
-  assert.match(searchScript, /Missing docs for/);
-  assert.match(searchScript, /I searched the docs for/);
+  const frontendScript = await readFrontendBundle(outDir);
+  assert.match(frontendScript, /document\.addEventListener\("mouseover"/);
+  assert.match(frontendScript, /preload\.rel = "prefetch"/);
+  assert.match(frontendScript, /event\.key === "ArrowDown"/);
+  assert.match(frontendScript, /event\.key === "ArrowUp"/);
+  assert.match(frontendScript, /event\.key === "Enter"/);
+  assert.match(frontendScript, /selected\.click\(\)/);
+  assert.match(frontendScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
+  assert.match(frontendScript, /Missing docs for/);
+  assert.match(frontendScript, /I searched the docs for/);
 });
 
 test("uses theme colors for search input placeholder and focus styles", async () => {

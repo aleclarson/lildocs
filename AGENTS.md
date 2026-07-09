@@ -20,10 +20,10 @@ Keep product behavior aligned with the README, generated documentation, and exis
 ## Tooling
 
 - CLI parsing: `cmd-ts`
-- Rendering: Preact SSR
+- Rendering: Octane SSR
 - Markdown/frontmatter: `marked` and `gray-matter`
 - Theme loading: native dynamic `import()`
-- Bundling: `tsdown`
+- Bundling: `tsdown` for the CLI and Vite for the frontend
 - Linting: `oxlint`
 - Formatting: `oxfmt`
 - Tests: Node's built-in `node:test`

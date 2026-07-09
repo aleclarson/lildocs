@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -74,4 +74,20 @@ export async function runCli(args, options = {}) {
     env,
     ...options,
   });
+}
+
+export async function readFrontendBundle(outDir) {
+  const entryPath = await frontendEntryPath(outDir);
+  return readFile(entryPath, "utf8");
+}
+
+export async function frontendEntryPath(outDir) {
+  const manifest = JSON.parse(
+    await readFile(path.join(outDir, "assets", "lildocs", ".vite", "manifest.json"), "utf8"),
+  );
+  const entry = Object.values(manifest).find((chunk) => chunk?.isEntry && chunk.file);
+  if (!entry) {
+    throw new Error("Missing Vite frontend manifest entry");
+  }
+  return path.join(outDir, "assets", "lildocs", entry.file);
 }

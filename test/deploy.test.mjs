@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
+import { frontendEntryPath, fixtureWorkspace, runCli } from "./helpers/fixture.mjs";
 
 test("deploy builds GitHub Pages-ready output", async () => {
   const { docs, workspace } = await fixtureWorkspace();
@@ -13,7 +13,7 @@ test("deploy builds GitHub Pages-ready output", async () => {
   assert.match(result.stdout, /Built GitHub Pages site/);
   await access(path.join(outDir, "index.html"));
   await access(path.join(outDir, "assets", "lildocs.css"));
-  await access(path.join(outDir, "assets", "search.js"));
+  await access(await frontendEntryPath(outDir));
   await access(path.join(outDir, "search-index.json"));
   await access(path.join(outDir, ".nojekyll"));
 

@@ -6,8 +6,6 @@
     "lib": ["ES2023", "DOM"],
     "types": ["node"],
     "strict": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

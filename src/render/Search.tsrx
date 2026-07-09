@@ -1,9 +1,6 @@
-import { signal } from "@preact/signals";
-import { Popover, setOverlayPortalRoots } from "@goddard-ai/ui-primitives";
-import { hydrate } from "preact";
-import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "octane";
 
-type SearchEntry = {
+export type SearchEntry = {
   kind: "page" | "section";
   route: string;
   title: string;
@@ -22,55 +19,7 @@ type SearchMatch = {
   type: "title" | "body";
 };
 
-declare global {
-  interface Window {
-    lildocsIssueUrl?: string;
-    lildocsSearchUrl?: string;
-  }
-}
-
-const open = signal(false);
-
-(async () => {
-  const root = document.querySelector("#lildocs-search-root");
-  if (!root) {
-    return;
-  }
-
-  const embeddedIndex = document.querySelector("#lildocs-search-index");
-  const base = new URL(window.lildocsSearchUrl || "search-index.json", document.baseURI);
-  const index = embeddedIndex?.textContent
-    ? JSON.parse(embeddedIndex.textContent)
-    : await fetch(base).then((response) => response.json());
-  const siteRoot = new URL(".", base);
-  const preloadedUrls = new Set<string>();
-
-  setOverlayPortalRoots({
-    dialog: () => document.getElementById("lildocs-overlay-root"),
-    menu: () => document.getElementById("lildocs-overlay-root"),
-  });
-
-  document.addEventListener("mouseover", (event) => {
-    const link = (event.target as Element | null)?.closest?.("a[href]");
-    if (!link) {
-      return;
-    }
-    preloadRelativeUrl(link.getAttribute("href"), preloadedUrls);
-  });
-
-  hydrate(
-    <SearchBox
-      anchorElement={root}
-      index={index}
-      siteRoot={siteRoot}
-      preloadedUrls={preloadedUrls}
-      issueUrl={window.lildocsIssueUrl}
-    />,
-    root,
-  );
-})();
-
-function SearchBox({
+export function SearchBox({
   anchorElement,
   index,
   siteRoot,
@@ -82,10 +31,11 @@ function SearchBox({
   siteRoot: URL;
   preloadedUrls: Set<string>;
   issueUrl?: string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const selectedRef = useRef<HTMLAnchorElement>(null);
+}) @{
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const selectedRef = useRef<HTMLAnchorElement | null>(null);
   const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const matches = useMemo(() => searchIndex(index, query), [index, query]);
 
@@ -94,10 +44,20 @@ function SearchBox({
     preloadRelativeUrl(selectedRef.current?.getAttribute("href"), preloadedUrls);
   }, [matches, preloadedUrls, selectedIndex]);
 
+  useEffect(() => {
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && !anchorElement.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
+  }, [anchorElement]);
+
   const clearSearch = () => {
     setQuery("");
     setSelectedIndex(-1);
-    open.value = false;
+    setOpen(false);
   };
 
   const selectResult = (nextIndex: number) => {
@@ -109,100 +69,90 @@ function SearchBox({
     setSelectedIndex((nextIndex + matches.length) % matches.length);
   };
 
-  return (
-    <>
-      <span className="searchIcon ti ti-search" aria-hidden="true" />
-      <input
-        ref={inputRef}
-        id="lildocs-search-input"
-        type="search"
-        placeholder="Search docs"
-        aria-label="Search docs"
-        aria-expanded={open.value}
-        aria-controls="lildocs-search-results"
-        value={query}
-        onInput={(event) => {
-          const nextQuery = event.currentTarget.value;
-          setQuery(nextQuery);
-          setSelectedIndex(nextQuery.trim() ? 0 : -1);
-          open.value = Boolean(nextQuery.trim());
-        }}
-        onKeyDown={(event) => {
-          if (!open.value || matches.length === 0) {
-            return;
-          }
+  <>
+    <span class="searchIcon ti ti-search" aria-hidden="true" />
+    <input
+      ref={inputRef}
+      id="lildocs-search-input"
+      type="search"
+      placeholder="Search docs"
+      aria-label="Search docs"
+      aria-expanded={open}
+      aria-controls="lildocs-search-results"
+      value={query}
+      onInput={(event) => {
+        const nextQuery = (event.currentTarget as HTMLInputElement).value;
+        setQuery(nextQuery);
+        setSelectedIndex(nextQuery.trim() ? 0 : -1);
+        setOpen(Boolean(nextQuery.trim()));
+      }}
+      onFocus={() => {
+        if (query.trim()) {
+          setOpen(true);
+        }
+      }}
+      onKeyDown={(event) => {
+        if (!open || matches.length === 0) {
+          return;
+        }
 
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            selectResult(selectedIndex + 1);
-            return;
-          }
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          selectResult(selectedIndex + 1);
+          return;
+        }
 
-          if (event.key === "ArrowUp") {
-            event.preventDefault();
-            selectResult(selectedIndex - 1);
-            return;
-          }
+        if (event.key === "ArrowUp") {
+          event.preventDefault();
+          selectResult(selectedIndex - 1);
+          return;
+        }
 
-          if (event.key === "Enter") {
-            event.preventDefault();
-            const selected = selectedRef.current;
-            if (selected) {
-              preloadRelativeUrl(selected.getAttribute("href"), preloadedUrls);
-              selected.click();
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const selected = selectedRef.current;
+          if (selected) {
+            preloadRelativeUrl(selected.getAttribute("href"), preloadedUrls);
+            selected.click();
+          }
+          return;
+        }
+
+        if (event.key === "Escape") {
+          setOpen(false);
+        }
+      }}
+    />
+    @if (open) {
+      <div id="lildocs-search-results" class="searchResults" role="listbox">
+        @if (matches.length === 0) {
+          <div class="searchEmpty">
+            <p>No results</p>
+            @if (issueUrl) {
+              <a href={issueUrlForQuery(issueUrl, query)}>Create a GitHub issue</a>
             }
-            return;
+          </div>
+        } @else {
+          @for (const match of matches; index matchIndex; key `${match.entry.route}:${match.title}`) {
+            const selected = matchIndex === selectedIndex;
+            <a
+              ref={selected ? selectedRef : undefined}
+              href={new URL(match.entry.route, siteRoot).href}
+              data-search-result="true"
+              class={selected ? "selected" : undefined}
+              role="option"
+              aria-selected={selected}
+              onMouseOver={() => setSelectedIndex(matchIndex)}
+              onClick={clearSearch}
+            >
+              {renderHighlighted(match.title, match.terms)}
+              <span>{renderHighlighted(match.subtitle, match.terms)}</span>
+            </a>
           }
-
-          if (event.key === "Escape") {
-            open.value = false;
-          }
-        }}
-      />
-      <Popover
-        open={open}
-        anchor={() => anchorElement}
-        ariaLabel="Search results"
-        class="searchResults"
-        closeOnOutsidePointer
-        blockOutsidePointer={false}
-        focusOnOpen={false}
-        restoreFocus={false}
-        placement="bottom-end"
-        sameWidth={false}
-      >
-        <div id="lildocs-search-results">
-          {matches.length === 0 ? (
-            <div className="searchEmpty">
-              <p>No results</p>
-              {issueUrl ? (
-                <a href={issueUrlForQuery(issueUrl, query)}>Create a GitHub issue</a>
-              ) : null}
-            </div>
-          ) : (
-            matches.map((match, matchIndex) => {
-              const selected = matchIndex === selectedIndex;
-              return (
-                <a
-                  key={`${match.entry.route}:${match.title}`}
-                  ref={selected ? selectedRef : undefined}
-                  href={new URL(match.entry.route, siteRoot).href}
-                  data-search-result="true"
-                  className={selected ? "selected" : undefined}
-                  aria-selected={selected}
-                  onMouseOver={() => setSelectedIndex(matchIndex)}
-                  onClick={clearSearch}
-                >
-                  {renderHighlighted(match.title, match.terms)}
-                  <span>{renderHighlighted(match.subtitle, match.terms)}</span>
-                </a>
-              );
-            })
-          )}
-        </div>
-      </Popover>
-    </>
-  );
+        }
+      </div>
+    }
+  </>
 }
 
 function issueUrlForQuery(issueUrl: string, query: string) {
@@ -242,7 +192,7 @@ function searchIndex(index: SearchEntry[], query: string) {
     .slice(0, 8);
 }
 
-function preloadRelativeUrl(href: string | null | undefined, preloadedUrls: Set<string>) {
+export function preloadRelativeUrl(href: string | null | undefined, preloadedUrls: Set<string>) {
   if (!href || href.startsWith("mailto:") || href.startsWith("#")) {
     return;
   }
@@ -344,11 +294,13 @@ function renderHighlighted(value: string, terms: string[]) {
   }
 
   const pattern = new RegExp(`(${matchingTerms.map(escapeRegExp).join("|")})`, "gi");
-  return value
-    .split(pattern)
-    .map((part) =>
-      matchingTerms.some((term) => part.toLowerCase() === term) ? <mark>{part}</mark> : part,
-    );
+  return value.split(pattern).map((part) =>
+    matchingTerms.some((term) => part.toLowerCase() === term) ? (
+      <mark>{part as string}</mark>
+    ) : (
+      part
+    ),
+  );
 }
 
 function normalizeQuery(value: string) {

@@ -58,10 +58,10 @@ Keep behavior aligned with the README, documentation, and existing tests.
 The project uses:
 
 - `cmd-ts` for CLI parsing
-- Preact SSR for rendering
+- Octane SSR for rendering and client interactivity
 - `marked` and `gray-matter` for Markdown and frontmatter
 - native dynamic `import()` for local theme loading
-- `tsdown` for bundling
+- `tsdown` for the CLI bundle and Vite for the frontend bundle/dev server
 - `oxlint` for linting
 - `oxfmt` for formatting
 - Node's built-in `node:test` runner
