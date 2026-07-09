@@ -48,17 +48,26 @@ export async function buildContentModel(
 ): Promise<ContentModel> {
   const paths = await collectMarkdownPaths(input.docsRoot);
   const pages = [
-    ...(await Promise.all(paths.map((sourcePath) => readPage(input, sourcePath)))),
+    ...(await Promise.all(
+      paths.map((sourcePath) => readPage(input, sourcePath)),
+    )),
     ...additionalPages.map((page) => pageFromMarkdown(input, page)),
   ];
   const orderEntries = normalizeNavigationOrder(navigationOrder);
-  const visiblePages = pages.filter((page) => !isInsideOutput(page.relativePath, outDirName));
-  const entryPointOrder = entryPointLinkOrder(visiblePages, input.homePage, orderEntries);
+  const visiblePages = pages.filter(
+    (page) => !isInsideOutput(page.relativePath, outDirName),
+  );
+  const entryPointOrder = entryPointLinkOrder(
+    visiblePages,
+    input.homePage,
+    orderEntries,
+  );
   const sortedPages = visiblePages.toSorted(
     (a, b) =>
       navigationRank(a, orderEntries) - navigationRank(b, orderEntries) ||
       routeRank(a, input.homePage) - routeRank(b, input.homePage) ||
-      entryPointLinkRank(a, entryPointOrder) - entryPointLinkRank(b, entryPointOrder) ||
+      entryPointLinkRank(a, entryPointOrder) -
+        entryPointLinkRank(b, entryPointOrder) ||
       a.route.localeCompare(b.route),
   );
   validateNavigationOrder(orderEntries, sortedPages);
@@ -69,11 +78,16 @@ export async function buildContentModel(
     homePage: input.homePage,
     pages: sortedPages,
     bySourcePath: new Map(sortedPages.map((page) => [page.sourcePath, page])),
-    byRelativePath: new Map(sortedPages.map((page) => [page.relativePath, page])),
+    byRelativePath: new Map(
+      sortedPages.map((page) => [page.relativePath, page]),
+    ),
   };
 }
 
-async function readPage(input: ResolvedInput, sourcePath: string): Promise<Page> {
+async function readPage(
+  input: ResolvedInput,
+  sourcePath: string,
+): Promise<Page> {
   const rawMarkdown = await readFile(sourcePath, "utf8");
   const relativePath = toPosixPath(path.relative(input.docsRoot, sourcePath));
   return pageFromMarkdown(input, { sourcePath, relativePath, rawMarkdown });
@@ -122,8 +136,12 @@ type SlugifyOptions = {
 };
 
 export function slugify(value: string, options: SlugifyOptions = {}) {
-  const punctuation = options.preserveUnderscores ? /[`*~[\]()]/g : /[`*_~[\]()]/g;
-  const nonSlugCharacters = options.preserveUnderscores ? /[^a-z0-9_]+/g : /[^a-z0-9]+/g;
+  const punctuation = options.preserveUnderscores
+    ? /[`*~[\]()]/g
+    : /[`*_~[\]()]/g;
+  const nonSlugCharacters = options.preserveUnderscores
+    ? /[^a-z0-9_]+/g
+    : /[^a-z0-9]+/g;
   const slug = value
     .toLowerCase()
     .trim()
@@ -145,7 +163,9 @@ export function extractHeadings(markdown: string): Heading[] {
       continue;
     }
 
-    const baseId = slugify(stripMarkdownInline(match[2]), { preserveUnderscores: true });
+    const baseId = slugify(stripMarkdownInline(match[2]), {
+      preserveUnderscores: true,
+    });
     const count = seen.get(baseId) ?? 0;
     seen.set(baseId, count + 1);
     headings.push({
@@ -166,7 +186,10 @@ function stripMarkdownInline(value: string) {
     .replace(/\*\*([\s\S]*?)\*\*/g, "$1")
     .replace(/__([\s\S]*?)__/g, "$1")
     .replace(/\*([^*]*?)\*/g, "$1")
-    .replace(/(^|[\s([{])_([^\s_](?:[\s\S]*?[^\s_])?)_(?=$|[\s)\]}.,;:!?])/g, "$1$2");
+    .replace(
+      /(^|[\s([{])_([^\s_](?:[\s\S]*?[^\s_])?)_(?=$|[\s)\]}.,;:!?])/g,
+      "$1$2",
+    );
 }
 
 function formatFilename(value: string) {
@@ -197,7 +220,9 @@ function entryPointLinkOrder(
     return new Map<string, number>();
   }
 
-  const byRelativePath = new Map(pages.map((page) => [page.relativePath, page]));
+  const byRelativePath = new Map(
+    pages.map((page) => [page.relativePath, page]),
+  );
   const ordered = new Map<string, number>();
 
   for (const href of markdownLinkHrefs(home.markdown)) {
@@ -210,7 +235,9 @@ function entryPointLinkOrder(
     if (
       !target ||
       target.sourcePath === homePage ||
-      navigationOrder.some((entry) => navigationOrderEntryMatchesPage(entry, target)) ||
+      navigationOrder.some((entry) =>
+        navigationOrderEntryMatchesPage(entry, target),
+      ) ||
       ordered.has(target.relativePath)
     ) {
       continue;
@@ -270,7 +297,9 @@ function normalizeNavigationOrderPath(value: string) {
 }
 
 function navigationRank(page: Page, order: NavigationOrderEntry[]) {
-  const entry = order.find((item) => navigationOrderEntryMatchesPage(item, page));
+  const entry = order.find((item) =>
+    navigationOrderEntryMatchesPage(item, page),
+  );
   return entry?.index ?? order.length;
 }
 
@@ -286,7 +315,10 @@ function validateNavigationOrder(order: NavigationOrderEntry[], pages: Page[]) {
   }
 }
 
-function navigationOrderEntryMatchesPage(entry: NavigationOrderEntry, page: Page) {
+function navigationOrderEntryMatchesPage(
+  entry: NavigationOrderEntry,
+  page: Page,
+) {
   if (entry.kind === "directory") {
     return page.relativePath.startsWith(entry.value);
   }
@@ -295,7 +327,9 @@ function navigationOrderEntryMatchesPage(entry: NavigationOrderEntry, page: Page
 }
 
 function isInsideOutput(relativePath: string, outDirName: string) {
-  return relativePath === outDirName || relativePath.startsWith(`${outDirName}/`);
+  return (
+    relativePath === outDirName || relativePath.startsWith(`${outDirName}/`)
+  );
 }
 
 function ensureUniqueRoutes(pages: Page[]) {

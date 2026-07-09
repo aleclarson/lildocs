@@ -76,7 +76,9 @@ export async function renderMarkdownPage(
         if (lang?.toLowerCase() === "mermaid") {
           mermaidDiagramIndex += 1;
           if (!options.mermaid) {
-            throw new LildocsError(`No Mermaid renderer configured for ${page.relativePath}`);
+            throw new LildocsError(
+              `No Mermaid renderer configured for ${page.relativePath}`,
+            );
           }
 
           try {
@@ -146,9 +148,18 @@ async function highlightCode(
 
 function normalizeShikiBackground(html: string) {
   return html
-    .replace(/background-color:[^;"]+;?/, "background-color:var(--ld-color-code-background);")
-    .replace(/--shiki-light-bg:[^;"]+/, "--shiki-light-bg:var(--ld-color-code-background)")
-    .replace(/--shiki-dark-bg:[^;"]+/, "--shiki-dark-bg:var(--ld-color-code-background)");
+    .replace(
+      /background-color:[^;"]+;?/,
+      "background-color:var(--ld-color-code-background);",
+    )
+    .replace(
+      /--shiki-light-bg:[^;"]+/,
+      "--shiki-light-bg:var(--ld-color-code-background)",
+    )
+    .replace(
+      /--shiki-dark-bg:[^;"]+/,
+      "--shiki-dark-bg:var(--ld-color-code-background)",
+    );
 }
 
 export async function copyAssets(assets: AssetCopy[]) {
@@ -160,7 +171,9 @@ export async function copyAssets(assets: AssetCopy[]) {
       try {
         assetStat = await stat(asset.from);
       } catch {
-        throw new LildocsError(`Referenced asset does not exist: ${asset.from}`);
+        throw new LildocsError(
+          `Referenced asset does not exist: ${asset.from}`,
+        );
       }
 
       if (!assetStat.isFile()) {
@@ -174,7 +187,9 @@ export async function copyAssets(assets: AssetCopy[]) {
 }
 
 function nextHeading(headings: Heading[], depth: number, text: string) {
-  const index = headings.findIndex((heading) => heading.depth === depth && heading.text === text);
+  const index = headings.findIndex(
+    (heading) => heading.depth === depth && heading.text === text,
+  );
   if (index === -1) {
     return undefined;
   }
@@ -193,9 +208,14 @@ function rewriteLink(model: ContentModel, page: Page, href: string) {
     return href;
   }
 
-  const relative = path.posix.relative(path.posix.dirname(page.route), targetPage.route);
+  const relative = path.posix.relative(
+    path.posix.dirname(page.route),
+    targetPage.route,
+  );
   const url = relative.startsWith(".") ? relative : `./${relative}`;
-  const hash = href.includes("#") ? href.slice(href.indexOf("#") + 1) : undefined;
+  const hash = href.includes("#")
+    ? href.slice(href.indexOf("#") + 1)
+    : undefined;
   return hash ? `${url}#${hash}` : url;
 }
 
@@ -210,7 +230,11 @@ function registerAsset(
     return href;
   }
 
-  const source = path.resolve(model.docsRoot, path.dirname(page.relativePath), href);
+  const source = path.resolve(
+    model.docsRoot,
+    path.dirname(page.relativePath),
+    href,
+  );
   const assetRelativePath = toPosixPath(path.relative(model.docsRoot, source));
   const outputRelativePath = `assets/${assetRelativePath}`;
   assets.push({

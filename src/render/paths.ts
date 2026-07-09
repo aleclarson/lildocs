@@ -21,9 +21,14 @@ function normalizeRoute(route: string) {
 }
 
 export function relativeUrl(fromRoute: string, toRoute: string) {
-  const fromParts = routeDir(fromRoute) === "." ? [] : routeDir(fromRoute).split("/");
+  const fromParts =
+    routeDir(fromRoute) === "." ? [] : routeDir(fromRoute).split("/");
   const toParts = normalizeRoute(toRoute).split("/");
-  while (fromParts.length > 0 && toParts.length > 0 && fromParts[0] === toParts[0]) {
+  while (
+    fromParts.length > 0 &&
+    toParts.length > 0 &&
+    fromParts[0] === toParts[0]
+  ) {
     fromParts.shift();
     toParts.shift();
   }
@@ -36,6 +41,7 @@ export function relativeUrl(fromRoute: string, toRoute: string) {
 export function rootRelativeUrl(route: string, target: string) {
   const dir = routeDir(route);
   const depth = dir === "." ? 0 : dir.split("/").length;
-  const prefix = depth === 0 ? "." : Array.from({ length: depth }, () => "..").join("/");
+  const prefix =
+    depth === 0 ? "." : Array.from({ length: depth }, () => "..").join("/");
   return `${prefix}/${target}`;
 }

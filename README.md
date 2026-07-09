@@ -63,5 +63,5 @@ The project uses:
 - native dynamic `import()` for local theme loading
 - `tsdown` for the CLI bundle and Vite for the frontend bundle/dev server
 - `oxlint` for linting
-- `oxfmt` for formatting
+- Prettier with the TSRX plugin for formatting
 - Node's built-in `node:test` runner

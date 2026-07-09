@@ -145,7 +145,8 @@ body {
   margin-inline: auto;
 }
 
-html.is-changing :where(.transition-fade, .transition-slide, .transition-scale) {
+html.is-changing
+  :where(.transition-fade, .transition-slide, .transition-scale) {
   transition:
     opacity var(--ld-navigation-duration) var(--ld-navigation-easing),
     transform var(--ld-navigation-duration) var(--ld-navigation-easing);
@@ -168,7 +169,8 @@ html.is-animating .transition-scale {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.is-changing :where(.transition-fade, .transition-slide, .transition-scale) {
+  html.is-changing
+    :where(.transition-fade, .transition-slide, .transition-scale) {
     transition: none;
   }
 
@@ -243,7 +245,11 @@ html.is-animating .transition-scale {
   padding: 10px 16px;
   border-left: 4px solid var(--ld-color-border);
   border-radius: 0 6px 6px 0;
-  background: color-mix(in srgb, var(--ld-color-code-background) 72%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--ld-color-code-background) 72%,
+    transparent
+  );
   color: var(--ld-color-muted-text);
 }
 
@@ -254,7 +260,11 @@ html.is-animating .transition-scale {
   border-left: 0;
   border-radius: 0;
   background: transparent;
-  color: color-mix(in srgb, var(--ld-color-muted-text) 88%, var(--ld-color-text));
+  color: color-mix(
+    in srgb,
+    var(--ld-color-muted-text) 88%,
+    var(--ld-color-text)
+  );
   font-size: 1.15em;
   line-height: 1.45;
 }
@@ -317,7 +327,8 @@ html.is-animating .transition-scale {
 .navList a,
 .navDisclosure summary {
   padding-left: 7px;
-  border-left: 1px solid color-mix(in srgb, var(--ld-color-border) 65%, transparent);
+  border-left: 1px solid
+    color-mix(in srgb, var(--ld-color-border) 65%, transparent);
   color: var(--ld-color-muted-text);
   text-decoration: none;
 }
@@ -349,7 +360,11 @@ html.is-animating .transition-scale {
 }
 
 .navFolder {
-  color: color-mix(in srgb, var(--ld-color-muted-text) 72%, var(--ld-color-sidebar-background));
+  color: color-mix(
+    in srgb,
+    var(--ld-color-muted-text) 72%,
+    var(--ld-color-sidebar-background)
+  );
   font-size: 0.78rem;
   font-weight: 600;
 }
@@ -699,7 +714,11 @@ html.is-animating .transition-scale {
 
 .searchResult.selected,
 .searchResult:hover {
-  background: color-mix(in srgb, var(--ld-color-code-background) 78%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--ld-color-code-background) 78%,
+    transparent
+  );
 }
 
 .searchEmpty {

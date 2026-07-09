@@ -129,10 +129,13 @@ function resolveVariants(variants: AlertVariant[]) {
   }
 
   return Object.values(
-    [...defaultAlertVariants, ...variants].reduce<Record<string, AlertVariant>>((map, item) => {
-      map[item.type] = item;
-      return map;
-    }, {}),
+    [...defaultAlertVariants, ...variants].reduce<Record<string, AlertVariant>>(
+      (map, item) => {
+        map[item.type] = item;
+        return map;
+      },
+      {},
+    ),
   );
 }
 

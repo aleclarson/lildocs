@@ -41,12 +41,20 @@ export function Layout({
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{(projectName ? `${page.title} • ${projectName}` : page.title) as string}</title>
+    <title>
+      {(projectName ? `${page.title} • ${projectName}` : page.title) as string}
+    </title>
     @if (favicon) {
       <link rel="icon" href={assetSrc(page.route, favicon)} />
     }
-    <link rel="stylesheet" href={rootRelativeUrl(page.route, "assets/tabler-icons.css")} />
-    <link rel="stylesheet" href={rootRelativeUrl(page.route, "assets/lildocs.css")} />
+    <link
+      rel="stylesheet"
+      href={rootRelativeUrl(page.route, "assets/tabler-icons.css")}
+    />
+    <link
+      rel="stylesheet"
+      href={rootRelativeUrl(page.route, "assets/lildocs.css")}
+    />
     @for (const stylePath of clientStylePaths; key stylePath) {
       <link rel="stylesheet" href={assetSrc(page.route, stylePath)} />
     }
@@ -56,10 +64,16 @@ export function Layout({
           <div class="sidebarHeader">
             <a class="brand" href={relativeUrl(page.route, "index.html")}>
               @if (logo.image) {
-                <img class="brandLogo" src={assetSrc(page.route, logo.image)} alt="" />
+                <img
+                  class="brandLogo"
+                  src={assetSrc(page.route, logo.image)}
+                  alt=""
+                />
               }
               @if (logo.text) {
-                <span>{logo.text as string}</span>
+                <span>
+                  {logo.text as string}
+                </span>
               }
             </a>
             <button
@@ -69,7 +83,10 @@ export function Layout({
               aria-label="Collapse sidebar"
               aria-controls="lildocs-sidebar"
             >
-              <span class="ti ti-layout-sidebar-left-collapse" aria-hidden="true" />
+              <span
+                class="ti ti-layout-sidebar-left-collapse"
+                aria-hidden="true"
+              />
             </button>
           </div>
           <div id="lildocs-search-root" class="searchBox">
@@ -81,8 +98,15 @@ export function Layout({
               aria-label="Search docs"
             />
           </div>
-          <nav id="lildocs-sidebar-navigation" aria-label="Documentation navigation">
-            <NavList items={nav} currentRoute={page.route} pageRoute={page.route} />
+          <nav
+            id="lildocs-sidebar-navigation"
+            aria-label="Documentation navigation"
+          >
+            <NavList
+              items={nav}
+              currentRoute={page.route}
+              pageRoute={page.route}
+            />
           </nav>
         </div>
       </aside>
@@ -125,7 +149,13 @@ export function Layout({
     </div>
     <script
       dangerouslySetInnerHTML={{
-        __html: `window.lildocsSearchUrl = ${JSON.stringify(rootRelativeUrl(page.route, "search-index.json"))};${issueUrl ? `window.lildocsIssueUrl = ${JSON.stringify(issueUrl)};` : ""}`,
+        __html: `window.lildocsSearchUrl = ${JSON.stringify(
+          rootRelativeUrl(page.route, "search-index.json"),
+        )};${
+          issueUrl
+            ? `window.lildocsIssueUrl = ${JSON.stringify(issueUrl)};`
+            : ""
+        }`,
       }}
     />
     <script
@@ -181,7 +211,10 @@ function repositoryLabelForUrl(repositoryUrl: string | undefined) {
 }
 
 function assetSrc(pageRoute: string, image: string) {
-  if (/^(?:[a-z]+:)?\/\//i.test(image) || image.startsWith("data:") || image.startsWith("/")) {
+  if (
+    /^(?:[a-z]+:)?\/\//i.test(image) || image.startsWith("data:") ||
+      image.startsWith("/")
+  ) {
     return image;
   }
 
@@ -194,13 +227,16 @@ function GroupBreadcrumbs({ route }: { route: string }) @{
     return null;
   }
 
-  <p class="groupBreadcrumbs">{dir.map(titleFromDir).join(" / ") as string}</p>
+  <p class="groupBreadcrumbs">
+    {dir.map(titleFromDir).join(" / ") as string}
+  </p>
 }
 
 function titleFromDir(dir: string) {
-  return dir
-    .replace(/[-_]+/g, " ")
-    .replace(/\S+/g, (word) => `${word[0]?.toLocaleUpperCase() ?? ""}${word.slice(1)}`);
+  return dir.replace(/[-_]+/g, " ").replace(
+    /\S+/g,
+    (word) => `${word[0]?.toLocaleUpperCase() ?? ""}${word.slice(1)}`,
+  );
 }
 
 function PageNav({ pageNavigation }: { pageNavigation?: PageNavigation }) @{
@@ -210,7 +246,7 @@ function PageNav({ pageNavigation }: { pageNavigation?: PageNavigation }) @{
 
   <nav class="pageNav" aria-label="Page navigation">
     <p>
-      Next:{" "}
+      {"Next: "}
       <a rel="next" href={pageNavigation.next.href}>
         {pageNavigation.next.title as string}
       </a>
@@ -231,14 +267,23 @@ function NavList({
     @for (const item of items; key item.route) {
       <li class={item.children.length > 0 ? "navGroup" : undefined}>
         @if (item.children.length > 0 && item.hasPage) {
-          <details class="navDisclosure" open={isActiveBranch(item, currentRoute)}>
+          <details
+            class="navDisclosure"
+            open={isActiveBranch(item, currentRoute)}
+          >
             <summary class={item.route === currentRoute ? "active" : undefined}>
               {item.title as string}
             </summary>
-            <NavList items={item.children} currentRoute={currentRoute} pageRoute={pageRoute} />
+            <NavList
+              items={item.children}
+              currentRoute={currentRoute}
+              pageRoute={pageRoute}
+            />
           </details>
         } @else if (item.children.length > 0) {
-          <span class="navFolder">{item.title as string}</span>
+          <span class="navFolder">
+            {item.title as string}
+          </span>
         } @else {
           <a
             class={item.route === currentRoute ? "active" : undefined}
@@ -248,7 +293,11 @@ function NavList({
           </a>
         }
         @if (item.children.length > 0 && !item.hasPage) {
-          <NavList items={item.children} currentRoute={currentRoute} pageRoute={pageRoute} />
+          <NavList
+            items={item.children}
+            currentRoute={currentRoute}
+            pageRoute={pageRoute}
+          />
         }
       </li>
     }
@@ -256,10 +305,8 @@ function NavList({
 }
 
 function isActiveBranch(item: NavItem, currentRoute: string): boolean {
-  return (
-    item.route === currentRoute ||
-    item.children.some((child) => isActiveBranch(child, currentRoute))
-  );
+  return item.route === currentRoute ||
+    item.children.some((child) => isActiveBranch(child, currentRoute));
 }
 
 function Toc({
@@ -273,7 +320,9 @@ function Toc({
   repositoryLabel?: string;
   repoIconUrl: string;
 }) @{
-  const tocHeadings = headings.filter((heading) => heading.depth > 1 && heading.depth < 4);
+  const tocHeadings = headings.filter(
+    (heading) => heading.depth > 1 && heading.depth < 4,
+  );
   if (tocHeadings.length === 0 && !repositoryLabel) {
     return null;
   }
@@ -285,20 +334,28 @@ function Toc({
         <ul>
           @for (const heading of tocHeadings; key heading.id) {
             <li class={`tocDepth${heading.depth}`}>
-              <a href={`#${heading.id}`}>{heading.text as string}</a>
+              <a href={`#${heading.id}`}>
+                {heading.text as string}
+              </a>
             </li>
           }
         </ul>
       </>
     }
     @if (repositoryUrl && repositoryLabel) {
-      <a class="tocRepoLink" href={repositoryUrl} aria-label="View repository on GitHub">
+      <a
+        class="tocRepoLink"
+        href={repositoryUrl}
+        aria-label="View repository on GitHub"
+      >
         <span
           class="repoIcon"
           aria-hidden="true"
           style={`--ld-repo-icon: url(${repoIconUrl})`}
         />
-        <span>{repositoryLabel as string}</span>
+        <span>
+          {repositoryLabel as string}
+        </span>
       </a>
     }
   </nav>

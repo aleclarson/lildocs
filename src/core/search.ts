@@ -20,7 +20,9 @@ export function buildSearchIndex(pages: Page[]): SearchEntry[] {
       pageTitle: page.title,
       route: page.route,
       headings: page.headings.map((heading) => heading.text),
-      text: normalizeSearchText(page.searchText ?? markdownToPlainText(page.markdown)),
+      text: normalizeSearchText(
+        page.searchText ?? markdownToPlainText(page.markdown),
+      ),
       excerpt: markdownToExcerpt(page.markdown),
     },
     ...buildSectionEntries(page),
@@ -42,7 +44,10 @@ export function markdownToPlainText(markdown: string) {
 export function markdownToExcerpt(markdown: string) {
   return Parser.parse(Lexer.lex(markdown, { gfm: true }))
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/(?:p|h[1-6]|li|blockquote|pre|tr|div|section|article)>/gi, "\n\n")
+    .replace(
+      /<\/(?:p|h[1-6]|li|blockquote|pre|tr|div|section|article)>/gi,
+      "\n\n",
+    )
     .replace(/<[^>]+>/g, "")
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")

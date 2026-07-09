@@ -1,8 +1,14 @@
 export function initSidebar() {
   const sidebar = document.querySelector("#lildocs-sidebar");
-  const collapseButton = document.querySelector<HTMLButtonElement>("#lildocs-sidebar-toggle");
-  const expandButton = document.querySelector<HTMLButtonElement>("#lildocs-sidebar-expand");
-  const searchButton = document.querySelector<HTMLButtonElement>("#lildocs-floating-search");
+  const collapseButton = document.querySelector<HTMLButtonElement>(
+    "#lildocs-sidebar-toggle",
+  );
+  const expandButton = document.querySelector<HTMLButtonElement>(
+    "#lildocs-sidebar-expand",
+  );
+  const searchButton = document.querySelector<HTMLButtonElement>(
+    "#lildocs-floating-search",
+  );
 
   if (!sidebar || !collapseButton || !expandButton || !searchButton) {
     return;
@@ -10,7 +16,10 @@ export function initSidebar() {
 
   const setCollapsed = (collapsed: boolean) => {
     document.documentElement.classList.toggle("sidebar-collapsed", collapsed);
-    collapseButton.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    collapseButton.setAttribute(
+      "aria-label",
+      collapsed ? "Expand sidebar" : "Collapse sidebar",
+    );
   };
 
   collapseButton.addEventListener("click", () => setCollapsed(true));

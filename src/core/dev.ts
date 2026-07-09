@@ -100,7 +100,10 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
   vite.watcher.add(input.docsRoot);
   vite.watcher.on("all", (_event, file) => {
     const changedPath = path.resolve(file);
-    if (!isInside(input.docsRoot, changedPath) || shouldIgnore(changedPath, input.docsRoot, outDir)) {
+    if (
+      !isInside(input.docsRoot, changedPath) ||
+      shouldIgnore(changedPath, input.docsRoot, outDir)
+    ) {
       return;
     }
     scheduleRebuild();
@@ -109,7 +112,8 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
   await rebuild(false, true);
 
   const address = vite.httpServer?.address();
-  const actualPort = typeof address === "object" && address ? address.port : options.port;
+  const actualPort =
+    typeof address === "object" && address ? address.port : options.port;
   const url = `http://${options.host}:${actualPort}/`;
   console.log(`lildocs dev server listening at ${url}`);
 
@@ -124,19 +128,30 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
   };
 }
 
-function validateDevOutDir(cwd: string, docsRoot: string, outDir: string, requestedOutDir: string) {
+function validateDevOutDir(
+  cwd: string,
+  docsRoot: string,
+  outDir: string,
+  requestedOutDir: string,
+) {
   const root = path.resolve(cwd);
   if (!path.isAbsolute(requestedOutDir) && !isInside(root, outDir)) {
-    throw new LildocsError("Relative dev output directory must stay inside the current workspace.");
+    throw new LildocsError(
+      "Relative dev output directory must stay inside the current workspace.",
+    );
   }
   if (outDir === root) {
-    throw new LildocsError("Dev output directory cannot be the repository root.");
+    throw new LildocsError(
+      "Dev output directory cannot be the repository root.",
+    );
   }
   if (outDir === docsRoot) {
     throw new LildocsError("Dev output directory cannot be the docs root.");
   }
   if (isAncestor(outDir, docsRoot)) {
-    throw new LildocsError("Dev output directory cannot contain the docs root.");
+    throw new LildocsError(
+      "Dev output directory cannot contain the docs root.",
+    );
   }
 }
 
@@ -157,10 +172,15 @@ function shouldIgnore(candidate: string, docsRoot: string, outDir: string) {
 
 function isAncestor(parent: string, child: string) {
   const relative = path.relative(parent, child);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+  return (
+    relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative)
+  );
 }
 
 function isInside(parent: string, child: string) {
   const relative = path.relative(parent, child);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  return (
+    relative === "" ||
+    (!relative.startsWith("..") && !path.isAbsolute(relative))
+  );
 }

@@ -1,7 +1,9 @@
 const icons = {
   copy: '<span class="ti ti-copy copyCodeIcon" aria-hidden="true"></span>',
-  check: '<span class="ti ti-copy-check copyCodeIcon" aria-hidden="true"></span>',
-  error: '<span class="ti ti-alert-circle copyCodeIcon" aria-hidden="true"></span>',
+  check:
+    '<span class="ti ti-copy-check copyCodeIcon" aria-hidden="true"></span>',
+  error:
+    '<span class="ti ti-alert-circle copyCodeIcon" aria-hidden="true"></span>',
 };
 
 export function initCopyCode() {
@@ -15,7 +17,7 @@ function enhanceCodeBlocks() {
     return;
   }
 
-  for (const block of blocks) {
+  for (const block of Array.from(blocks)) {
     if (block.parentElement?.classList.contains("copyCodeBlock")) {
       continue;
     }

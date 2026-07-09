@@ -88,12 +88,16 @@ export async function buildFrontendAssets(options: {
       chunk.isEntry === true && typeof chunk.file === "string",
   );
   if (!entry) {
-    throw new LildocsError("Vite did not emit a frontend entry for the documentation site.");
+    throw new LildocsError(
+      "Vite did not emit a frontend entry for the documentation site.",
+    );
   }
 
   return {
     scriptPath: toPosixPath(path.join("assets", "lildocs", entry.file)),
-    stylePaths: (entry.css ?? []).map((file) => toPosixPath(path.join("assets", "lildocs", file))),
+    stylePaths: (entry.css ?? []).map((file) =>
+      toPosixPath(path.join("assets", "lildocs", file)),
+    ),
   };
 }
 
@@ -168,7 +172,10 @@ function serverEntryPath() {
   return path.join(frontendSourceDir(), "renderPage.tsrx");
 }
 
-async function frontendViteConfig(cwd: string, mode: "build" | "dev" | "ssr"): Promise<InlineConfig> {
+async function frontendViteConfig(
+  cwd: string,
+  mode: "build" | "dev" | "ssr",
+): Promise<InlineConfig> {
   const { octane } = await loadOctaneCompiler();
   return {
     configFile: false,
@@ -209,9 +216,13 @@ async function loadOctaneCompiler() {
 
 function renderPageExport(mod: unknown): RenderPage {
   const renderPage =
-    mod && typeof mod === "object" && "renderPage" in mod ? (mod.renderPage as unknown) : undefined;
+    mod && typeof mod === "object" && "renderPage" in mod
+      ? (mod.renderPage as unknown)
+      : undefined;
   if (typeof renderPage !== "function") {
-    throw new LildocsError("Lildocs frontend renderer did not export renderPage.");
+    throw new LildocsError(
+      "Lildocs frontend renderer did not export renderPage.",
+    );
   }
 
   return renderPage as RenderPage;
@@ -226,7 +237,11 @@ function octaneRuntimeCompatibility(): Plugin {
         return resolveOctaneServerRuntime();
       }
 
-      if (source === "./css.js" && importer && isOctaneRuntimeImport(importer)) {
+      if (
+        source === "./css.js" &&
+        importer &&
+        isOctaneRuntimeImport(importer)
+      ) {
         return virtualOctaneCssId;
       }
 
@@ -245,12 +260,22 @@ function octaneRuntimeCompatibility(): Plugin {
 function resolveOctaneServerRuntime() {
   const serverEntry = require.resolve("octane/server");
   const candidates = [
-    serverEntry.replace(/[/\\]server[/\\]index\.js$/, `${path.sep}runtime.server.js`),
-    serverEntry.replace(/[/\\]server[/\\]index\.ts$/, `${path.sep}runtime.server.ts`),
+    serverEntry.replace(
+      /[/\\]server[/\\]index\.js$/,
+      `${path.sep}runtime.server.js`,
+    ),
+    serverEntry.replace(
+      /[/\\]server[/\\]index\.ts$/,
+      `${path.sep}runtime.server.ts`,
+    ),
   ];
-  const runtimePath = candidates.find((candidate) => candidate !== serverEntry && existsSync(candidate));
+  const runtimePath = candidates.find(
+    (candidate) => candidate !== serverEntry && existsSync(candidate),
+  );
   if (!runtimePath) {
-    throw new LildocsError(`Unable to locate Octane server runtime from ${serverEntry}.`);
+    throw new LildocsError(
+      `Unable to locate Octane server runtime from ${serverEntry}.`,
+    );
   }
 
   return runtimePath;
@@ -259,7 +284,9 @@ function resolveOctaneServerRuntime() {
 function isOctaneRuntimeImport(importer: string) {
   const [filePath] = importer.split("?", 1);
   const normalized = toPosixPath(filePath);
-  return /\/octane\/(?:src|dist)\/runtime(?:\.server)?\.(?:ts|js)$/.test(normalized);
+  return /\/octane\/(?:src|dist)\/runtime(?:\.server)?\.(?:ts|js)$/.test(
+    normalized,
+  );
 }
 
 const octaneCssHelpersSource = `

@@ -2,7 +2,10 @@ import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { generateMarkdownForModule, type GenerateMarkdownOptions } from "exports-md";
+import {
+  generateMarkdownForModule,
+  type GenerateMarkdownOptions,
+} from "exports-md";
 import type { AdditionalPage } from "./content.js";
 import { LildocsError } from "./errors.js";
 import { toPosixPath } from "./paths.js";
@@ -52,13 +55,17 @@ export async function buildReferencePages(options: {
         const generatedPath = toPosixPath(path.relative(tempDir, sourcePath));
         return {
           sourcePath,
-          relativePath: toPosixPath(path.posix.join("reference", generatedPath)),
+          relativePath: toPosixPath(
+            path.posix.join("reference", generatedPath),
+          ),
           rawMarkdown: await readFile(sourcePath, "utf8"),
         };
       }),
     );
   } catch (error) {
-    throw new LildocsError(`Failed to generate API reference: ${errorMessage(error)}`);
+    throw new LildocsError(
+      `Failed to generate API reference: ${errorMessage(error)}`,
+    );
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
@@ -72,12 +79,17 @@ async function resolveReferencePackageJson(options: {
   if (configuredPath) {
     const packagePath = path.resolve(options.docsRoot, configuredPath);
     if (!existsSync(packagePath)) {
-      throw new LildocsError(`Configured reference package.json does not exist: ${packagePath}`);
+      throw new LildocsError(
+        `Configured reference package.json does not exist: ${packagePath}`,
+      );
     }
     return { packagePath, configured: true };
   }
 
-  const siblingPackageJson = path.join(path.dirname(options.docsRoot), "package.json");
+  const siblingPackageJson = path.join(
+    path.dirname(options.docsRoot),
+    "package.json",
+  );
   if (existsSync(siblingPackageJson)) {
     return { packagePath: siblingPackageJson, configured: false };
   }
@@ -87,10 +99,14 @@ async function resolveReferencePackageJson(options: {
 
 async function readPackageJson(packagePath: string) {
   try {
-    return JSON.parse(await readFile(packagePath, "utf8")) as { exports?: unknown };
+    return JSON.parse(await readFile(packagePath, "utf8")) as {
+      exports?: unknown;
+    };
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new LildocsError(`Invalid package.json for API reference: ${packagePath}`);
+      throw new LildocsError(
+        `Invalid package.json for API reference: ${packagePath}`,
+      );
     }
     throw error;
   }

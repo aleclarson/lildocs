@@ -42,17 +42,25 @@ export function SearchBox({
 
   useEffect(() => {
     selectedRef.current?.scrollIntoView({ block: "nearest" });
-    preloadRelativeUrl(selectedRef.current?.getAttribute("href"), preloadedUrls);
+    preloadRelativeUrl(
+      selectedRef.current?.getAttribute("href"),
+      preloadedUrls,
+    );
   }, [matches, preloadedUrls, selectedIndex]);
 
   useEffect(() => {
     const closeOnOutsidePointer = (event: PointerEvent) => {
-      if (event.target instanceof Node && !anchorElement.contains(event.target)) {
+      if (
+        event.target instanceof Node && !anchorElement.contains(event.target)
+      ) {
         setOpen(false);
       }
     };
     document.addEventListener("pointerdown", closeOnOutsidePointer);
-    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
+    return () => document.removeEventListener(
+      "pointerdown",
+      closeOnOutsidePointer,
+    );
   }, [anchorElement]);
 
   useEffect(() => {
@@ -157,17 +165,24 @@ export function SearchBox({
           <header class="searchResultsHeader">
             <p class="searchResultsEyebrow">Search</p>
             <h2>
-              Results for <span>{query as string}</span>
+              Results for
+              <span>
+                {query as string}
+              </span>
             </h2>
             <p class="searchResultsSummary">
-              {matches.length} {matches.length === 1 ? "result" : "results"}
+              {matches.length}
+
+              {matches.length === 1 ? "result" : "results"}
             </p>
           </header>
           @if (matches.length === 0) {
             <section class="searchEmpty">
               <p>No pages match this search.</p>
               @if (issueUrl) {
-                <a href={issueUrlForQuery(issueUrl, query)}>Create a GitHub issue</a>
+                <a href={issueUrlForQuery(issueUrl, query)}>
+                  Create a GitHub issue
+                </a>
               }
             </section>
           } @else {
@@ -187,10 +202,14 @@ export function SearchBox({
                   <span class="searchResultType">
                     {match.entry.kind === "page" ? "Page" : "Section"}
                   </span>
-                  <span class="searchResultTitle">{renderHighlighted(match.title, match.terms)}</span>
-                  <span class="searchResultSnippet">
-                    {renderHighlighted(match.subtitle, match.terms)}
-                  </span>
+                  <span class="searchResultTitle">{renderHighlighted(
+                    match.title,
+                    match.terms,
+                  )}</span>
+                  <span class="searchResultSnippet">{renderHighlighted(
+                    match.subtitle,
+                    match.terms,
+                  )}</span>
                 </a>
               }
             </div>
@@ -222,7 +241,9 @@ function searchIndex(index: SearchEntry[], query: string) {
   }
 
   const terms = normalizedQuery.split(/\s+/);
-  const matches = index.map((entry) => matchEntry(entry, terms, normalizedQuery)).filter(isMatch);
+  const matches = index.map(
+    (entry) => matchEntry(entry, terms, normalizedQuery),
+  ).filter((match) => match !== undefined);
   const titleMatches = matches.filter((match) => match.type === "title");
   const sectionBodyMatches = matches.filter(
     (match) => match.type === "body" && match.entry.kind === "section",
@@ -231,14 +252,18 @@ function searchIndex(index: SearchEntry[], query: string) {
     sectionBodyMatches.length > 0
       ? sectionBodyMatches
       : matches.filter((match) => match.type === "body");
-  const visibleMatches = titleMatches.length < 4 ? [...titleMatches, ...bodyMatches] : titleMatches;
+  const visibleMatches =
+    titleMatches.length < 4 ? [...titleMatches, ...bodyMatches] : titleMatches;
 
-  return visibleMatches
-    .toSorted((a, b) => b.score - a.score || a.title.localeCompare(b.title))
-    .slice(0, 8);
+  return visibleMatches.toSorted(
+    (a, b) => b.score - a.score || a.title.localeCompare(b.title),
+  ).slice(0, 8);
 }
 
-export function preloadRelativeUrl(href: string | null | undefined, preloadedUrls: Set<string>) {
+export function preloadRelativeUrl(
+  href: string | null | undefined,
+  preloadedUrls: Set<string>,
+) {
   if (!href || href.startsWith("mailto:") || href.startsWith("#")) {
     return;
   }
@@ -319,11 +344,17 @@ function subtitleForEntry(entry: SearchEntry) {
 }
 
 function matchingSnippet(text: string, terms: string[]) {
-  const paragraphs = text.split(/\n{2,}/).map(normalizeSnippetPart).filter(Boolean);
-  const paragraph = paragraphs.find((part) => containsTerms(part, terms)) ?? paragraphs[0] ?? "";
-  const sentences = paragraph.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(normalizeSnippetPart) ?? [];
+  const paragraphs = text.split(/\n{2,}/).map(normalizeSnippetPart).filter(
+    Boolean,
+  );
+  const paragraph =
+    paragraphs.find((part) => containsTerms(part, terms)) ?? paragraphs[0] ??
+      "";
+  const sentences =
+    paragraph.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(normalizeSnippetPart) ?? [];
 
-  return sentences.find((sentence) => containsTerms(sentence, terms)) ?? paragraph;
+  return sentences.find((sentence) => containsTerms(sentence, terms)) ??
+    paragraph;
 }
 
 function containsTerms(value: string, terms: string[]) {
@@ -336,27 +367,30 @@ function normalizeSnippetPart(value: string) {
 }
 
 function renderHighlighted(value: string, terms: string[]) {
-  const matchingTerms = terms.filter(Boolean).toSorted((a, b) => b.length - a.length);
+  const matchingTerms = terms.filter(Boolean).toSorted(
+    (a, b) => b.length - a.length,
+  );
   if (matchingTerms.length === 0) {
     return value;
   }
 
-  const pattern = new RegExp(`(${matchingTerms.map(escapeRegExp).join("|")})`, "gi");
-  return value.split(pattern).map((part) =>
-    matchingTerms.some((term) => part.toLowerCase() === term) ? (
-      <mark>{part as string}</mark>
-    ) : (
-      part
-    ),
+  const pattern = new RegExp(`(${matchingTerms.map(escapeRegExp).join(
+    "|",
+  )})`, "gi");
+  return value.split(pattern).map(
+    (part) => matchingTerms.some((term) => part.toLowerCase() === term)
+      ? <mark>
+          {part as string}
+        </mark>
+      : (part),
   );
 }
 
 function normalizeQuery(value: string) {
-  return value
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
+  return value.replace(/[^\p{L}\p{N}]+/gu, " ").replace(
+    /\s+/g,
+    " ",
+  ).trim().toLowerCase();
 }
 
 function uniqueParts(parts: string[]) {
@@ -365,8 +399,4 @@ function uniqueParts(parts: string[]) {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function isMatch(match: SearchMatch | undefined): match is SearchMatch {
-  return Boolean(match);
 }

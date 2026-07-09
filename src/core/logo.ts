@@ -44,12 +44,20 @@ export async function resolveLogoOptions(options: {
   }
 
   if (options.logo?.font) {
-    const localFontPath = await resolveLocalFontPath(options.logo.font, options);
+    const localFontPath = await resolveLocalFontPath(
+      options.logo.font,
+      options,
+    );
     if (localFontPath) {
       const family = "Lildocs Logo Font";
       assets.push({
         from: localFontPath,
-        to: path.join(options.outDir, "assets", "fonts", path.basename(localFontPath)),
+        to: path.join(
+          options.outDir,
+          "assets",
+          "fonts",
+          path.basename(localFontPath),
+        ),
       });
       css.push(`@font-face {
   font-family: ${quoteCssString(family)};
@@ -60,7 +68,9 @@ export async function resolveLogoOptions(options: {
   --ld-font-logo: ${quoteCssString(family)};
 }`);
     } else {
-      css.push(`@import url("${googleFontsCssUrl(options.logo.font, "400;500;600;700")}");`);
+      css.push(
+        `@import url("${googleFontsCssUrl(options.logo.font, "400;500;600;700")}");`,
+      );
       css.push(`:root {
   --ld-font-logo: ${quoteCssString(options.logo.font)};
 }`);
@@ -71,7 +81,9 @@ export async function resolveLogoOptions(options: {
     assets,
     css: css.length > 0 ? `${css.join("\n")}\n` : "",
     logo,
-    favicon: options.favicon ? imageAssetValue(options.favicon, options, assets) : undefined,
+    favicon: options.favicon
+      ? imageAssetValue(options.favicon, options, assets)
+      : undefined,
   };
 }
 
@@ -89,7 +101,10 @@ function imageAssetValue(
   }
 
   const source = path.resolve(options.docsRoot, trimmed);
-  const assetRelativePath = path.relative(options.docsRoot, source).split(path.sep).join("/");
+  const assetRelativePath = path
+    .relative(options.docsRoot, source)
+    .split(path.sep)
+    .join("/");
   assets.push({
     from: source,
     to: path.join(options.outDir, "assets", assetRelativePath),
@@ -104,14 +119,19 @@ async function resolveLocalFontPath(
     docsRoot: string;
   },
 ) {
-  const candidates = [path.resolve(options.cwd, value), path.resolve(options.docsRoot, value)];
+  const candidates = [
+    path.resolve(options.cwd, value),
+    path.resolve(options.docsRoot, value),
+  ];
   const existingCandidates = await Promise.all(
     candidates.map(async (candidate) => ({
       candidate,
       exists: isFontFile(candidate) && (await exists(candidate)),
     })),
   );
-  const existingCandidate = existingCandidates.find((candidate) => candidate.exists);
+  const existingCandidate = existingCandidates.find(
+    (candidate) => candidate.exists,
+  );
   if (existingCandidate) {
     return existingCandidate.candidate;
   }
@@ -124,7 +144,11 @@ async function resolveLocalFontPath(
 }
 
 function isRemoteImage(value: string) {
-  return /^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith("data:") || value.startsWith("/");
+  return (
+    /^(?:[a-z]+:)?\/\//i.test(value) ||
+    value.startsWith("data:") ||
+    value.startsWith("/")
+  );
 }
 
 function isFontFile(value: string) {

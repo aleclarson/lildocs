@@ -21,7 +21,9 @@ export function normalizeBasePath(value?: string): string {
   }
 
   const withLeadingSlash = basePath.startsWith("/") ? basePath : `/${basePath}`;
-  return withLeadingSlash.endsWith("/") ? withLeadingSlash : `${withLeadingSlash}/`;
+  return withLeadingSlash.endsWith("/")
+    ? withLeadingSlash
+    : `${withLeadingSlash}/`;
 }
 
 export function repoRelativeInputPath(input: string, cwd: string): string {
@@ -29,7 +31,9 @@ export function repoRelativeInputPath(input: string, cwd: string): string {
   const relativeInput = path.relative(cwd, absoluteInput);
 
   if (relativeInput.startsWith("..") || path.isAbsolute(relativeInput)) {
-    throw new Error("Workflow generation requires the docs path to be inside the repository.");
+    throw new Error(
+      "Workflow generation requires the docs path to be inside the repository.",
+    );
   }
 
   return relativeInput.startsWith(".") ? relativeInput : `./${relativeInput}`;
@@ -48,7 +52,9 @@ export function renderGitHubPagesWorkflow(options: WorkflowOptions): string {
     options.input,
     "--out",
     options.outDir,
-    ...(options.basePath ? ["--base", normalizeBasePath(options.basePath)] : []),
+    ...(options.basePath
+      ? ["--base", normalizeBasePath(options.basePath)]
+      : []),
   ];
 
   return `name: Deploy lildocs to GitHub Pages

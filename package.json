@@ -17,8 +17,8 @@
   "scripts": {
     "build": "tsdown",
     "docs:serve": "pnpm run build && node dist/cli.mjs build ./docs --out ./dist/docs && sirv ./dist/docs",
-    "format": "oxfmt --write src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
-    "format:check": "oxfmt --check src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .oxfmtrc.json .vscode/settings.json",
+    "format": "prettier --write src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .prettierrc.json .vscode/settings.json",
+    "format:check": "prettier --check src schemas package.json tsconfig.json tsdown.config.ts .oxlintrc.json .prettierrc.json .vscode/settings.json",
     "lint": "oxlint src tsdown.config.ts",
     "test": "pnpm run build && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit"
@@ -39,10 +39,11 @@
     "vite": "^8.0.0"
   },
   "devDependencies": {
+    "@tsrx/prettier-plugin": "^0.3.93",
     "@types/culori": "^4.0.1",
     "@types/node": "^24.0.0",
-    "oxfmt": "^0.50.0",
     "oxlint": "^1.65.0",
+    "prettier": "^3.9.5",
     "sirv": "^3.0.2",
     "tsdown": "^0.22.0",
     "typescript": "^5.9.0",

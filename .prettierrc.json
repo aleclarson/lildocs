@@ -1,0 +1,11 @@
+{
+  "plugins": ["@tsrx/prettier-plugin"],
+  "overrides": [
+    {
+      "files": "*.tsrx",
+      "options": {
+        "parser": "tsrx"
+      }
+    }
+  ]
+}

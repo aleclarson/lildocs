@@ -24,7 +24,11 @@ const MIME_TYPES = new Map([
   [".eot", "application/vnd.ms-fontobject"],
 ]);
 
-export async function serveStaticFile(req: IncomingMessage, res: ServerResponse, outDir: string) {
+export async function serveStaticFile(
+  req: IncomingMessage,
+  res: ServerResponse,
+  outDir: string,
+) {
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405, { allow: "GET, HEAD" });
     res.end("Method Not Allowed");
@@ -64,7 +68,8 @@ export async function serveStaticFile(req: IncomingMessage, res: ServerResponse,
   res.writeHead(200, {
     "content-length": fileStat.size,
     "content-type":
-      MIME_TYPES.get(path.extname(filePath).toLowerCase()) ?? "application/octet-stream",
+      MIME_TYPES.get(path.extname(filePath).toLowerCase()) ??
+      "application/octet-stream",
   });
 
   if (req.method === "HEAD") {
@@ -77,7 +82,9 @@ export async function serveStaticFile(req: IncomingMessage, res: ServerResponse,
 
 function requestPathname(req: IncomingMessage) {
   try {
-    return decodeURIComponent(new URL(req.url ?? "/", "http://lildocs.local").pathname);
+    return decodeURIComponent(
+      new URL(req.url ?? "/", "http://lildocs.local").pathname,
+    );
   } catch {
     return undefined;
   }
@@ -85,5 +92,8 @@ function requestPathname(req: IncomingMessage) {
 
 function isInside(root: string, candidate: string) {
   const relative = path.relative(root, candidate);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  return (
+    relative === "" ||
+    (!relative.startsWith("..") && !path.isAbsolute(relative))
+  );
 }

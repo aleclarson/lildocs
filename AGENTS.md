@@ -25,7 +25,7 @@ Keep product behavior aligned with the README, generated documentation, and exis
 - Theme loading: native dynamic `import()`
 - Bundling: `tsdown` for the CLI and Vite for the frontend
 - Linting: `oxlint`
-- Formatting: `oxfmt`
+- Formatting: Prettier with `@tsrx/prettier-plugin`
 - Tests: Node's built-in `node:test`
 
 Useful commands:

@@ -46,7 +46,9 @@ export async function readDocsConfig(docsRoot: string): Promise<DocsConfig> {
   try {
     parsed = JSON.parse(rawConfig);
   } catch (error) {
-    throw new LildocsError(`Invalid docs config JSON at ${configPath}: ${errorMessage(error)}`);
+    throw new LildocsError(
+      `Invalid docs config JSON at ${configPath}: ${errorMessage(error)}`,
+    );
   }
 
   return validateDocsConfig(parsed, configPath);
@@ -78,8 +80,10 @@ export function mergeConfigOptions(options: {
     },
     background: {
       image: options.background?.image ?? options.config.background?.image,
-      gradient: options.background?.gradient ?? options.config.background?.gradient,
-      blendMode: options.background?.blendMode ?? options.config.background?.blendMode,
+      gradient:
+        options.background?.gradient ?? options.config.background?.gradient,
+      blendMode:
+        options.background?.blendMode ?? options.config.background?.blendMode,
     },
     link: {
       underline: options.link?.underline ?? options.config.link?.underline,
@@ -88,8 +92,10 @@ export function mergeConfigOptions(options: {
       packageJson: options.config.reference?.packageJson,
     },
     navigation: {
-      transition: options.navigation?.transition ?? options.config.navigation?.transition,
-      duration: options.navigation?.duration ?? options.config.navigation?.duration,
+      transition:
+        options.navigation?.transition ?? options.config.navigation?.transition,
+      duration:
+        options.navigation?.duration ?? options.config.navigation?.duration,
       easing: options.navigation?.easing ?? options.config.navigation?.easing,
       order: options.config.navigation?.order,
     },
@@ -108,8 +114,14 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   assertOptionalString(config.favicon, "favicon", configPath);
 
   if (config.font !== undefined) {
-    if (!config.font || typeof config.font !== "object" || Array.isArray(config.font)) {
-      throw new LildocsError(`Docs config "font" must be an object: ${configPath}`);
+    if (
+      !config.font ||
+      typeof config.font !== "object" ||
+      Array.isArray(config.font)
+    ) {
+      throw new LildocsError(
+        `Docs config "font" must be an object: ${configPath}`,
+      );
     }
     assertOptionalString(config.font.heading, "font.heading", configPath);
     assertOptionalString(config.font.body, "font.body", configPath);
@@ -117,8 +129,14 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   }
 
   if (config.logo !== undefined) {
-    if (!config.logo || typeof config.logo !== "object" || Array.isArray(config.logo)) {
-      throw new LildocsError(`Docs config "logo" must be an object: ${configPath}`);
+    if (
+      !config.logo ||
+      typeof config.logo !== "object" ||
+      Array.isArray(config.logo)
+    ) {
+      throw new LildocsError(
+        `Docs config "logo" must be an object: ${configPath}`,
+      );
     }
     assertOptionalString(config.logo.image, "logo.image", configPath);
     assertOptionalString(config.logo.text, "logo.text", configPath);
@@ -131,16 +149,36 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
       typeof config.background !== "object" ||
       Array.isArray(config.background)
     ) {
-      throw new LildocsError(`Docs config "background" must be an object: ${configPath}`);
+      throw new LildocsError(
+        `Docs config "background" must be an object: ${configPath}`,
+      );
     }
-    assertOptionalString(config.background.image, "background.image", configPath);
-    assertOptionalString(config.background.gradient, "background.gradient", configPath);
-    assertOptionalString(config.background.blendMode, "background.blendMode", configPath);
+    assertOptionalString(
+      config.background.image,
+      "background.image",
+      configPath,
+    );
+    assertOptionalString(
+      config.background.gradient,
+      "background.gradient",
+      configPath,
+    );
+    assertOptionalString(
+      config.background.blendMode,
+      "background.blendMode",
+      configPath,
+    );
   }
 
   if (config.link !== undefined) {
-    if (!config.link || typeof config.link !== "object" || Array.isArray(config.link)) {
-      throw new LildocsError(`Docs config "link" must be an object: ${configPath}`);
+    if (
+      !config.link ||
+      typeof config.link !== "object" ||
+      Array.isArray(config.link)
+    ) {
+      throw new LildocsError(
+        `Docs config "link" must be an object: ${configPath}`,
+      );
     }
     assertOptionalEnum(
       config.link.underline,
@@ -156,7 +194,9 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
       typeof config.navigation !== "object" ||
       Array.isArray(config.navigation)
     ) {
-      throw new LildocsError(`Docs config "navigation" must be an object: ${configPath}`);
+      throw new LildocsError(
+        `Docs config "navigation" must be an object: ${configPath}`,
+      );
     }
     assertOptionalEnum(
       config.navigation.transition,
@@ -164,9 +204,21 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
       ["fade", "slide", "scale", "instant"],
       configPath,
     );
-    assertOptionalNumber(config.navigation.duration, "navigation.duration", configPath);
-    assertOptionalString(config.navigation.easing, "navigation.easing", configPath);
-    assertOptionalStringArray(config.navigation.order, "navigation.order", configPath);
+    assertOptionalNumber(
+      config.navigation.duration,
+      "navigation.duration",
+      configPath,
+    );
+    assertOptionalString(
+      config.navigation.easing,
+      "navigation.easing",
+      configPath,
+    );
+    assertOptionalStringArray(
+      config.navigation.order,
+      "navigation.order",
+      configPath,
+    );
   }
 
   if (config.reference !== undefined) {
@@ -175,9 +227,15 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
       typeof config.reference !== "object" ||
       Array.isArray(config.reference)
     ) {
-      throw new LildocsError(`Docs config "reference" must be an object: ${configPath}`);
+      throw new LildocsError(
+        `Docs config "reference" must be an object: ${configPath}`,
+      );
     }
-    assertOptionalString(config.reference.packageJson, "reference.packageJson", configPath);
+    assertOptionalString(
+      config.reference.packageJson,
+      "reference.packageJson",
+      configPath,
+    );
   }
 
   return {
@@ -226,9 +284,18 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
   };
 }
 
-function assertOptionalString(value: unknown, name: string, configPath: string) {
-  if (value !== undefined && (typeof value !== "string" || value.length === 0)) {
-    throw new LildocsError(`Docs config "${name}" must be a non-empty string: ${configPath}`);
+function assertOptionalString(
+  value: unknown,
+  name: string,
+  configPath: string,
+) {
+  if (
+    value !== undefined &&
+    (typeof value !== "string" || value.length === 0)
+  ) {
+    throw new LildocsError(
+      `Docs config "${name}" must be a non-empty string: ${configPath}`,
+    );
   }
 }
 
@@ -241,7 +308,9 @@ function assertOptionalThemeConfig(value: unknown, configPath: string) {
     return;
   }
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new LildocsError(`Docs config "theme" must be a string or an object: ${configPath}`);
+    throw new LildocsError(
+      `Docs config "theme" must be a string or an object: ${configPath}`,
+    );
   }
 
   const theme = value as { light?: unknown; dark?: unknown };
@@ -249,7 +318,12 @@ function assertOptionalThemeConfig(value: unknown, configPath: string) {
   assertOptionalString(theme.dark, "theme.dark", configPath);
 }
 
-function assertOptionalEnum(value: unknown, name: string, allowed: string[], configPath: string) {
+function assertOptionalEnum(
+  value: unknown,
+  name: string,
+  allowed: string[],
+  configPath: string,
+) {
   if (value !== undefined && !allowed.includes(String(value))) {
     throw new LildocsError(
       `Docs config "${name}" must be one of ${allowed.join(", ")}: ${configPath}`,
@@ -257,21 +331,34 @@ function assertOptionalEnum(value: unknown, name: string, allowed: string[], con
   }
 }
 
-function assertOptionalNumber(value: unknown, name: string, configPath: string) {
-  if (value !== undefined && (typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+function assertOptionalNumber(
+  value: unknown,
+  name: string,
+  configPath: string,
+) {
+  if (
+    value !== undefined &&
+    (typeof value !== "number" || !Number.isFinite(value) || value < 0)
+  ) {
     throw new LildocsError(
       `Docs config "${name}" must be a non-negative finite number: ${configPath}`,
     );
   }
 }
 
-function assertOptionalStringArray(value: unknown, name: string, configPath: string) {
+function assertOptionalStringArray(
+  value: unknown,
+  name: string,
+  configPath: string,
+) {
   if (value === undefined) {
     return;
   }
 
   if (!Array.isArray(value)) {
-    throw new LildocsError(`Docs config "${name}" must be an array: ${configPath}`);
+    throw new LildocsError(
+      `Docs config "${name}" must be an array: ${configPath}`,
+    );
   }
 
   for (const [index, item] of value.entries()) {
@@ -281,7 +368,9 @@ function assertOptionalStringArray(value: unknown, name: string, configPath: str
 
 function isMissingFileError(error: unknown) {
   return (
-    error instanceof Error && "code" in error && (error as NodeJS.ErrnoException).code === "ENOENT"
+    error instanceof Error &&
+    "code" in error &&
+    (error as NodeJS.ErrnoException).code === "ENOENT"
   );
 }
 

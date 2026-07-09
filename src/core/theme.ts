@@ -148,8 +148,12 @@ export async function resolveTheme(options: {
     }
 
     return {
-      light: await resolveThemeName(options.requestedTheme.light ?? "vitesse-light"),
-      dark: await resolveThemeName(options.requestedTheme.dark ?? "vitesse-dark"),
+      light: await resolveThemeName(
+        options.requestedTheme.light ?? "vitesse-light",
+      ),
+      dark: await resolveThemeName(
+        options.requestedTheme.dark ?? "vitesse-dark",
+      ),
       useDefaultFontSet: options.requestedTheme.light === undefined,
     };
   }
@@ -191,7 +195,8 @@ async function resolveShikiTheme(themeName: string): Promise<Theme> {
   }
 
   const themeModule = await themeLoader();
-  const shikiTheme = "default" in themeModule ? themeModule.default : themeModule;
+  const shikiTheme =
+    "default" in themeModule ? themeModule.default : themeModule;
 
   return mapShikiThemeToTheme(shikiTheme, themeName);
 }
@@ -212,7 +217,9 @@ export async function resolveFontOverrides(options: {
       return {
         target,
         value,
-        localFontPath: value ? await resolveLocalFontPath(value, options) : undefined,
+        localFontPath: value
+          ? await resolveLocalFontPath(value, options)
+          : undefined,
       };
     }),
   );
@@ -251,7 +258,10 @@ export async function resolveFontOverrides(options: {
   };
 }
 
-export function resolveThemeFontImports(theme: ResolvedTheme, overrides: FontOverrides = {}) {
+export function resolveThemeFontImports(
+  theme: ResolvedTheme,
+  overrides: FontOverrides = {},
+) {
   if (!theme.useDefaultFontSet && theme.light !== themes.default) {
     return "";
   }
@@ -262,7 +272,9 @@ export function resolveThemeFontImports(theme: ResolvedTheme, overrides: FontOve
     !overrides.code && googleFontsCssUrl("JetBrains Mono", "400"),
   ].filter((url): url is string => Boolean(url));
 
-  return imports.length > 0 ? `${imports.map((url) => `@import url("${url}");`).join("\n")}\n` : "";
+  return imports.length > 0
+    ? `${imports.map((url) => `@import url("${url}");`).join("\n")}\n`
+    : "";
 }
 
 export function themeToCssVariables(
@@ -276,7 +288,10 @@ export function themeToCssVariables(
   const effectiveFontOverrides = theme.useDefaultFontSet
     ? { ...defaultThemeFontSet, ...fontOverrides }
     : fontOverrides;
-  const rootVariables = themeToCssVariableBlock(theme.light, effectiveFontOverrides);
+  const rootVariables = themeToCssVariableBlock(
+    theme.light,
+    effectiveFontOverrides,
+  );
   const darkVariables = theme.dark
     ? themeToCssVariableBlock(
         theme.dark,
@@ -325,7 +340,9 @@ export function resolveBackgroundOptions(options: {
   }
 
   if (options.background?.image) {
-    layers.push(backgroundImageValue(options.background.image, options, assets));
+    layers.push(
+      backgroundImageValue(options.background.image, options, assets),
+    );
   }
 
   if (layers.length === 0 && !options.background?.blendMode) {
@@ -361,7 +378,10 @@ export function themeToMermaidConfig(
   };
 }
 
-function themeToCssVariableBlock(theme: Theme, fontOverrides: Partial<ThemeFonts>) {
+function themeToCssVariableBlock(
+  theme: Theme,
+  fontOverrides: Partial<ThemeFonts>,
+) {
   const fonts = resolveThemeFonts(theme, fontOverrides);
   const color = normalizeThemeColors(theme.color);
   return `  --ld-color-background: ${color.background};
@@ -421,12 +441,15 @@ function validateTheme(value: unknown, themePath: string): Theme {
 
   if (theme.background !== undefined) {
     if (!theme.background || typeof theme.background !== "object") {
-      throw new LildocsError(`Local theme "background" must be an object: ${themePath}`);
+      throw new LildocsError(
+        `Local theme "background" must be an object: ${themePath}`,
+      );
     }
 
     if (
       theme.background.gradient !== undefined &&
-      (typeof theme.background.gradient !== "string" || theme.background.gradient.length === 0)
+      (typeof theme.background.gradient !== "string" ||
+        theme.background.gradient.length === 0)
     ) {
       throw new LildocsError(
         `Local theme "background.gradient" must be a non-empty string: ${themePath}`,
@@ -435,7 +458,8 @@ function validateTheme(value: unknown, themePath: string): Theme {
 
     if (
       theme.background.blendMode !== undefined &&
-      (typeof theme.background.blendMode !== "string" || theme.background.blendMode.length === 0)
+      (typeof theme.background.blendMode !== "string" ||
+        theme.background.blendMode.length === 0)
     ) {
       throw new LildocsError(
         `Local theme "background.blendMode" must be a non-empty string: ${themePath}`,
@@ -511,7 +535,11 @@ function mapShikiThemeToTheme(
   });
   const sidebarBackground = pickColor(
     colors,
-    ["sideBar.background", "activityBar.background", "editorGroupHeader.tabsBackground"],
+    [
+      "sideBar.background",
+      "activityBar.background",
+      "editorGroupHeader.tabsBackground",
+    ],
     background,
   );
 
@@ -537,7 +565,11 @@ function mapShikiThemeToTheme(
   };
 }
 
-function pickColor(colors: Record<string, string>, keys: string[], fallback: string) {
+function pickColor(
+  colors: Record<string, string>,
+  keys: string[],
+  fallback: string,
+) {
   for (const key of keys) {
     const value = colors[key];
     if (typeof value === "string" && value.trim()) {
@@ -614,7 +646,10 @@ function backgroundImageValue(
   }
 
   const source = path.resolve(options.docsRoot, trimmed);
-  const assetRelativePath = path.relative(options.docsRoot, source).split(path.sep).join("/");
+  const assetRelativePath = path
+    .relative(options.docsRoot, source)
+    .split(path.sep)
+    .join("/");
   assets.push({
     from: source,
     to: path.join(options.outDir, "assets", assetRelativePath),
@@ -656,7 +691,11 @@ function ensureBackgroundContrast(options: {
   for (let step = 1; step <= MAX_BACKGROUND_CONTRAST_STEPS; step += 1) {
     const adjusted = {
       ...candidateOklch,
-      l: clamp(candidateOklch.l + direction * BACKGROUND_LIGHTNESS_STEP * step, 0, 1),
+      l: clamp(
+        candidateOklch.l + direction * BACKGROUND_LIGHTNESS_STEP * step,
+        0,
+        1,
+      ),
       c:
         typeof candidateOklch.c === "number"
           ? Math.min(candidateOklch.c, MAX_BACKGROUND_CHROMA)
@@ -718,7 +757,10 @@ function ensureDarkBorderLightness(options: {
   }
 
   const currentContrast = wcagContrast(background, candidate);
-  if (candidateOklch.l > backgroundOklch.l && currentContrast >= MIN_DARK_BORDER_CONTRAST) {
+  if (
+    candidateOklch.l > backgroundOklch.l &&
+    currentContrast >= MIN_DARK_BORDER_CONTRAST
+  ) {
     return options.candidate;
   }
 
@@ -749,12 +791,18 @@ function ensureDarkBorderLightness(options: {
     }
     const adjustedContrast = wcagContrast(background, adjustedParsedColor);
 
-    if (adjustedOklch.l > backgroundOklch.l && adjustedContrast > bestContrast) {
+    if (
+      adjustedOklch.l > backgroundOklch.l &&
+      adjustedContrast > bestContrast
+    ) {
       bestColor = adjustedColor;
       bestContrast = adjustedContrast;
     }
 
-    if (adjustedOklch.l > backgroundOklch.l && adjustedContrast >= MIN_DARK_BORDER_CONTRAST) {
+    if (
+      adjustedOklch.l > backgroundOklch.l &&
+      adjustedContrast >= MIN_DARK_BORDER_CONTRAST
+    ) {
       return adjustedColor;
     }
   }
@@ -766,7 +814,10 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-function resolveThemeFonts(theme: Theme, overrides: Partial<ThemeFonts>): ThemeFonts {
+function resolveThemeFonts(
+  theme: Theme,
+  overrides: Partial<ThemeFonts>,
+): ThemeFonts {
   const body = overrides.body ?? theme.font.body;
   return {
     heading: overrides.heading ?? theme.font.heading ?? body,
@@ -786,7 +837,10 @@ async function resolveLocalFontPath(
     docsRoot: string;
   },
 ) {
-  const candidates = [path.resolve(options.cwd, value), path.resolve(options.docsRoot, value)];
+  const candidates = [
+    path.resolve(options.cwd, value),
+    path.resolve(options.docsRoot, value),
+  ];
 
   const existingCandidates = await Promise.all(
     candidates.map(async (candidate) => ({
@@ -794,7 +848,9 @@ async function resolveLocalFontPath(
       exists: isFontFile(candidate) && (await exists(candidate)),
     })),
   );
-  const existingCandidate = existingCandidates.find((candidate) => candidate.exists);
+  const existingCandidate = existingCandidates.find(
+    (candidate) => candidate.exists,
+  );
   if (existingCandidate) {
     return existingCandidate.candidate;
   }

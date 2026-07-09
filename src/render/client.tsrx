@@ -5,13 +5,6 @@ import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
 import { initSidebar } from "./sidebar.js";
 import type { SearchEntry } from "./Search.tsrx";
 
-declare global {
-  interface Window {
-    lildocsIssueUrl?: string;
-    lildocsSearchUrl?: string;
-  }
-}
-
 initCopyCode();
 initNavigation();
 initSidebar();
@@ -25,10 +18,11 @@ async function mountSearch() {
   }
 
   const embeddedIndex = document.querySelector("#lildocs-search-index");
-  const base = new URL(window.lildocsSearchUrl || "search-index.json", document.baseURI);
+  const base = new URL(window.lildocsSearchUrl ||
+    "search-index.json", document.baseURI);
   const index = embeddedIndex?.textContent
-    ? (JSON.parse(embeddedIndex.textContent) as SearchEntry[])
-    : ((await fetch(base).then((response) => response.json())) as SearchEntry[]);
+    ? JSON.parse(embeddedIndex.textContent) as SearchEntry[]
+    : await fetch(base).then((response) => response.json()) as SearchEntry[];
   const siteRoot = new URL(".", base);
   const preloadedUrls = new Set<string>();
 

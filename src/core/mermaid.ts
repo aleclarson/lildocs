@@ -26,7 +26,9 @@ export async function createMermaidRenderer(
   return {
     async render(source, idHint) {
       try {
-        const svg = addImageRole(renderMermaidSVG(source, toRenderOptions(options.themeConfig)));
+        const svg = addImageRole(
+          renderMermaidSVG(source, toRenderOptions(options.themeConfig)),
+        );
         return `<figure class="mermaidDiagram" id="${escapeHtml(idHint)}">${svg}</figure>`;
       } catch (error) {
         throw new LildocsError(

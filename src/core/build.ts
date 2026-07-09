@@ -153,7 +153,11 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
       assets.push(...rendered.assets);
     }
 
-    const searchIndexJson = JSON.stringify(buildSearchIndex(model.pages), null, 2);
+    const searchIndexJson = JSON.stringify(
+      buildSearchIndex(model.pages),
+      null,
+      2,
+    );
     const pageNavigation = buildPageNavigation(model.pages);
     const frontendAssets = options.dev
       ? {
@@ -191,7 +195,10 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     );
 
     await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
-    await writeFile(path.join(outDir, "assets", "tabler-icons.css"), tablerIconsCss);
+    await writeFile(
+      path.join(outDir, "assets", "tabler-icons.css"),
+      tablerIconsCss,
+    );
     await writeFile(path.join(outDir, "assets", "github-icon.svg"), githubIcon);
     await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
     await copyAssets(assets);
@@ -206,7 +213,9 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   };
 }
 
-async function resolveRepositoryUrl(packagePath: string | undefined): Promise<string | undefined> {
+async function resolveRepositoryUrl(
+  packagePath: string | undefined,
+): Promise<string | undefined> {
   const envRepository = process.env.GITHUB_REPOSITORY?.trim();
   if (envRepository) {
     return `https://github.com/${envRepository}`;
@@ -222,7 +231,9 @@ async function resolveRepositoryUrl(packagePath: string | undefined): Promise<st
   return normalizePackageRepository(packageJson.repository);
 }
 
-async function resolvePackageName(packagePath: string | undefined): Promise<string | undefined> {
+async function resolvePackageName(
+  packagePath: string | undefined,
+): Promise<string | undefined> {
   if (!packagePath) {
     return undefined;
   }
@@ -235,7 +246,10 @@ async function resolvePackageName(packagePath: string | undefined): Promise<stri
     : undefined;
 }
 
-async function findNearestPackageJson(start: string, stop: string): Promise<string | undefined> {
+async function findNearestPackageJson(
+  start: string,
+  stop: string,
+): Promise<string | undefined> {
   let current = path.resolve(start);
   const root = path.parse(current).root;
   const stopDir = path.resolve(stop);
@@ -275,19 +289,23 @@ function normalizeGitHubRepository(value: string): string | undefined {
     return undefined;
   }
 
-  const shorthandMatch = /^(?:github:)?([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)$/.exec(repository);
+  const shorthandMatch =
+    /^(?:github:)?([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)$/.exec(repository);
   if (shorthandMatch?.[1]) {
     return `https://github.com/${shorthandMatch[1].replace(/\.git$/, "")}`;
   }
 
-  const sshMatch = /^git@github\.com:([^/]+\/[^/]+?)(?:\.git)?$/.exec(repository);
+  const sshMatch = /^git@github\.com:([^/]+\/[^/]+?)(?:\.git)?$/.exec(
+    repository,
+  );
   if (sshMatch?.[1]) {
     return `https://github.com/${sshMatch[1]}`;
   }
 
-  const urlMatch = /^(?:git\+)?https:\/\/github\.com\/([^/]+\/[^/#?]+?)(?:\.git)?(?:[#?].*)?$/.exec(
-    repository,
-  );
+  const urlMatch =
+    /^(?:git\+)?https:\/\/github\.com\/([^/]+\/[^/#?]+?)(?:\.git)?(?:[#?].*)?$/.exec(
+      repository,
+    );
   if (urlMatch?.[1]) {
     return `https://github.com/${urlMatch[1]}`;
   }
@@ -295,7 +313,9 @@ function normalizeGitHubRepository(value: string): string | undefined {
   return undefined;
 }
 
-function githubRepositoryName(repositoryUrl: string | undefined): string | undefined {
+function githubRepositoryName(
+  repositoryUrl: string | undefined,
+): string | undefined {
   if (!repositoryUrl) {
     return undefined;
   }

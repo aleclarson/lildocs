@@ -52,12 +52,16 @@ export async function resolveInput(
   }
 
   if (!inputStat.isDirectory()) {
-    throw new LildocsError(`Input path must be a Markdown file or directory: ${input}`);
+    throw new LildocsError(
+      `Input path must be a Markdown file or directory: ${input}`,
+    );
   }
 
   const homePage = await findHomePage(inputPath, options.homePagePreference);
   if (!homePage) {
-    throw new LildocsError(`No Markdown files found in docs directory: ${input}`);
+    throw new LildocsError(
+      `No Markdown files found in docs directory: ${input}`,
+    );
   }
 
   return {
@@ -66,9 +70,14 @@ export async function resolveInput(
   };
 }
 
-async function findHomePage(docsRoot: string, preference: HomePagePreference = "default") {
+async function findHomePage(
+  docsRoot: string,
+  preference: HomePagePreference = "default",
+) {
   const homePageCandidates =
-    preference === "readme-first" ? README_FIRST_HOME_PAGE_CANDIDATES : HOME_PAGE_CANDIDATES;
+    preference === "readme-first"
+      ? README_FIRST_HOME_PAGE_CANDIDATES
+      : HOME_PAGE_CANDIDATES;
   const candidates = await Promise.all(
     homePageCandidates.map(async (candidate) => {
       const candidatePath = path.join(docsRoot, candidate);
@@ -108,7 +117,10 @@ export async function collectMarkdownPaths(
           return collectMarkdownPaths(docsRoot, fullPath);
         }
 
-        if (entry.isFile() && path.extname(entry.name).toLowerCase() === ".md") {
+        if (
+          entry.isFile() &&
+          path.extname(entry.name).toLowerCase() === ".md"
+        ) {
           return [fullPath];
         }
 

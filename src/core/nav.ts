@@ -9,7 +9,10 @@ export type NavItem = {
   children: NavItem[];
 };
 
-export function buildNavigation(model: ContentModel, activePage: Page): NavItem[] {
+export function buildNavigation(
+  model: ContentModel,
+  activePage: Page,
+): NavItem[] {
   const items = model.pages
     .filter((page) => page.sourcePath !== model.homePage)
     .map((page) => pageToNavItem(page, activePage));
@@ -75,5 +78,8 @@ function nestNavItems(items: NavItem[]) {
 function titleFromDir(dir: string) {
   return dir
     .replace(/[-_]+/g, " ")
-    .replace(/\S+/g, (word) => `${word[0]?.toLocaleUpperCase() ?? ""}${word.slice(1)}`);
+    .replace(
+      /\S+/g,
+      (word) => `${word[0]?.toLocaleUpperCase() ?? ""}${word.slice(1)}`,
+    );
 }

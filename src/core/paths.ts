@@ -7,7 +7,10 @@ export function toPosixPath(value: string) {
 export function isHiddenOrSystemPath(relativePath: string) {
   return toPosixPath(relativePath)
     .split("/")
-    .some((part) => part.startsWith(".") || part === "node_modules" || part === ".DS_Store");
+    .some(
+      (part) =>
+        part.startsWith(".") || part === "node_modules" || part === ".DS_Store",
+    );
 }
 
 export function relativeUrl(fromRoute: string, toRoute: string) {
@@ -17,10 +20,17 @@ export function relativeUrl(fromRoute: string, toRoute: string) {
 }
 
 export function isExternalOrAnchorUrl(href: string) {
-  return /^(?:[a-z]+:)?\/\//i.test(href) || href.startsWith("#") || href.startsWith("mailto:");
+  return (
+    /^(?:[a-z]+:)?\/\//i.test(href) ||
+    href.startsWith("#") ||
+    href.startsWith("mailto:")
+  );
 }
 
-export function resolveMarkdownDocumentPath(fromRelativePath: string, href: string) {
+export function resolveMarkdownDocumentPath(
+  fromRelativePath: string,
+  href: string,
+) {
   if (isExternalOrAnchorUrl(href)) {
     return undefined;
   }
@@ -31,7 +41,10 @@ export function resolveMarkdownDocumentPath(fromRelativePath: string, href: stri
   }
 
   return path.posix.normalize(
-    path.posix.join(path.posix.dirname(fromRelativePath), hrefPath.replace(/\\/g, "/")),
+    path.posix.join(
+      path.posix.dirname(fromRelativePath),
+      hrefPath.replace(/\\/g, "/"),
+    ),
   );
 }
 
@@ -42,6 +55,8 @@ export function pageDepth(route: string) {
 
 export function rootRelativeUrl(route: string, target: string) {
   const prefix =
-    pageDepth(route) === 0 ? "." : Array.from({ length: pageDepth(route) }, () => "..").join("/");
+    pageDepth(route) === 0
+      ? "."
+      : Array.from({ length: pageDepth(route) }, () => "..").join("/");
   return `${prefix}/${target}`;
 }

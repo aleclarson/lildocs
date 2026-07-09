@@ -1,7 +1,16 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { command, flag, option, optional, positional, run, string, subcommands } from "cmd-ts";
+import {
+  command,
+  flag,
+  option,
+  optional,
+  positional,
+  run,
+  string,
+  subcommands,
+} from "cmd-ts";
 import { buildSite } from "./core/build.js";
 import { startDevServer } from "./core/dev.js";
 import { deployGitHubPages, initGitHubPagesWorkflow } from "./core/deploy.js";
@@ -56,7 +65,8 @@ const fontCodeOption = option({
 const backgroundImageOption = option({
   type: optional(string),
   long: "background.image",
-  description: "Background image URL, CSS image function, or docs-relative image path.",
+  description:
+    "Background image URL, CSS image function, or docs-relative image path.",
 });
 
 const backgroundGradientOption = option({
@@ -68,7 +78,8 @@ const backgroundGradientOption = option({
 const backgroundBlendModeOption = option({
   type: optional(string),
   long: "background.blendMode",
-  description: "CSS background-blend-mode for the theme color and background layers.",
+  description:
+    "CSS background-blend-mode for the theme color and background layers.",
 });
 
 const linkUnderlineOption = option({
@@ -245,8 +256,15 @@ function parsePort(value: string) {
   return port;
 }
 
-function parseLinkUnderline(value: string | undefined): "always" | "hover" | "none" | undefined {
-  if (value === undefined || value === "always" || value === "hover" || value === "none") {
+function parseLinkUnderline(
+  value: string | undefined,
+): "always" | "hover" | "none" | undefined {
+  if (
+    value === undefined ||
+    value === "always" ||
+    value === "hover" ||
+    value === "none"
+  ) {
     return value;
   }
   throw new Error(`Invalid link underline style: ${value}`);
@@ -337,7 +355,8 @@ const bareBuildCommand = command({
 
 const app = subcommands({
   name: "lildocs",
-  description: "Turn Markdown docs into a static searchable documentation site.",
+  description:
+    "Turn Markdown docs into a static searchable documentation site.",
   cmds: {
     build: buildCommand,
     deploy: deployCommand,
