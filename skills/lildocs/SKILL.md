@@ -106,6 +106,28 @@ Keep prerequisite information before the steps that depend on it. Keep
 conceptual tradeoffs before the choice they influence. Put warnings immediately
 before the action they can change.
 
+## Mermaid Diagrams
+
+Use a Mermaid diagram when visual structure helps the reader understand a
+relationship they would otherwise need to reconstruct from prose. Diagrams are
+especially desirable for:
+
+- workflows with meaningful branches, parallel steps, or feedback loops
+- lifecycle states and the transitions allowed between them
+- dependencies, ownership boundaries, or handoffs among several components
+- request or message sequences involving multiple actors
+- architecture overviews where grouping and connection are the point
+
+Prefer `flowchart` for workflows, dependencies, and architecture;
+`sequenceDiagram` for interactions over time; and `stateDiagram-v2` for
+lifecycle transitions. Keep each diagram focused on one idea, use short labels,
+and introduce it with prose that tells the reader what relationship to notice.
+
+Do not add a diagram merely to decorate a page or restate a short linear list,
+definitions, headings, or a comparison that a table communicates more clearly.
+If layout, direction, grouping, or connection carries no additional meaning,
+use prose, a list, or a table instead.
+
 ## Callouts
 
 lildocs supports GitHub-style Markdown callouts. Use them when a detail changes
