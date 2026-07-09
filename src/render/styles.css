@@ -30,7 +30,7 @@ body {
 }
 
 :target {
-  scroll-margin-block: 2rem;
+  scroll-margin-top: 70px;
 }
 
 .pageShell {

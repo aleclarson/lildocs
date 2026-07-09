@@ -395,10 +395,12 @@ test("generates unique stable heading anchors", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "duplicates.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /id="repeat"/);
   assert.match(html, /id="repeat-2"/);
   assert.match(html, /id="user_name"/);
   assert.match(html, /<a href="#user_name">user_name<\/a>/);
+  assert.match(css, /:target \{[^}]*scroll-margin-top: 70px/);
 });
 
 test("copies nested assets with nested relative links", async () => {
