@@ -222,12 +222,12 @@ html.is-animating .transition-scale {
   vertical-align: middle;
 }
 
-.content article :where(h2, h3).searchSectionMatch {
-  animation: search-section-highlight 2.4s ease-out;
+.content article :where(h2, h3).sectionHighlight {
+  animation: section-highlight 2.4s ease-out;
   border-radius: 6px;
 }
 
-@keyframes search-section-highlight {
+@keyframes section-highlight {
   0%,
   35% {
     background: color-mix(in srgb, var(--ld-color-accent) 22%, transparent);

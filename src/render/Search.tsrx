@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "octane";
+import { queueSectionHighlight } from "./section-highlight.js";
 
 export type SearchEntry = {
   kind: "page" | "section";
@@ -19,9 +20,6 @@ type SearchMatch = {
   terms: string[];
   type: "title" | "body";
 };
-
-const searchSectionStorageKey = "lildocs:search-section";
-let pendingSearchSectionUrl: string | undefined;
 
 export function SearchBox({
   anchorElement,
@@ -92,22 +90,6 @@ export function SearchBox({
       document.removeEventListener("keydown", handleShortcut);
     };
   }, [query]);
-
-  useEffect(() => {
-    document.addEventListener(
-      "lildocs:page-view",
-      highlightPendingSearchSection,
-    );
-    window.addEventListener("hashchange", highlightPendingSearchSection);
-    highlightPendingSearchSection();
-    return () => {
-      document.removeEventListener(
-        "lildocs:page-view",
-        highlightPendingSearchSection,
-      );
-      window.removeEventListener("hashchange", highlightPendingSearchSection);
-    };
-  }, []);
 
   const clearSearch = () => {
     setQuery("");
@@ -219,7 +201,7 @@ export function SearchBox({
                   onMouseOver={() => setSelectedIndex(matchIndex)}
                   onClick={() => {
                     if (match.entry.kind === "section") {
-                      queueSearchSectionHighlight(resultUrl);
+                      queueSectionHighlight(resultUrl);
                     }
                     clearSearch();
                   }}
@@ -424,54 +406,4 @@ function uniqueParts(parts: string[]) {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function queueSearchSectionHighlight(href: string) {
-  pendingSearchSectionUrl = href;
-  try {
-    window.sessionStorage.setItem(searchSectionStorageKey, href);
-  } catch {
-  }
-  window.requestAnimationFrame(highlightPendingSearchSection);
-}
-
-function highlightPendingSearchSection() {
-  let href = pendingSearchSectionUrl;
-  if (!href) {
-    try {
-      href = window.sessionStorage.getItem(searchSectionStorageKey) ??
-        undefined;
-    } catch {
-    }
-  }
-  if (!href) {
-    return;
-  }
-
-  const targetUrl = new URL(href, document.baseURI);
-  if (
-    targetUrl.origin !== window.location.origin ||
-      targetUrl.pathname !== window.location.pathname ||
-      targetUrl.search !== window.location.search ||
-      targetUrl.hash !== window.location.hash
-  ) {
-    return;
-  }
-
-  const target = document.getElementById(
-    decodeURIComponent(targetUrl.hash.slice(1)),
-  );
-  if (!target) {
-    return;
-  }
-
-  pendingSearchSectionUrl = undefined;
-  try {
-    window.sessionStorage.removeItem(searchSectionStorageKey);
-  } catch {
-  }
-  target.classList.remove("searchSectionMatch");
-  window.requestAnimationFrame(
-    () => target.classList.add("searchSectionMatch"),
-  );
 }

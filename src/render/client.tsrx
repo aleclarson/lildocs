@@ -3,6 +3,7 @@ import { initCopyCode } from "./copy-code.js";
 import { initHeadingLinks } from "./heading-links.js";
 import { initNavigation } from "./navigation.js";
 import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
+import { initSectionHighlights } from "./section-highlight.js";
 import { initSidebar } from "./sidebar.js";
 import { initTableViewer } from "./table-viewer.js";
 import type { SearchEntry } from "./Search.tsrx";
@@ -10,6 +11,7 @@ import type { SearchEntry } from "./Search.tsrx";
 initCopyCode();
 initHeadingLinks();
 initNavigation();
+initSectionHighlights();
 initSidebar();
 initTableViewer();
 
