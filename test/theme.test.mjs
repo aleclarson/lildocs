@@ -47,6 +47,15 @@ test("uses the default built-in theme with no config", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(css, /--ld-color-link: #2563eb/);
+  assert.match(css, /family=Baloo\+2:wght@600;700&display=swap/);
+  assert.match(css, /family=Inter:wght@400;500&display=swap/);
+  assert.match(css, /family=JetBrains\+Mono:wght@400&display=swap/);
+  assert.match(css, /--ld-font-heading: "Baloo 2", sans-serif/);
+  assert.match(css, /--ld-font-body: Inter, sans-serif/);
+  assert.match(css, /--ld-font-code: "JetBrains Mono", monospace/);
+  assert.equal((css.match(/--ld-font-heading: "Baloo 2", sans-serif/g) ?? []).length, 2);
+  assert.equal((css.match(/--ld-font-body: Inter, sans-serif/g) ?? []).length, 2);
+  assert.equal((css.match(/--ld-font-code: "JetBrains Mono", monospace/g) ?? []).length, 2);
   assert.match(css, /color-scheme: light dark/);
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
   assert.match(css, /--ld-color-background: #24292e/);

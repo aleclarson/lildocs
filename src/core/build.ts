@@ -21,6 +21,7 @@ import {
   resolveFontOverrides,
   resolveBackgroundOptions,
   resolveTheme,
+  resolveThemeFontImports,
   themeToCssVariables,
   themeToMermaidConfig,
   type FontOverrides,
@@ -116,7 +117,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     defaultText: packageName,
     favicon: configOptions.favicon,
   });
-  const css = `${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
+  const css = `${resolveThemeFontImports(theme, configOptions.fonts)}${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${backgroundResolution.css}${logoResolution.css}${baseCss}`;
   const assets: AssetCopy[] = [
     ...fontResolution.assets,
     ...backgroundResolution.assets,

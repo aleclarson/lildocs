@@ -101,9 +101,9 @@ const themes: Record<string, Theme> = {
       sidebarBackground: "#fafafa",
     },
     font: {
-      heading: "system-ui, sans-serif",
-      body: "system-ui, sans-serif",
-      code: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+      heading: '"Baloo 2", sans-serif',
+      body: "Inter, sans-serif",
+      code: '"JetBrains Mono", monospace',
     },
     shiki: {
       theme: "github-light",
@@ -244,6 +244,20 @@ export async function resolveFontOverrides(options: {
   };
 }
 
+export function resolveThemeFontImports(theme: ResolvedTheme, overrides: FontOverrides = {}) {
+  if (theme.light !== themes.default) {
+    return "";
+  }
+
+  const imports = [
+    !overrides.heading && googleFontsCssUrl("Baloo 2", "600;700"),
+    !overrides.body && googleFontsCssUrl("Inter", "400;500"),
+    !overrides.code && googleFontsCssUrl("JetBrains Mono", "400"),
+  ].filter((url): url is string => Boolean(url));
+
+  return imports.length > 0 ? `${imports.map((url) => `@import url("${url}");`).join("\n")}\n` : "";
+}
+
 export function themeToCssVariables(
   theme: ResolvedTheme,
   fontOverrides: Partial<ThemeFonts> = {},
@@ -253,7 +267,14 @@ export function themeToCssVariables(
   const linkDecoration = linkTextDecoration(linkOptions.underline);
   const navigationDuration = navigationOptions.duration ?? 180;
   const rootVariables = themeToCssVariableBlock(theme.light, fontOverrides);
-  const darkVariables = theme.dark ? themeToCssVariableBlock(theme.dark, fontOverrides) : undefined;
+  const darkVariables = theme.dark
+    ? themeToCssVariableBlock(
+        theme.dark,
+        theme.light === themes.default
+          ? resolveThemeFonts(theme.light, fontOverrides)
+          : fontOverrides,
+      )
+    : undefined;
   const rootBackgroundVariables = themeToBackgroundVariableBlock(theme.light);
   const darkBackgroundVariables = theme.dark
     ? themeToBackgroundVariableBlock(theme.dark)

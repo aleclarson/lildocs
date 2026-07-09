@@ -104,6 +104,9 @@ when a local theme should provide a general monospace fallback for code.
 
 `font` configures the generated site's font families:
 
+The default built-in theme uses Baloo 2 (600 and 700) for headings, Inter (400
+and 500) for body and interface text, and JetBrains Mono for code.
+
 ```json
 {
   "font": {
