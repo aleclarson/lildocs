@@ -34,14 +34,13 @@ export function Layout({
   clientStylePaths,
 }: LayoutProps) @{
   const transition = navigation?.transition ?? "fade";
-  const documentTitle = projectName ? `${page.title} • ${projectName}` : page.title;
   const repoIconUrl = rootRelativeUrl(page.route, "assets/github-icon.svg");
   const issueUrl = issueUrlForRepository(repositoryUrl);
 
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{documentTitle as string}</title>
+    <title>{(projectName ? `${page.title} • ${projectName}` : page.title) as string}</title>
     @if (favicon) {
       <link rel="icon" href={assetSrc(page.route, favicon)} />
     }
