@@ -42,11 +42,13 @@ test("supports the minimal built-in theme", async () => {
 test("uses the default built-in theme with no config", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "code.md", "# Code\n\n```ts\nconst message = \"hello\";\n```\n");
 
   await runCli([docs, "--out", outDir]);
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  assert.match(css, /--ld-color-link: #2563eb/);
+  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  assert.match(css, /--ld-color-link: #1c6b48/);
   assert.match(css, /family=Baloo\+2:wght@600;700&display=swap/);
   assert.match(css, /family=Inter:wght@400;500&display=swap/);
   assert.match(css, /family=JetBrains\+Mono:wght@400&display=swap/);
@@ -58,8 +60,9 @@ test("uses the default built-in theme with no config", async () => {
   assert.equal((css.match(/--ld-font-code: "JetBrains Mono", monospace/g) ?? []).length, 2);
   assert.match(css, /color-scheme: light dark/);
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
-  assert.match(css, /--ld-color-background: #24292e/);
-  assert.match(css, /--ld-color-link: #79b8ff/);
+  assert.match(css, /--ld-color-background: #121212/);
+  assert.match(css, /--ld-color-link: #4d9375/);
+  assert.match(html, /class="shiki shiki-themes vitesse-light vitesse-dark"/);
   assert.match(css, /--ld-background-image: none/);
   assert.doesNotMatch(css, /--ld-background-image: linear-gradient/);
 });

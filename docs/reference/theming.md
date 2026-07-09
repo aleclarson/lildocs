@@ -8,7 +8,7 @@ Theme and styling options are resolved at build time and emitted as static CSS.
 ## Theme
 
 By default, generated sites follow the visitor's system color scheme. lildocs
-uses the built-in `default` theme in light mode and `github-dark` in dark mode.
+uses `vitesse-light` in light mode and `vitesse-dark` in dark mode.
 
 Set `theme` to a string to force one visual theme and syntax highlighting theme:
 

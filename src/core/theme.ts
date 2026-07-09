@@ -43,6 +43,7 @@ export type ThemeConfig =
 export type ResolvedTheme = {
   light: Theme;
   dark?: Theme;
+  useDefaultFontSet?: boolean;
 };
 
 export type ThemeFonts = {
@@ -88,6 +89,12 @@ const MAX_BACKGROUND_CHROMA = 0.03;
 const toOklch = converter("oklch");
 const clampToRgb = clampGamut("rgb");
 
+const defaultThemeFontSet: ThemeFonts = {
+  heading: '"Baloo 2", sans-serif',
+  body: "Inter, sans-serif",
+  code: '"JetBrains Mono", monospace',
+};
+
 const themes: Record<string, Theme> = {
   default: {
     color: {
@@ -101,9 +108,7 @@ const themes: Record<string, Theme> = {
       sidebarBackground: "#fafafa",
     },
     font: {
-      heading: '"Baloo 2", sans-serif',
-      body: "Inter, sans-serif",
-      code: '"JetBrains Mono", monospace',
+      ...defaultThemeFontSet,
     },
     shiki: {
       theme: "github-light",
@@ -143,8 +148,9 @@ export async function resolveTheme(options: {
     }
 
     return {
-      light: await resolveThemeName(options.requestedTheme.light ?? "default"),
-      dark: await resolveThemeName(options.requestedTheme.dark ?? "github-dark"),
+      light: await resolveThemeName(options.requestedTheme.light ?? "vitesse-light"),
+      dark: await resolveThemeName(options.requestedTheme.dark ?? "vitesse-dark"),
+      useDefaultFontSet: options.requestedTheme.light === undefined,
     };
   }
 
@@ -161,8 +167,9 @@ export async function resolveTheme(options: {
   }
 
   return {
-    light: themes.default,
-    dark: await resolveThemeName("github-dark"),
+    light: await resolveThemeName("vitesse-light"),
+    dark: await resolveThemeName("vitesse-dark"),
+    useDefaultFontSet: true,
   };
 }
 
@@ -245,7 +252,7 @@ export async function resolveFontOverrides(options: {
 }
 
 export function resolveThemeFontImports(theme: ResolvedTheme, overrides: FontOverrides = {}) {
-  if (theme.light !== themes.default) {
+  if (!theme.useDefaultFontSet && theme.light !== themes.default) {
     return "";
   }
 
@@ -266,13 +273,16 @@ export function themeToCssVariables(
 ) {
   const linkDecoration = linkTextDecoration(linkOptions.underline);
   const navigationDuration = navigationOptions.duration ?? 180;
-  const rootVariables = themeToCssVariableBlock(theme.light, fontOverrides);
+  const effectiveFontOverrides = theme.useDefaultFontSet
+    ? { ...defaultThemeFontSet, ...fontOverrides }
+    : fontOverrides;
+  const rootVariables = themeToCssVariableBlock(theme.light, effectiveFontOverrides);
   const darkVariables = theme.dark
     ? themeToCssVariableBlock(
         theme.dark,
-        theme.light === themes.default
-          ? resolveThemeFonts(theme.light, fontOverrides)
-          : fontOverrides,
+        theme.useDefaultFontSet || theme.light === themes.default
+          ? resolveThemeFonts(theme.light, effectiveFontOverrides)
+          : effectiveFontOverrides,
       )
     : undefined;
   const rootBackgroundVariables = themeToBackgroundVariableBlock(theme.light);
