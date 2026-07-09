@@ -4,11 +4,6 @@
     "light": "github-light",
     "dark": "github-dark"
   },
-  "font": {
-    "heading": "Onest",
-    "body": "Geist",
-    "code": "Geist Mono"
-  },
   "link": {
     "underline": "hover"
   },
