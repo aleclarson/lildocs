@@ -207,6 +207,25 @@ html.is-animating .transition-scale {
   margin-block: 2em 0.667em;
 }
 
+.content article :where(h2, h3).searchSectionMatch {
+  animation: search-section-highlight 2.4s ease-out;
+  border-radius: 6px;
+}
+
+@keyframes search-section-highlight {
+  0%,
+  35% {
+    background: color-mix(in srgb, var(--ld-color-accent) 22%, transparent);
+    box-shadow: 0 0 0 6px
+      color-mix(in srgb, var(--ld-color-accent) 22%, transparent);
+  }
+
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
 .content article h1 {
   font-size: 2.2rem;
 }

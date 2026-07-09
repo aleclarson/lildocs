@@ -180,6 +180,10 @@ test("search script preloads links and supports keyboard result selection", asyn
   assert.match(frontendScript, /lildocs:search-toggle/);
   assert.match(frontendScript, /selected\.click\(\)/);
   assert.match(frontendScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
+  assert.match(frontendScript, /match\.entry\.kind === "section"/);
+  assert.match(frontendScript, /lildocs:search-section/);
+  assert.match(frontendScript, /lildocs:page-view/);
+  assert.match(frontendScript, /searchSectionMatch/);
   assert.match(frontendScript, /Missing docs for/);
   assert.match(frontendScript, /I searched the docs for/);
 });
@@ -211,6 +215,8 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchResults \.searchEmpty a \{[^}]*color: var\(--ld-color-link\)/);
   assert.match(css, /\.searchResults \.searchEmpty a:hover,\n\.searchResults \.searchEmpty a:focus-visible \{[^}]*background: transparent/);
   assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
+  assert.match(css, /\.searchSectionMatch \{[^}]*animation: search-section-highlight 2\.4s ease-out/);
+  assert.match(css, /@keyframes search-section-highlight/);
   assert.match(css, /\.tocRepoLink \{[^}]*font-size: 0\.8rem/);
   assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
 });

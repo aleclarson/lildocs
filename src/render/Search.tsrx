@@ -20,6 +20,9 @@ type SearchMatch = {
   type: "title" | "body";
 };
 
+const searchSectionStorageKey = "lildocs:search-section";
+let pendingSearchSectionUrl: string | undefined;
+
 export function SearchBox({
   anchorElement,
   index,
@@ -89,6 +92,22 @@ export function SearchBox({
       document.removeEventListener("keydown", handleShortcut);
     };
   }, [query]);
+
+  useEffect(() => {
+    document.addEventListener(
+      "lildocs:page-view",
+      highlightPendingSearchSection,
+    );
+    window.addEventListener("hashchange", highlightPendingSearchSection);
+    highlightPendingSearchSection();
+    return () => {
+      document.removeEventListener(
+        "lildocs:page-view",
+        highlightPendingSearchSection,
+      );
+      window.removeEventListener("hashchange", highlightPendingSearchSection);
+    };
+  }, []);
 
   const clearSearch = () => {
     setQuery("");
@@ -189,15 +208,21 @@ export function SearchBox({
             <div class="searchResultList" role="listbox">
               @for (const match of matches; index matchIndex; key `${match.entry.route}:${match.title}`) {
                 const selected = matchIndex === selectedIndex;
+                const resultUrl = new URL(match.entry.route, siteRoot).href;
                 <a
                   ref={selected ? selectedRef : undefined}
-                  href={new URL(match.entry.route, siteRoot).href}
+                  href={resultUrl}
                   data-search-result="true"
                   class={`searchResult${selected ? " selected" : ""}`}
                   role="option"
                   aria-selected={selected}
                   onMouseOver={() => setSelectedIndex(matchIndex)}
-                  onClick={clearSearch}
+                  onClick={() => {
+                    if (match.entry.kind === "section") {
+                      queueSearchSectionHighlight(resultUrl);
+                    }
+                    clearSearch();
+                  }}
                 >
                   <span class="searchResultType">
                     {match.entry.kind === "page" ? "Page" : "Section"}
@@ -399,4 +424,54 @@ function uniqueParts(parts: string[]) {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function queueSearchSectionHighlight(href: string) {
+  pendingSearchSectionUrl = href;
+  try {
+    window.sessionStorage.setItem(searchSectionStorageKey, href);
+  } catch {
+  }
+  window.requestAnimationFrame(highlightPendingSearchSection);
+}
+
+function highlightPendingSearchSection() {
+  let href = pendingSearchSectionUrl;
+  if (!href) {
+    try {
+      href = window.sessionStorage.getItem(searchSectionStorageKey) ??
+        undefined;
+    } catch {
+    }
+  }
+  if (!href) {
+    return;
+  }
+
+  const targetUrl = new URL(href, document.baseURI);
+  if (
+    targetUrl.origin !== window.location.origin ||
+      targetUrl.pathname !== window.location.pathname ||
+      targetUrl.search !== window.location.search ||
+      targetUrl.hash !== window.location.hash
+  ) {
+    return;
+  }
+
+  const target = document.getElementById(
+    decodeURIComponent(targetUrl.hash.slice(1)),
+  );
+  if (!target) {
+    return;
+  }
+
+  pendingSearchSectionUrl = undefined;
+  try {
+    window.sessionStorage.removeItem(searchSectionStorageKey);
+  } catch {
+  }
+  target.classList.remove("searchSectionMatch");
+  window.requestAnimationFrame(
+    () => target.classList.add("searchSectionMatch"),
+  );
 }
