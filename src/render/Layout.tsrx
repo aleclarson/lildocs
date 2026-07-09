@@ -1,8 +1,8 @@
 import type { Heading, Page } from "../core/content.js";
 import type { ResolvedLogo } from "../core/logo.js";
 import type { NavItem } from "../core/nav.js";
-import { relativeUrl, rootRelativeUrl } from "../core/paths.js";
 import type { NavigationOptions } from "../core/theme.js";
+import { relativeUrl, rootRelativeUrl } from "./paths.js";
 import type { PageNavigation } from "./types.js";
 
 export type LayoutProps = {

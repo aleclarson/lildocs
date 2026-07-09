@@ -1,8 +1,9 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { InlineConfig, ViteDevServer } from "vite";
+import type { InlineConfig, Plugin, ViteDevServer } from "vite";
 import type { Page } from "./content.js";
 import { LildocsError } from "./errors.js";
 import type { ResolvedLogo } from "./logo.js";
@@ -45,6 +46,8 @@ type ManifestChunk = {
 };
 
 const sourceDir = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
+const virtualOctaneCssId = "\0lildocs-octane-css";
 
 export async function readRenderAsset(name: string) {
   return readFile(path.join(frontendSourceDir(), name), "utf8");
@@ -174,7 +177,7 @@ async function frontendViteConfig(cwd: string, mode: "build" | "dev" | "ssr"): P
     cacheDir: path.join(cwd, "node_modules", ".vite", `lildocs-${mode}`),
     clearScreen: false,
     logLevel: "warn",
-    plugins: [octane()],
+    plugins: [octaneRuntimeCompatibility(), octane()],
     optimizeDeps: {
       exclude: ["octane"],
     },
@@ -213,6 +216,107 @@ function renderPageExport(mod: unknown): RenderPage {
 
   return renderPage as RenderPage;
 }
+
+function octaneRuntimeCompatibility(): Plugin {
+  return {
+    name: "lildocs-octane-runtime-compatibility",
+    enforce: "pre",
+    resolveId(source, importer, options) {
+      if (source === "octane/server" && options.ssr) {
+        return resolveOctaneServerRuntime();
+      }
+
+      if (source === "./css.js" && importer && isOctaneRuntimeImport(importer)) {
+        return virtualOctaneCssId;
+      }
+
+      return null;
+    },
+    load(id) {
+      if (id === virtualOctaneCssId) {
+        return octaneCssHelpersSource;
+      }
+
+      return null;
+    },
+  };
+}
+
+function resolveOctaneServerRuntime() {
+  const serverEntry = require.resolve("octane/server");
+  const candidates = [
+    serverEntry.replace(/[/\\]server[/\\]index\.js$/, `${path.sep}runtime.server.js`),
+    serverEntry.replace(/[/\\]server[/\\]index\.ts$/, `${path.sep}runtime.server.ts`),
+  ];
+  const runtimePath = candidates.find((candidate) => candidate !== serverEntry && existsSync(candidate));
+  if (!runtimePath) {
+    throw new LildocsError(`Unable to locate Octane server runtime from ${serverEntry}.`);
+  }
+
+  return runtimePath;
+}
+
+function isOctaneRuntimeImport(importer: string) {
+  const [filePath] = importer.split("?", 1);
+  const normalized = toPosixPath(filePath);
+  return /\/octane\/(?:src|dist)\/runtime(?:\.server)?\.(?:ts|js)$/.test(normalized);
+}
+
+const octaneCssHelpersSource = `
+export function normalizeClass(value) {
+  if (typeof value === "string") return value;
+  if (typeof value !== "object") {
+    return typeof value === "number" && value ? "" + value : "";
+  }
+  if (value === null) return "";
+  let str = "";
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (item) {
+        const inner = normalizeClass(item);
+        if (inner) str = str ? str + " " + inner : inner;
+      }
+    }
+  } else {
+    for (const key in value) {
+      if (value[key]) str = str ? str + " " + key : key;
+    }
+  }
+  return str;
+}
+
+const styleNameCache = new Map();
+
+export function styleName(name) {
+  const cached = styleNameCache.get(name);
+  if (cached !== undefined) return cached;
+  const result = hyphenateStyleName(name);
+  styleNameCache.set(name, result);
+  return result;
+}
+
+function hyphenateStyleName(name) {
+  if (name.charCodeAt(0) === 45) return name;
+  let hasUpper = false;
+  for (let index = 0; index < name.length; index++) {
+    const code = name.charCodeAt(index);
+    if (code >= 65 && code <= 90) {
+      hasUpper = true;
+      break;
+    }
+  }
+  if (!hasUpper) return name;
+  let out = "";
+  for (let index = 0; index < name.length; index++) {
+    const code = name.charCodeAt(index);
+    out += code >= 65 && code <= 90 ? "-" + String.fromCharCode(code + 32) : name[index];
+  }
+  if (out.charCodeAt(0) === 109 && out.charCodeAt(1) === 115 && out.charCodeAt(2) === 45) {
+    out = "-" + out;
+  }
+  return out;
+}
+`;
 
 function toVitePath(filePath: string) {
   return path.resolve(filePath).split(path.sep).join("/");
