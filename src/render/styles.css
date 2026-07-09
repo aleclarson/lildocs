@@ -34,7 +34,7 @@ body {
 }
 
 .pageShell {
-  --ld-sidebar-width: clamp(240px, 20vw, 300px);
+  --ld-sidebar-width: clamp(240px, 25vw, 320px);
   display: grid;
   min-height: 100vh;
   grid-template-columns: var(--ld-sidebar-width) minmax(0, 1fr);
@@ -52,6 +52,8 @@ body {
 }
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
   position: sticky;
   top: 0;
   min-width: 0;
@@ -68,9 +70,9 @@ body {
 }
 
 .sidebarContents {
+  align-self: stretch;
   display: grid;
   gap: 24px;
-  min-width: var(--ld-sidebar-width);
   transition: opacity var(--ld-navigation-duration) var(--ld-navigation-easing);
 }
 
