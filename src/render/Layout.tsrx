@@ -280,14 +280,16 @@ function Toc({
 
   <nav aria-label="Table of contents">
     @if (tocHeadings.length > 0) {
-      <p>On this page</p>
-      <ul>
-        @for (const heading of tocHeadings; key heading.id) {
-          <li class={`tocDepth${heading.depth}`}>
-            <a href={`#${heading.id}`}>{heading.text as string}</a>
-          </li>
-        }
-      </ul>
+      <>
+        <p>On this page</p>
+        <ul>
+          @for (const heading of tocHeadings; key heading.id) {
+            <li class={`tocDepth${heading.depth}`}>
+              <a href={`#${heading.id}`}>{heading.text as string}</a>
+            </li>
+          }
+        </ul>
+      </>
     }
     @if (repositoryUrl && repositoryLabel) {
       <a class="tocRepoLink" href={repositoryUrl} aria-label="View repository on GitHub">
