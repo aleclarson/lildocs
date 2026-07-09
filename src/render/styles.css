@@ -271,6 +271,10 @@ html.is-animating .transition-scale {
   margin-block: 1em;
 }
 
+.content article > div > ul {
+  margin-bottom: 2em;
+}
+
 .content :first-child {
   margin-top: 0;
 }
