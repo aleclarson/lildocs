@@ -209,6 +209,8 @@ test("emits collapsible sidebar controls with Tabler icons", async () => {
   assert.match(html, /ti ti-layout-sidebar-left-expand/);
   assert.match(html, /id="lildocs-floating-search"/);
   assert.match(css, /html\.sidebar-collapsed \.pageShell/);
+  assert.match(css, /html\.sidebar-collapsed \.contentGrid/);
+  assert.match(css, /padding-left: clamp\(180px, 14vw, 285px\)/);
   assert.match(css, /html\.sidebar-collapsed \.sidebarFloatingControls/);
   assert.match(frontendScript, /sidebar-collapsed/);
   assert.match(icons, /\.ti-layout-sidebar-left-collapse/);

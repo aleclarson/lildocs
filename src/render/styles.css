@@ -130,8 +130,8 @@ body {
 
 .sidebarFloatingControls {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 24px;
+  left: 24px;
   z-index: 20;
   display: none;
   gap: 8px;
@@ -755,6 +755,15 @@ html.is-animating .transition-scale {
 @media (min-width: 861px) {
   html.sidebar-collapsed .pageShell {
     grid-template-columns: 0 minmax(0, 1fr);
+  }
+
+  html.sidebar-collapsed .contentGrid {
+    grid-template-columns: minmax(0, 1fr) clamp(240px, 20vw, 400px);
+    gap: clamp(48px, 6vw, 120px);
+    width: 100%;
+    margin: 0;
+    padding-right: clamp(32px, 3vw, 64px);
+    padding-left: clamp(180px, 14vw, 285px);
   }
 
   html.sidebar-collapsed .sidebar {
