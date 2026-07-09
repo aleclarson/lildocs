@@ -40,7 +40,6 @@ Unique local substring.
   assert.deepEqual(localFiles?.headings, ["Details", "Install", "Local Files"]);
   assert.ok(localFiles?.text.includes("Unique local substring"));
 });
-
 test("indexes Markdown links by label instead of destination", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -196,7 +195,7 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /padding: 9px 10px 9px 36px/);
   assert.match(css, /\.searchBox input::placeholder \{[^}]*color: var\(--ld-color-muted-text\)/);
   assert.match(css, /\.searchBox input:focus \{[^}]*border-color: var\(--ld-color-link\)/);
-  assert.match(css, /outline: 2px solid color-mix\(in srgb, var\(--ld-color-link\) 45%, transparent\)/);
+  assert.match(css, /\.searchBox input:focus \{[^}]*outline: none/);
   assert.match(css, /\.searchResults \{[^}]*font-family: var\(--ld-font-body\)/);
   assert.match(css, /\.searchResults \{[^}]*position: fixed/);
   assert.match(css, /\.searchResults \{[^}]*left: var\(--ld-sidebar-width\)/);

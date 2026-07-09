@@ -617,8 +617,7 @@ html.is-animating .transition-scale {
 
 .searchBox input:focus {
   border-color: var(--ld-color-link);
-  outline: 2px solid color-mix(in srgb, var(--ld-color-link) 45%, transparent);
-  outline-offset: 2px;
+  outline: none;
 }
 
 .searchResults {
