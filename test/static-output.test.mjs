@@ -401,6 +401,7 @@ test("generates unique stable heading anchors", async () => {
   assert.match(html, /id="user_name"/);
   assert.match(html, /<a href="#user_name">user_name<\/a>/);
   assert.match(css, /:target \{[^}]*scroll-margin-top: 70px/);
+  assert.match(css, /:where\(h1, h2, h3, h4, h5, h6\) \{[^}]*letter-spacing: -0\.018em/);
 });
 
 test("copies nested assets with nested relative links", async () => {
