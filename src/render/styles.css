@@ -1093,6 +1093,10 @@ html.mermaidFullscreenOpen {
     display: block;
   }
 
+  .content {
+    padding-block-start: 25px;
+  }
+
   .sidebar {
     position: sticky;
     top: 0;

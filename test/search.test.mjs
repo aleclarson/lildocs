@@ -284,6 +284,7 @@ test("emits collapsible sidebar controls with Tabler icons", async () => {
   assert.match(css, /html\.sidebar-menu-open \.sidebar \{[^}]*position: fixed/);
   assert.match(css, /html\.sidebar-menu-open \.sidebar \{[^}]*height: 100dvh/);
   assert.match(css, /html\.sidebar-menu-open \.sidebarHeader \{[^}]*position: sticky/);
+  assert.match(css, /@media \(max-width: 860px\)[\s\S]*?\.content \{[^}]*padding-block-start: 25px/);
   assert.match(css, /\.sidebar \{[^}]*position: sticky/);
   assert.match(frontendScript, /sidebar-collapsed/);
   assert.match(frontendScript, /sidebar-menu-open/);
