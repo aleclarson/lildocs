@@ -365,11 +365,22 @@ html.is-animating .transition-scale {
 
 .navList a,
 .navDisclosure summary {
-  padding-left: 7px;
-  border-left: 1px solid
-    color-mix(in srgb, var(--ld-color-border) 65%, transparent);
+  position: relative;
+  padding-left: 9px;
   color: var(--ld-color-muted-text);
   text-decoration: none;
+}
+
+.navList a::before,
+.navDisclosure summary::before {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ld-color-border) 65%, transparent);
+  content: "";
 }
 
 .navDisclosure summary {
@@ -410,9 +421,13 @@ html.is-animating .transition-scale {
 
 .navList a.active,
 .navDisclosure summary.active {
-  border-left-color: var(--ld-color-accent);
   color: var(--ld-color-accent);
   font-weight: 550;
+}
+
+.navList a.active::before,
+.navDisclosure summary.active::before {
+  background: var(--ld-color-accent);
 }
 
 .content pre {

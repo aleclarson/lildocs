@@ -664,6 +664,12 @@ test("does not indent nested sidebar pages", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
+  assert.match(css, /\.navList a::before,[^}]*width: 2px/);
+  assert.match(css, /\.navList a::before,[^}]*border-radius: 999px/);
+  assert.match(
+    css,
+    /\.navList a\.active::before,[^}]*background: var\(--ld-color-accent\)/,
+  );
 });
 
 test("renders folders with index pages as expandable page rows", async () => {
