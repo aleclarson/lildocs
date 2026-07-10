@@ -266,6 +266,9 @@ test("emits collapsible sidebar controls with Tabler icons", async () => {
   assert.match(css, /padding-left: clamp\(180px, 14vw, 285px\)/);
   assert.match(css, /html\.sidebar-collapsed \.sidebarFloatingControls/);
   assert.match(frontendScript, /sidebar-collapsed/);
+  assert.match(frontendScript, /\(event\.metaKey \|\| event\.ctrlKey\) && event\.key\.toLowerCase\(\) === "b"/);
+  assert.match(frontendScript, /event\.preventDefault\(\)/);
+  assert.match(frontendScript, /classList\.contains\("sidebar-collapsed"\)/);
   assert.match(icons, /\.ti-layout-sidebar-left-collapse/);
   assert.match(icons, /\.ti-layout-sidebar-left-expand/);
 });

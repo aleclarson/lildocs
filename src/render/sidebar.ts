@@ -24,6 +24,14 @@ export function initSidebar() {
 
   collapseButton.addEventListener("click", () => setCollapsed(true));
   expandButton.addEventListener("click", () => setCollapsed(false));
+  document.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "b") {
+      event.preventDefault();
+      setCollapsed(
+        !document.documentElement.classList.contains("sidebar-collapsed"),
+      );
+    }
+  });
   searchButton.addEventListener("click", () => {
     setCollapsed(false);
     document.dispatchEvent(new CustomEvent("lildocs:search-toggle"));
