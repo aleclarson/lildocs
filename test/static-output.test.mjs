@@ -673,14 +673,12 @@ test("does not indent nested sidebar pages", async () => {
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.doesNotMatch(css, /\.navList \.navList\s*{\s*padding-left:/);
-  assert.match(css, /\.navList::before\s*{[^}]*inset: 0 auto 0 0/);
-  assert.match(
-    css,
-    /\.navList::before\s*{[^}]*background: color-mix\(in srgb, var\(--ld-color-border\) 65%, transparent\)/,
-  );
+  assert.doesNotMatch(css, /\.navList::before\s*{/);
+  assert.match(css, /\.navList a::before,[^}]*top: -1px/);
+  assert.match(css, /\.navList a::before,[^}]*bottom: -1px/);
   assert.match(css, /\.navList a::before,[^}]*width: 2px/);
-  assert.match(css, /\.navList a::before,[^}]*border-radius: 999px/);
-  assert.doesNotMatch(
+  assert.match(css, /\.navList a::before,[^}]*border-radius: 1px/);
+  assert.match(
     css,
     /\.navList a::before,[^}]*background: color-mix\(in srgb, var\(--ld-color-border\) 65%, transparent\)/,
   );
