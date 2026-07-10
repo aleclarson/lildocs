@@ -765,6 +765,7 @@ html.mermaidFullscreenOpen {
 .tocLinks {
   position: relative;
   margin-block: 1em;
+  margin-left: 5px;
 }
 
 .tocLinks ul {
