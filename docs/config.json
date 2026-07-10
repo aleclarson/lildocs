@@ -8,6 +8,16 @@
     "image": "./assets/logo.svg"
   },
   "navigation": {
+    "order": [
+      "getting-started.md",
+      "features/content.md",
+      "features/navigation.md",
+      "features/search.md",
+      "features/mermaid.md",
+      "features/api-reference.md",
+      "guides/",
+      "reference/"
+    ],
     "duration": 125
   }
 }

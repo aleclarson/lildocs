@@ -1,7 +1,7 @@
 # Themes And Styling
 
 > Control the generated site's visual system with theme selection, local theme
-> files, fonts, logos, backgrounds, links, and navigation transitions.
+> files, fonts, logos, backgrounds, and links.
 
 Theme and styling options are resolved at build time and emitted as static CSS.
 
@@ -62,7 +62,8 @@ export default {
     code: "ui-monospace, SFMono-Regular, Menlo, monospace",
   },
   background: {
-    gradient: "linear-gradient(180deg, rgb(37 99 235 / 0.06), transparent 220px)",
+    gradient:
+      "linear-gradient(180deg, rgb(37 99 235 / 0.06), transparent 220px)",
   },
 };
 ```
@@ -213,24 +214,5 @@ a local theme when a page should use background layers.
 `link.underline` controls generated content link underlines. Use `always`,
 `hover`, or `none`.
 
-## Navigation
-
-These `navigation` fields configure the feel of enhanced page navigation:
-
-```json
-{
-  "navigation": {
-    "transition": "slide",
-    "duration": 160,
-    "easing": "cubic-bezier(0.16, 1, 0.3, 1)"
-  }
-}
-```
-
-`navigation.transition` selects the transition preset. Use `fade`, `slide`,
-`scale`, or `instant`.
-
-`navigation.duration` sets the transition duration in milliseconds.
-
-`navigation.easing` sets the CSS timing function used by transitions. Any valid
-CSS timing function is supported.
+See the [configuration reference](configuration.md#appearance) for a compact
+summary of every appearance field.

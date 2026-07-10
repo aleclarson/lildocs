@@ -85,7 +85,10 @@ repository root, and cannot contain the docs root.
 
 ## Next Steps
 
-Read [Authoring docs](guides/authoring.md) to structure Markdown content, then
-use the [CLI reference](reference/cli.md) and
-[configuration reference](reference/configuration.md) for command and option
-details.
+Read [Writing content](features/content.md) and
+[Navigation and page structure](features/navigation.md) to organize your docs.
+Then explore [local search](features/search.md),
+[Mermaid diagrams](features/mermaid.md), and the
+[generated API reference](features/api-reference.md), or use the
+[CLI reference](reference/cli.md) and
+[configuration reference](reference/configuration.md) for option details.

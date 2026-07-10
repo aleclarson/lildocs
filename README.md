@@ -31,7 +31,11 @@ disk or from any static file host.
 ## Documentation
 
 - [Getting started](https://aleclarson.github.io/lildocs/getting-started.html)
-- [Authoring docs](https://aleclarson.github.io/lildocs/guides/authoring.html)
+- [Writing content](https://aleclarson.github.io/lildocs/features/content.html)
+- [Navigation and page structure](https://aleclarson.github.io/lildocs/features/navigation.html)
+- [Local search](https://aleclarson.github.io/lildocs/features/search.html)
+- [Mermaid diagrams](https://aleclarson.github.io/lildocs/features/mermaid.html)
+- [Generated API reference](https://aleclarson.github.io/lildocs/features/api-reference.html)
 - [GitHub Pages deployment](https://aleclarson.github.io/lildocs/guides/github-pages.html)
 - [CLI reference](https://aleclarson.github.io/lildocs/reference/cli.html)
 - [Configuration reference](https://aleclarson.github.io/lildocs/reference/configuration.html)

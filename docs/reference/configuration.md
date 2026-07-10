@@ -1,7 +1,7 @@
-# Configuration
+# Configuration Reference
 
-> Define persistent project defaults for themes, branding, navigation, links,
-> generated API pages, and matching CLI overrides.
+> Look up persistent project settings, schema support, precedence, and matching
+> CLI overrides.
 
 lildocs works without configuration. Add `config.json` to the docs root when you
 want persistent defaults:
@@ -60,42 +60,68 @@ This field is optional and does not change build behavior.
 
 ## Fields
 
-| Field | Description |
-| --- | --- |
-| `projectName` | Project name appended to each browser document title. Defaults to the nearest `package.json` `name`. |
-| `theme` | Built-in lildocs theme, bundled Shiki theme name, or `{ "light": "...", "dark": "..." }` system theme pair. |
-| `favicon` | Browser icon from a URL, data URL, absolute URL path, or docs-relative image path. |
-| `font.heading` | Font used for page titles and headings. |
-| `font.body` | Font used for normal text and interface text. |
-| `font.code` | Font used for inline code and fenced code blocks. |
-| `logo.image` | Header logo image from a URL, data URL, absolute URL path, or docs-relative image path. |
-| `logo.text` | Header brand text. Defaults to the nearest `package.json` `name` when no logo image is configured. |
-| `logo.font` | Font used for header brand text. |
-| `background.image` | Background image from a URL, CSS image function, or docs-relative file path. |
-| `background.gradient` | CSS background gradient. |
-| `background.blendMode` | CSS `background-blend-mode` for the theme color and configured background layers. |
-| `link.underline` | Content link underline behavior: `always`, `hover`, or `none`. |
-| `reference.packageJson` | Docs-root-relative path to a `package.json` whose exported TypeScript declarations generate `/reference/` API pages. |
-| `navigation.order` | Docs-root-relative Markdown files or folders, in generated navigation order. Unlisted pages keep entry-point link order, then generated order after listed siblings. |
-| `navigation.transition` | Enhanced navigation transition preset: `fade`, `slide`, `scale`, or `instant`. |
-| `navigation.duration` | Enhanced navigation transition duration in milliseconds. |
-| `navigation.easing` | CSS timing function used by enhanced navigation transitions. |
+Configuration fields are grouped by the part of the generated site they affect.
+Feature pages provide examples and explain the resulting behavior.
 
-See [Themes and styling](theming.md) for field-specific examples and theme
-resolution behavior.
+### Project
+
+| Field         | Description                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| `projectName` | Project name appended to each browser document title. Defaults to the nearest `package.json` `name`. |
+
+### Appearance
+
+See [Themes and styling](theming.md) for theme resolution, local theme files,
+branding examples, font sources, backgrounds, and link presentation.
+
+| Field                  | Description                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `theme`                | Built-in lildocs theme, bundled Shiki theme name, or `{ "light": "...", "dark": "..." }` system theme pair. |
+| `favicon`              | Browser icon from a URL, data URL, absolute URL path, or docs-relative image path.                          |
+| `font.heading`         | Font used for page titles and headings.                                                                     |
+| `font.body`            | Font used for normal text and interface text.                                                               |
+| `font.code`            | Font used for inline code and fenced code blocks.                                                           |
+| `logo.image`           | Header logo image from a URL, data URL, absolute URL path, or docs-relative image path.                     |
+| `logo.text`            | Header brand text. Defaults to the nearest `package.json` `name` when no logo image is configured.          |
+| `logo.font`            | Font used for header brand text.                                                                            |
+| `background.image`     | Background image from a URL, CSS image function, or docs-relative file path.                                |
+| `background.gradient`  | CSS background gradient.                                                                                    |
+| `background.blendMode` | CSS `background-blend-mode` for the theme color and configured background layers.                           |
+| `link.underline`       | Content link underline behavior: `always`, `hover`, or `none`.                                              |
+
+### Navigation
+
+See [Navigation and page structure](../features/navigation.md) for generated
+ordering, breadcrumbs, previous and next links, and transition examples.
+
+| Field                   | Description                                                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `navigation.order`      | Docs-root-relative Markdown files or folders, in generated navigation order. Unlisted pages keep entry-point link order, then generated order after listed siblings. |
+| `navigation.transition` | Enhanced navigation transition preset: `fade`, `slide`, `scale`, or `instant`.                                                                                       |
+| `navigation.duration`   | Enhanced navigation transition duration in milliseconds.                                                                                                             |
+| `navigation.easing`     | CSS timing function used by enhanced navigation transitions.                                                                                                         |
+
+### Generated Reference
+
+See [Generated API reference](../features/api-reference.md) for export discovery,
+generated paths, declaration handling, and GitHub links.
+
+| Field                   | Description                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `reference.packageJson` | Docs-root-relative path to a `package.json` whose exported TypeScript declarations generate `/reference/` API pages. |
 
 ## CLI Flag Mappings
 
-| Flag | JSON config |
-| --- | --- |
-| `--theme <name>` | `theme` |
-| `--font.heading <name-or-file>` | `font.heading` |
-| `--font.body <name-or-file>` | `font.body` |
-| `--font.code <name-or-file>` | `font.code` |
-| `--background.image <url-or-file>` | `background.image` |
-| `--background.gradient <gradient>` | `background.gradient` |
-| `--background.blendMode <mode>` | `background.blendMode` |
-| `--link.underline <style>` | `link.underline` |
+| Flag                               | JSON config            |
+| ---------------------------------- | ---------------------- |
+| `--theme <name>`                   | `theme`                |
+| `--font.heading <name-or-file>`    | `font.heading`         |
+| `--font.body <name-or-file>`       | `font.body`            |
+| `--font.code <name-or-file>`       | `font.code`            |
+| `--background.image <url-or-file>` | `background.image`     |
+| `--background.gradient <gradient>` | `background.gradient`  |
+| `--background.blendMode <mode>`    | `background.blendMode` |
+| `--link.underline <style>`         | `link.underline`       |
 
 `--out <dir>` has no JSON config equivalent. It sets the generated site
 directory for the current command. Build and deploy default to `dist`; dev
@@ -109,22 +135,3 @@ config equivalent.
 
 `favicon`, `logo.image`, `logo.text`, `logo.font`, and
 `reference.packageJson` are configuration-only and have no CLI flag equivalents.
-
-## API Reference
-
-When `reference.packageJson` points to a package manifest with TypeScript
-declaration exports, lildocs uses those exports to generate static API pages
-under `/reference/`.
-
-If `reference.packageJson` is not configured, lildocs also checks for a
-`package.json` next to the docs root. Sibling package manifests without an
-`exports` field are ignored.
-
-Reference pages are generated with `exports-md`. Package export maps follow
-relative imports and re-exports by default. Property comments render below
-declaration blocks. When the nearest package metadata points to a GitHub
-repository, generated symbol sections include GitHub code search links.
-
-Each export uses its full package specifier as its pathname. For a package named
-`foo`, the `.` export is written to `/reference/foo.html`, while `./bar` is
-written to `/reference/foo/bar.html`.
