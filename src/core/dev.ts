@@ -1,4 +1,4 @@
-import { mkdir } from "node:fs/promises";
+import { appendFile, mkdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { buildSite, type BuildResult } from "./build.js";
 import { LildocsError } from "./errors.js";
@@ -31,6 +31,7 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
   const outDir = path.resolve(options.cwd, options.outDir);
   validateDevOutDir(options.cwd, input.docsRoot, outDir, options.outDir);
 
+  await addGitExclude(options.cwd, outDir);
   await mkdir(outDir, { recursive: true });
   const vite = await createFrontendDevServer({
     cwd: options.cwd,
@@ -183,4 +184,84 @@ function isInside(parent: string, child: string) {
     relative === "" ||
     (!relative.startsWith("..") && !path.isAbsolute(relative))
   );
+}
+
+async function addGitExclude(cwd: string, outDir: string) {
+  try {
+    const repository = await findGitRepository(cwd);
+    if (!repository || !isInside(repository.root, outDir)) {
+      return;
+    }
+
+    const relativeOutDir = path.relative(repository.root, outDir);
+    if (!relativeOutDir) {
+      return;
+    }
+
+    const pattern = `${relativeOutDir.split(path.sep).join("/")}/`;
+    let contents = "";
+    try {
+      contents = await readFile(repository.excludePath, "utf8");
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
+      await mkdir(path.dirname(repository.excludePath), { recursive: true });
+    }
+    const entries = contents.split(/\r?\n/).map((entry) => entry.trim());
+    const normalizedPattern = pattern.replace(/^\/|\/$/g, "");
+    if (
+      entries.some(
+        (entry) => entry.replace(/^\/|\/$/g, "") === normalizedPattern,
+      )
+    ) {
+      return;
+    }
+
+    const separator =
+      contents.length > 0 && !contents.endsWith("\n") ? "\n" : "";
+    await appendFile(repository.excludePath, `${separator}${pattern}\n`);
+  } catch {
+    // Git metadata may be absent, read-only, or managed outside the worktree.
+  }
+}
+
+async function findGitRepository(start: string) {
+  let current = path.resolve(start);
+  while (true) {
+    const dotGit = path.join(current, ".git");
+    try {
+      const metadata = await stat(dotGit);
+      let gitDir = dotGit;
+      if (!metadata.isDirectory()) {
+        const pointer = await readFile(dotGit, "utf8");
+        const match = /^gitdir:\s*(.+)\s*$/im.exec(pointer);
+        if (!match?.[1]) {
+          return undefined;
+        }
+        gitDir = path.resolve(current, match[1]);
+      }
+
+      let commonDir = gitDir;
+      try {
+        const pointer = (
+          await readFile(path.join(gitDir, "commondir"), "utf8")
+        ).trim();
+        commonDir = path.resolve(gitDir, pointer);
+      } catch {
+        // Regular repositories keep their shared metadata in .git itself.
+      }
+
+      return {
+        root: current,
+        excludePath: path.join(commonDir, "info", "exclude"),
+      };
+    } catch {
+      const parent = path.dirname(current);
+      if (parent === current) {
+        return undefined;
+      }
+      current = parent;
+    }
+  }
 }

@@ -187,6 +187,7 @@ async function frontendViteConfig(
     plugins: [octaneRuntimeCompatibility(), octane()],
     optimizeDeps: {
       exclude: ["octane"],
+      ...(mode === "dev" ? { noDiscovery: true } : {}),
     },
     ssr: {
       noExternal: [/^octane(?:$|\/)/],

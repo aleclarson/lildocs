@@ -46,6 +46,7 @@ test("dev command serves and rebuilds the generated site", async () => {
     assert.match(home, /\/@vite\/client/);
     const client = await fetchText(new URL("/@vite/client", server.url));
     assert.match(client, /createHotContext/);
+    assert.doesNotMatch(server.stderr(), /Failed to run dependency scan/);
 
     await writeDocFile(docs, "index.md", "# Updated Home\n\nChanged content.");
     await waitFor(async () => {
@@ -55,6 +56,23 @@ test("dev command serves and rebuilds the generated site", async () => {
   } finally {
     await server.close();
   }
+});
+
+test("dev command locally excludes its generated output from Git", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const excludePath = path.join(workspace, ".git", "info", "exclude");
+  await mkdir(path.dirname(excludePath), { recursive: true });
+  await writeFile(excludePath, "# Local excludes\n");
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const server = await startDevCli(["dev", docs, "--port", "0"], {
+      cwd: workspace,
+    });
+    await server.close();
+  }
+
+  const exclude = await readFile(excludePath, "utf8");
+  assert.equal(exclude, "# Local excludes\n.lildocs/\n");
 });
 
 test("dev command opens the generated site when requested", { skip: process.platform === "win32" }, async () => {
@@ -140,6 +158,7 @@ async function startDevCli(args, options = {}) {
 
   return {
     url,
+    stderr: () => stderr,
     close: async () => {
       if (child.exitCode !== null) {
         return;
