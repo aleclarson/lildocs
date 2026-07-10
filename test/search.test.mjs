@@ -148,11 +148,9 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
   assert.match(html, /class="tocRepoLink"/);
-  assert.match(
-    html,
-    /<span class="repoIcon" aria-hidden="true" style="--ld-repo-icon: url\(\.\/assets\/github-icon\.svg\)"><\/span>/,
-  );
-  assert.match(nestedHtml, /--ld-repo-icon: url\(\.\.\/assets\/github-icon\.svg\)/);
+  assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
+  assert.doesNotMatch(html, /--ld-repo-icon/);
+  assert.doesNotMatch(nestedHtml, /--ld-repo-icon/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
   assert.match(html, /window\.lildocsIssueUrl = "https:\/\/github\.com\/example\/project\/issues\/new"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
@@ -168,7 +166,7 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
     /<span class="tocVisibility" data-toc-visibility aria-hidden="true"><\/span>/,
   );
   assert.ok(guideHtml.indexOf("On this page") < guideHtml.indexOf('class="tocRepoLink"'));
-  assert.match(css, /mask: var\(--ld-repo-icon\) center \/ contain no-repeat/);
+  assert.match(css, /mask: url\("\.\/github-icon\.svg"\) center \/ contain no-repeat/);
   assert.match(icon, /viewBox="0 0 256 250"/);
 });
 

@@ -34,7 +34,6 @@ export function Layout({
   clientStylePaths,
 }: LayoutProps) @{
   const transition = navigation?.transition ?? "fade";
-  const repoIconUrl = rootRelativeUrl(page.route, "assets/github-icon.svg");
   const issueUrl = issueUrlForRepository(repositoryUrl);
   const repositoryLabel = repositoryLabelForUrl(repositoryUrl);
 
@@ -142,7 +141,6 @@ export function Layout({
             headings={page.headings}
             repositoryUrl={repositoryUrl}
             repositoryLabel={repositoryLabel}
-            repoIconUrl={repoIconUrl}
           />
         </aside>
       </div>
@@ -313,12 +311,10 @@ function Toc({
   headings,
   repositoryUrl,
   repositoryLabel,
-  repoIconUrl,
 }: {
   headings: Heading[];
   repositoryUrl?: string;
   repositoryLabel?: string;
-  repoIconUrl: string;
 }) @{
   const tocHeadings = headings.filter(
     (heading) => heading.depth > 1 && heading.depth < 4,
@@ -355,11 +351,7 @@ function Toc({
         href={repositoryUrl}
         aria-label="View repository on GitHub"
       >
-        <span
-          class="repoIcon"
-          aria-hidden="true"
-          style={`--ld-repo-icon: url(${repoIconUrl})`}
-        />
+        <span class="repoIcon" aria-hidden="true" />
         <span>
           {repositoryLabel as string}
         </span>
