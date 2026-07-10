@@ -6,6 +6,7 @@ import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
 import { initSectionHighlights } from "./section-highlight.js";
 import { initSidebar } from "./sidebar.js";
 import { initTableViewer } from "./table-viewer.js";
+import { initTocVisibility } from "./toc-visibility.js";
 import type { SearchEntry } from "./Search.tsrx";
 
 initCopyCode();
@@ -14,6 +15,7 @@ initNavigation();
 initSectionHighlights();
 initSidebar();
 initTableViewer();
+initTocVisibility();
 
 void mountSearch();
 

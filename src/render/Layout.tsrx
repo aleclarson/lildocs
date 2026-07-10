@@ -334,15 +334,19 @@ function Toc({
           <span class="ti ti-align-left" aria-hidden="true" />
           On this page
         </p>
-        <ul>
-          @for (const heading of tocHeadings; key heading.id) {
-            <li class={`tocDepth${heading.depth}`}>
-              <a href={`#${heading.id}`}>
-                {heading.text as string}
-              </a>
-            </li>
-          }
-        </ul>
+        <div class="tocLinks" data-toc-links>
+          <span class="tocRail" aria-hidden="true" />
+          <span class="tocVisibility" data-toc-visibility aria-hidden="true" />
+          <ul>
+            @for (const heading of tocHeadings; key heading.id) {
+              <li class={`tocDepth${heading.depth}`}>
+                <a href={`#${heading.id}`}>
+                  {heading.text as string}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
       </>
     }
     @if (repositoryUrl && repositoryLabel) {

@@ -161,6 +161,12 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
     guideHtml,
     /<p class="tocTitle">\s*<span class="ti ti-align-left" aria-hidden="true"><\/span>\s*On this page/,
   );
+  assert.match(guideHtml, /<div class="tocLinks" data-toc-links>/);
+  assert.match(guideHtml, /<span class="tocRail" aria-hidden="true"><\/span>/);
+  assert.match(
+    guideHtml,
+    /<span class="tocVisibility" data-toc-visibility aria-hidden="true"><\/span>/,
+  );
   assert.ok(guideHtml.indexOf("On this page") < guideHtml.indexOf('class="tocRepoLink"'));
   assert.match(css, /mask: var\(--ld-repo-icon\) center \/ contain no-repeat/);
   assert.match(icon, /viewBox="0 0 256 250"/);
@@ -248,6 +254,9 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.tocRepoLink \{[^}]*font-size: 0\.8rem/);
   assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
   assert.match(css, /\.tocTitle \{[^}]*display: flex/);
+  assert.match(css, /\.tocRail \{[^}]*background: var\(--ld-color-border\)/);
+  assert.match(css, /\.tocVisibility \{[^}]*background: var\(--ld-color-accent\)/);
+  assert.match(css, /\.tocVisibility \{[^}]*height 180ms var\(--ld-navigation-easing\)/);
 });
 
 test("emits collapsible sidebar controls with Tabler icons", async () => {

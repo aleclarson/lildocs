@@ -747,11 +747,48 @@ html.mermaidFullscreenOpen {
   gap: 7px;
 }
 
-.toc ul {
+.tocLinks {
+  position: relative;
+  margin-block: 1em;
+}
+
+.tocLinks ul {
   display: grid;
   gap: 9px;
+  margin: 0;
   list-style: none;
-  padding-left: 0;
+  padding-left: 16px;
+}
+
+.tocRail,
+.tocVisibility {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.tocRail {
+  bottom: 0;
+  background: var(--ld-color-border);
+}
+
+.tocVisibility {
+  top: var(--ld-toc-visibility-top, 0);
+  z-index: 1;
+  height: var(--ld-toc-visibility-height, 0);
+  background: var(--ld-color-accent);
+  opacity: 0;
+  transition:
+    top 180ms var(--ld-navigation-easing),
+    height 180ms var(--ld-navigation-easing),
+    opacity 120ms ease;
+}
+
+.tocVisibility.isVisible {
+  opacity: 1;
 }
 
 .toc a {
@@ -983,6 +1020,12 @@ html.mermaidFullscreenOpen {
 
   html.sidebar-collapsed .sidebarFloatingControls {
     display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tocVisibility {
+    transition: none;
   }
 }
 

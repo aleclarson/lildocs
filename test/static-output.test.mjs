@@ -374,6 +374,10 @@ test("emits swup navigation enhancement assets", async () => {
   assert.match(frontendScript, /window\.location\.protocol === "file:"/);
   assert.match(frontendScript, /#lildocs-sidebar-navigation/);
   assert.match(frontendScript, /page:view/);
+  assert.match(frontendScript, /data-toc-visibility/);
+  assert.match(frontendScript, /getBoundingClientRect/);
+  assert.match(frontendScript, /container\.scrollHeight <= availableHeight/);
+  assert.match(frontendScript, /--ld-toc-visibility-height/);
 });
 
 test("uses lildocs code background for shiki blocks", async () => {
