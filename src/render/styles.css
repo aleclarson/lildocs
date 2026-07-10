@@ -786,6 +786,7 @@ html.mermaidFullscreenOpen {
 .toc {
   color: var(--ld-color-muted-text);
   font-size: 0.9rem;
+  line-height: normal;
 }
 
 .toc p {
@@ -812,6 +813,11 @@ html.mermaidFullscreenOpen {
   margin: 0;
   list-style: none;
   padding-left: 16px;
+}
+
+.toc .tocLinks li {
+  margin-block: 0;
+  line-height: normal;
 }
 
 .tocRail,
@@ -1178,6 +1184,7 @@ html.mermaidFullscreenOpen {
   .toc {
     position: static;
     max-height: none;
+    padding-block: 24px;
     border-bottom: 1px solid var(--ld-color-border);
   }
 }

@@ -385,6 +385,10 @@ test("emits swup navigation enhancement assets", async () => {
   assert.match(frontendScript, /window\.location\.protocol === "file:"/);
   assert.match(frontendScript, /#lildocs-sidebar-navigation/);
   assert.match(frontendScript, /page:view/);
+  assert.match(frontendScript, /#swup\.contentGrid/);
+  assert.match(frontendScript, /child\.tagName === "H1"/);
+  assert.match(frontendScript, /heading\.nextElementSibling\?\.tagName === "BLOCKQUOTE"/);
+  assert.match(frontendScript, /insertAdjacentElement\("afterend", toc\)/);
   assert.match(frontendScript, /data-toc-visibility/);
   assert.match(frontendScript, /getBoundingClientRect/);
   assert.match(frontendScript, /visibleItems\.length === items\.length/);
