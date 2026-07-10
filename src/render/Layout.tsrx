@@ -81,11 +81,13 @@ export function Layout({
               type="button"
               aria-label="Collapse sidebar"
               aria-controls="lildocs-sidebar"
+              aria-expanded="false"
             >
               <span
-                class="ti ti-layout-sidebar-left-collapse"
+                class="sidebarCollapseIcon ti ti-layout-sidebar-left-collapse"
                 aria-hidden="true"
               />
+              <span class="sidebarMenuIcon ti ti-menu-2" aria-hidden="true" />
             </button>
           </div>
           <div id="lildocs-search-root" class="searchBox">

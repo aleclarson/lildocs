@@ -73,6 +73,7 @@ export function SearchBox({
       }
 
       document.documentElement.classList.remove("sidebar-collapsed");
+      document.dispatchEvent(new CustomEvent("lildocs:sidebar-menu-open"));
       inputRef.current?.focus();
       setOpen(Boolean(query.trim()));
     };
