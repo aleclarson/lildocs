@@ -210,7 +210,36 @@ html.is-animating .transition-scale {
 }
 
 .content article :where(h1, h2, h3, h4, h5, h6)[id] {
-  cursor: copy;
+  cursor: pointer;
+}
+
+.headingLinkIcon {
+  appearance: none;
+  margin-left: 0.35em;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 0.7em;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  vertical-align: middle;
+}
+
+.content
+  article
+  :where(h1, h2, h3, h4, h5, h6)[id]:is(:hover, :focus-within)
+  .headingLinkIcon {
+  opacity: 0.55;
+}
+
+.content
+  article
+  :where(h1, h2, h3, h4, h5, h6)[id]
+  .headingLinkIcon:is(:hover, :focus-visible) {
+  opacity: 1;
 }
 
 .content article :where(h1, h2, h3, h4, h5, h6).headingLinkCopied::after {

@@ -354,7 +354,9 @@ test("copies heading links with fragments except for the page heading", async ()
   assert.match(frontendScript, /navigator\.clipboard/);
   assert.match(frontendScript, /document\.execCommand\("copy"\)/);
   assert.match(frontendScript, /headingLinkCopied/);
-  assert.match(css, /\[id\] \{[^}]*cursor: copy/);
+  assert.match(frontendScript, /ti ti-link/);
+  assert.match(css, /\[id\] \{[^}]*cursor: pointer/);
+  assert.match(css, /\.headingLinkIcon \{[^}]*opacity: 0/);
   assert.match(css, /\.headingLinkCopied::after \{[^}]*content: "Link copied"/);
 });
 
