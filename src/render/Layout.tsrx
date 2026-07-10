@@ -330,7 +330,10 @@ function Toc({
   <nav aria-label="Table of contents">
     @if (tocHeadings.length > 0) {
       <>
-        <p>On this page</p>
+        <p class="tocTitle">
+          <span class="ti ti-align-left" aria-hidden="true" />
+          On this page
+        </p>
         <ul>
           @for (const heading of tocHeadings; key heading.id) {
             <li class={`tocDepth${heading.depth}`}>

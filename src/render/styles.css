@@ -741,6 +741,12 @@ html.mermaidFullscreenOpen {
   font-weight: 700;
 }
 
+.tocTitle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
 .toc ul {
   display: grid;
   gap: 9px;

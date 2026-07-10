@@ -157,6 +157,10 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   assert.match(html, /window\.lildocsIssueUrl = "https:\/\/github\.com\/example\/project\/issues\/new"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
   assert.match(html, /<span>example\/project<\/span>/);
+  assert.match(
+    guideHtml,
+    /<p class="tocTitle">\s*<span class="ti ti-align-left" aria-hidden="true"><\/span>\s*On this page/,
+  );
   assert.ok(guideHtml.indexOf("On this page") < guideHtml.indexOf('class="tocRepoLink"'));
   assert.match(css, /mask: var\(--ld-repo-icon\) center \/ contain no-repeat/);
   assert.match(icon, /viewBox="0 0 256 250"/);
@@ -243,6 +247,7 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /@keyframes section-highlight/);
   assert.match(css, /\.tocRepoLink \{[^}]*font-size: 0\.8rem/);
   assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
+  assert.match(css, /\.tocTitle \{[^}]*display: flex/);
 });
 
 test("emits collapsible sidebar controls with Tabler icons", async () => {
