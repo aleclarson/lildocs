@@ -44,17 +44,12 @@ function updateTocVisibility() {
     const bounds = heading.getBoundingClientRect();
     return bounds.bottom > 0 && bounds.top < window.innerHeight;
   });
-  const viewport = container.closest<HTMLElement>(".toc");
-  const availableHeight = viewport
-    ? viewport.clientHeight - container.offsetTop
-    : window.innerHeight;
-  const containerBounds = container.getBoundingClientRect();
-
-  if (visibleItems.length === 0 || container.scrollHeight <= availableHeight) {
+  if (visibleItems.length === 0 || visibleItems.length === items.length) {
     indicator.classList.remove("isVisible");
     return;
   }
 
+  const containerBounds = container.getBoundingClientRect();
   const firstBounds = visibleItems[0].link.getBoundingClientRect();
   const lastBounds =
     visibleItems.at(-1)?.link.getBoundingClientRect() ?? firstBounds;
