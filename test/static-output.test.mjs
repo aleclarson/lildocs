@@ -660,10 +660,12 @@ test("renders group breadcrumbs before grouped page content", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "nested-section", "deep", "page.html"), "utf8");
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(
     html,
     /<article><p class="groupBreadcrumbs">Nested Section \/ Deep<\/p><div><h1 id="nested-page">Nested Page<\/h1>/,
   );
+  assert.match(css, /\.groupBreadcrumbs \{[^}]*margin-block-end: 0px !important/);
 });
 
 test("does not indent nested sidebar pages", async () => {
