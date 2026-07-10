@@ -275,6 +275,7 @@ html.is-animating .transition-scale {
 
 .content article p {
   margin-block: 1.25em;
+  line-height: 1.9;
 }
 
 .content img {
@@ -296,6 +297,7 @@ html.is-animating .transition-scale {
 
 .content article li {
   margin-block: 1em;
+  line-height: 1.9;
 }
 
 .content article > div > ul {

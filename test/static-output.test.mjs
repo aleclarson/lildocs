@@ -240,6 +240,8 @@ test("renders gfm tables task lists and strikethrough", async () => {
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<table>/);
+  assert.match(css, /\.content article p \{[^}]*line-height: 1\.9/);
+  assert.match(css, /\.content article li \{[^}]*line-height: 1\.9/);
   assert.match(css, /\.content article > div > ul \{[^}]*margin-bottom: 2em/);
   assert.match(css, /\.content table \{[^}]*display: block;[^}]*max-width: 100%;[^}]*overflow-x: auto/);
   assert.match(
