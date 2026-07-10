@@ -109,6 +109,18 @@ export function Layout({
               pageRoute={page.route}
             />
           </nav>
+          @if (repositoryUrl && repositoryLabel) {
+            <a
+              class="sidebarRepoLink"
+              href={repositoryUrl}
+              aria-label="View repository on GitHub"
+            >
+              <span class="repoIcon" aria-hidden="true" />
+              <span>
+                {repositoryLabel as string}
+              </span>
+            </a>
+          }
         </div>
       </aside>
       <div class="sidebarFloatingControls">

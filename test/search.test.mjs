@@ -148,6 +148,7 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
   assert.match(html, /class="tocRepoLink"/);
+  assert.match(html, /class="sidebarRepoLink"/);
   assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
   assert.doesNotMatch(html, /--ld-repo-icon/);
   assert.doesNotMatch(nestedHtml, /--ld-repo-icon/);
@@ -254,7 +255,6 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
   assert.match(css, /\.tocTitle \{[^}]*display: flex/);
   assert.match(css, /\.tocLinks \{[^}]*margin-left: 5px/);
-  assert.match(css, /\.toc \.tocLinks li \{[^}]*margin-block: 0/);
   assert.match(css, /\.tocRail \{[^}]*background: var\(--ld-color-border\)/);
   assert.match(css, /\.tocVisibility \{[^}]*background: var\(--ld-color-accent\)/);
   assert.match(css, /\.tocVisibility \{[^}]*height 180ms var\(--ld-navigation-easing\)/);
@@ -286,6 +286,8 @@ test("emits collapsible sidebar controls with Tabler icons", async () => {
   assert.match(css, /html\.sidebar-menu-open \.sidebar \{[^}]*height: 100dvh/);
   assert.match(css, /html\.sidebar-menu-open \.sidebarHeader \{[^}]*position: sticky/);
   assert.match(css, /@media \(max-width: 860px\)[\s\S]*?\.content \{[^}]*padding-block-start: 25px/);
+  assert.match(css, /@media \(max-width: 860px\)[\s\S]*?\.toc \{[^}]*display: none/);
+  assert.match(css, /html\.sidebar-menu-open \.sidebarRepoLink \{[^}]*display: flex/);
   assert.match(css, /\.sidebar \{[^}]*position: sticky/);
   assert.match(frontendScript, /sidebar-collapsed/);
   assert.match(frontendScript, /sidebar-menu-open/);

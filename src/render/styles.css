@@ -133,6 +133,10 @@ body {
   display: none;
 }
 
+.sidebarRepoLink {
+  display: none;
+}
+
 .sidebarFloatingControls {
   position: fixed;
   top: 24px;
@@ -786,7 +790,6 @@ html.mermaidFullscreenOpen {
 .toc {
   color: var(--ld-color-muted-text);
   font-size: 0.9rem;
-  line-height: normal;
 }
 
 .toc p {
@@ -813,11 +816,6 @@ html.mermaidFullscreenOpen {
   margin: 0;
   list-style: none;
   padding-left: 16px;
-}
-
-.toc .tocLinks li {
-  margin-block: 0;
-  line-height: normal;
 }
 
 .tocRail,
@@ -1166,6 +1164,19 @@ html.mermaidFullscreenOpen {
     padding: 0 20px 32px;
   }
 
+  html.sidebar-menu-open .sidebarRepoLink {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 20px 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ld-color-border);
+    color: var(--ld-color-text);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
   .searchResults {
     position: absolute;
     top: calc(100% + 8px);
@@ -1182,9 +1193,6 @@ html.mermaidFullscreenOpen {
   }
 
   .toc {
-    position: static;
-    max-height: none;
-    padding-block: 24px;
-    border-bottom: 1px solid var(--ld-color-border);
+    display: none;
   }
 }
