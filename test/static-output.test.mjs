@@ -28,6 +28,7 @@ test("emits only bundled icon masks for tabler icons", async () => {
   assert.match(css, /\.ti \{/);
   assert.match(css, /\.ti-search \{/);
   assert.match(css, /\.ti-link \{/);
+  assert.match(css, /\.ti-check \{/);
   assert.match(css, /\.ti-align-left \{/);
   assert.match(css, /\.ti-copy-check \{/);
   assert.match(css, /\.ti-alert-triangle \{/);
@@ -356,9 +357,11 @@ test("copies heading links with fragments except for the page heading", async ()
   assert.match(frontendScript, /document\.execCommand\("copy"\)/);
   assert.match(frontendScript, /headingLinkCopied/);
   assert.match(frontendScript, /ti ti-link/);
+  assert.match(frontendScript, /ti ti-check/);
   assert.match(css, /\[id\] \{[^}]*cursor: pointer/);
   assert.match(css, /\.headingLinkIcon \{[^}]*opacity: 0/);
-  assert.match(css, /\.headingLinkCopied::after \{[^}]*content: "Link copied"/);
+  assert.match(css, /\.headingLinkIcon\.headingLinkCopied \{[^}]*opacity: 1/);
+  assert.doesNotMatch(css, /content: "Link copied"/);
 });
 
 test("emits swup navigation enhancement assets", async () => {

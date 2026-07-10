@@ -21,6 +21,10 @@
   --ld-tabler-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M9%2015l6%20-6%22%2F%3E%3Cpath%20d%3D%22M11%206l.463%20-.536a5%205%200%200%201%207.071%207.072l-.534%20.464%22%2F%3E%3Cpath%20d%3D%22M13%2018l-.397%20.534a5.068%205.068%200%200%201%20-7.127%200a4.972%204.972%200%200%201%200%20-7.071l.524%20-.463%22%2F%3E%3C%2Fsvg%3E");
 }
 
+.ti-check {
+  --ld-tabler-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%2012l5%205l10%20-10%22%2F%3E%3C%2Fsvg%3E");
+}
+
 .ti-align-left {
   --ld-tabler-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%206l16%200%22%2F%3E%3Cpath%20d%3D%22M4%2012l10%200%22%2F%3E%3Cpath%20d%3D%22M4%2018l14%200%22%2F%3E%3C%2Fsvg%3E");
 }

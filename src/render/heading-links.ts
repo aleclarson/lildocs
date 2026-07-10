@@ -1,5 +1,9 @@
 const headingSelector =
   ".content article h1[id], .content article h2[id], .content article h3[id], .content article h4[id], .content article h5[id], .content article h6[id]";
+const headingLinkIcons = {
+  link: '<span class="ti ti-link" aria-hidden="true"></span>',
+  check: '<span class="ti ti-check" aria-hidden="true"></span>',
+};
 
 export function initHeadingLinks() {
   enhanceHeadingLinks();
@@ -32,7 +36,7 @@ function enhanceHeadingLinks() {
     icon.className = "headingLinkIcon";
     icon.setAttribute("aria-label", "Copy link to heading");
     icon.title = "Copy link to heading";
-    icon.innerHTML = '<span class="ti ti-link" aria-hidden="true"></span>';
+    icon.innerHTML = headingLinkIcons.link;
     heading.append(icon);
   }
 }
@@ -43,11 +47,21 @@ async function copyHeadingLink(heading: HTMLHeadingElement) {
 
   try {
     await writeClipboard(url.href);
-    heading.classList.add("headingLinkCopied");
-    window.setTimeout(
-      () => heading.classList.remove("headingLinkCopied"),
-      1600,
-    );
+    const icon = heading.querySelector<HTMLButtonElement>(".headingLinkIcon");
+    if (!icon) {
+      return;
+    }
+
+    icon.classList.add("headingLinkCopied");
+    icon.innerHTML = headingLinkIcons.check;
+    icon.setAttribute("aria-label", "Copied");
+    icon.title = "Copied";
+    window.setTimeout(() => {
+      icon.classList.remove("headingLinkCopied");
+      icon.innerHTML = headingLinkIcons.link;
+      icon.setAttribute("aria-label", "Copy link to heading");
+      icon.title = "Copy link to heading";
+    }, 1600);
   } catch {}
 }
 

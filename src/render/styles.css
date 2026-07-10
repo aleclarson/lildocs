@@ -242,14 +242,12 @@ html.is-animating .transition-scale {
   opacity: 1;
 }
 
-.content article :where(h1, h2, h3, h4, h5, h6).headingLinkCopied::after {
-  margin-left: 0.6em;
+.content
+  article
+  :where(h1, h2, h3, h4, h5, h6)[id]
+  .headingLinkIcon.headingLinkCopied {
   color: var(--ld-color-accent);
-  content: "Link copied";
-  font-family: var(--ld-font-body);
-  font-size: 0.7rem;
-  font-weight: 600;
-  vertical-align: middle;
+  opacity: 1;
 }
 
 .content article :where(h2, h3).sectionHighlight {
