@@ -1,6 +1,6 @@
 {
   "name": "lildocs",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "A lightweight CLI that turns Markdown docs into a static searchable documentation site.",
   "homepage": "https://aleclarson.github.io/lildocs/",
   "repository": {
