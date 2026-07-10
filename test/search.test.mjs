@@ -196,7 +196,9 @@ test("search script preloads links and supports keyboard result selection", asyn
   assert.match(frontendScript, /event\.key === "ArrowDown"/);
   assert.match(frontendScript, /event\.key === "ArrowUp"/);
   assert.match(frontendScript, /event\.key === "Enter"/);
-  assert.match(frontendScript, /event\.key\.toLowerCase\(\) === "k"/);
+  assert.match(frontendScript, /const key = event\.key\.toLowerCase\(\)/);
+  assert.match(frontendScript, /key === "k"/);
+  assert.match(frontendScript, /event\.shiftKey && key === "f"/);
   assert.match(frontendScript, /lildocs:search-toggle/);
   assert.match(frontendScript, /selected\.click\(\)/);
   assert.match(frontendScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);

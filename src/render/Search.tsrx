@@ -77,7 +77,11 @@ export function SearchBox({
       setOpen(Boolean(query.trim()));
     };
     const handleShortcut = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      const key = event.key.toLowerCase();
+      const hasCommandModifier = event.metaKey || event.ctrlKey;
+      if (
+        hasCommandModifier && (key === "k" || event.shiftKey && key === "f")
+      ) {
         event.preventDefault();
         toggleSearch();
       }
