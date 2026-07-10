@@ -372,9 +372,19 @@ html.is-animating .transition-scale {
 }
 
 .navList {
+  position: relative;
   list-style: none;
   margin: 0;
   padding-left: 0;
+}
+
+.navList::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ld-color-border) 65%, transparent);
+  content: "";
 }
 
 .navList > li + li {
@@ -412,7 +422,6 @@ html.is-animating .transition-scale {
   left: 0;
   width: 2px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--ld-color-border) 65%, transparent);
   content: "";
 }
 
