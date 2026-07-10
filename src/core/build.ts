@@ -120,7 +120,8 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
   const mermaid = await createMermaidRenderer({
     themeConfig: themeToMermaidConfig(theme, fontResolution.themeFonts),
   });
-  const css = `${resolveThemeFontImports(theme, configOptions.fonts)}${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${mermaid.css}${backgroundResolution.css}${logoResolution.css}${baseCss}`;
+  const configuredCss = `${resolveThemeFontImports(theme, configOptions.fonts)}${fontResolution.css}${themeToCssVariables(theme, fontResolution.themeFonts, configOptions.link, configOptions.navigation)}\n${mermaid.css}${backgroundResolution.css}${logoResolution.css}`;
+  const css = `${configuredCss}${baseCss}`;
   const assets: AssetCopy[] = [
     ...fontResolution.assets,
     ...backgroundResolution.assets,
@@ -178,7 +179,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           page,
           nav,
           pageNavigation: pageNavigation.get(page.route),
-          css,
+          css: configuredCss,
           searchIndexJson,
           logo: logoResolution.logo,
           favicon: logoResolution.favicon,

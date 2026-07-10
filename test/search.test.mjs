@@ -151,6 +151,7 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
   assert.doesNotMatch(html, /--ld-repo-icon/);
   assert.doesNotMatch(nestedHtml, /--ld-repo-icon/);
+  assert.doesNotMatch(html, /\.repoIcon \{/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
   assert.match(html, /window\.lildocsIssueUrl = "https:\/\/github\.com\/example\/project\/issues\/new"/);
   assert.match(html, /aria-label="View repository on GitHub"/);
