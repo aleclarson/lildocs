@@ -337,6 +337,10 @@ html.is-animating .transition-scale {
   line-height: 1.45;
 }
 
+.content article h1 + blockquote > p {
+  line-height: 1.6;
+}
+
 .content blockquote > :first-child {
   margin-top: 0;
 }
