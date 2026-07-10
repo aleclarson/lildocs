@@ -27,6 +27,7 @@ test("emits only bundled icon masks for tabler icons", async () => {
   assert.match(html, /<link rel="stylesheet" href=".\/assets\/tabler-icons\.css"\s*\/?>/);
   assert.match(css, /\.ti \{/);
   assert.match(css, /\.ti-search \{/);
+  assert.match(css, /\.ti-link \{/);
   assert.match(css, /\.ti-align-left \{/);
   assert.match(css, /\.ti-copy-check \{/);
   assert.match(css, /\.ti-alert-triangle \{/);
