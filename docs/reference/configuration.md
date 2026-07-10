@@ -124,3 +124,7 @@ Reference pages are generated with `exports-md`. Package export maps follow
 relative imports and re-exports by default. Property comments render below
 declaration blocks. When the nearest package metadata points to a GitHub
 repository, generated symbol sections include GitHub code search links.
+
+Each export uses its full package specifier as its pathname. For a package named
+`foo`, the `.` export is written to `/reference/foo.html`, while `./bar` is
+written to `/reference/foo/bar.html`.

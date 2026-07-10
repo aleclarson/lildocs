@@ -100,11 +100,17 @@ test("generates API reference pages from sibling package exports", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const referenceHtml = await readFile(path.join(outDir, "reference", "index.html"), "utf8");
+  const referenceHtml = await readFile(path.join(outDir, "reference", "fixture-lib.html"), "utf8");
+  const subpathHtml = await readFile(
+    path.join(outDir, "reference", "fixture-lib", "bar.html"),
+    "utf8",
+  );
   const searchIndex = await readFile(path.join(outDir, "search-index.json"), "utf8");
   assert.match(referenceHtml, /<title>fixture-lib • fixture-lib<\/title>/);
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /greet/);
+  assert.match(subpathHtml, /<h1 id="fixture-lib-bar">fixture-lib\/bar<\/h1>/);
+  assert.match(subpathHtml, /bar/);
   assert.match(searchIndex, /Greets a person/);
 });
 
@@ -124,7 +130,7 @@ test("generates API reference pages from configured package exports", async () =
 
   await runCli([docs, "--out", outDir]);
 
-  const referenceHtml = await readFile(path.join(outDir, "reference", "index.html"), "utf8");
+  const referenceHtml = await readFile(path.join(outDir, "reference", "fixture-lib.html"), "utf8");
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /FixtureOptions/);
   assert.match(referenceHtml, /<strong>Properties<\/strong>/);
@@ -177,6 +183,10 @@ async function writeExportedDeclarations(packageRoot) {
           types: "./dist/index.d.ts",
           default: "./dist/index.js",
         },
+        "./bar": {
+          types: "./dist/bar.d.ts",
+          default: "./dist/bar.js",
+        },
       },
     }),
   );
@@ -196,6 +206,12 @@ export interface FixtureOptions {
  * Greets a person.
  */
 export declare function greet(options: FixtureOptions): string;
+`,
+  );
+  await writeFile(
+    path.join(packageRoot, "dist", "bar.d.ts"),
+    `/** A subpath export. */
+export declare const bar: string;
 `,
   );
 }

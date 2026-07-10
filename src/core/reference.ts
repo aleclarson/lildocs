@@ -50,15 +50,18 @@ export async function buildReferencePages(options: {
     } satisfies GenerateMarkdownOptions);
 
     const markdownPaths = await collectMarkdownPaths(tempDir);
+    const packageName = packageJsonData.name;
+    if (typeof packageName !== "string" || !packageName) {
+      throw new Error(`Package name not found: ${packageJson.packagePath}`);
+    }
+
     return Promise.all(
       markdownPaths.map(async (sourcePath) => {
-        const generatedPath = toPosixPath(path.relative(tempDir, sourcePath));
+        const rawMarkdown = await readFile(sourcePath, "utf8");
         return {
           sourcePath,
-          relativePath: toPosixPath(
-            path.posix.join("reference", generatedPath),
-          ),
-          rawMarkdown: await readFile(sourcePath, "utf8"),
+          relativePath: referenceMarkdownPath(rawMarkdown, packageName),
+          rawMarkdown,
         };
       }),
     );
@@ -101,6 +104,7 @@ async function readPackageJson(packagePath: string) {
   try {
     return JSON.parse(await readFile(packagePath, "utf8")) as {
       exports?: unknown;
+      name?: unknown;
     };
   } catch (error) {
     if (error instanceof SyntaxError) {
@@ -110,6 +114,24 @@ async function readPackageJson(packagePath: string) {
     }
     throw error;
   }
+}
+
+function referenceMarkdownPath(rawMarkdown: string, packageName: string) {
+  const packageSpecifier = rawMarkdown.match(/^#\s+(.+)$/m)?.[1]?.trim();
+  if (
+    !packageSpecifier ||
+    (packageSpecifier !== packageName &&
+      !packageSpecifier.startsWith(`${packageName}/`)) ||
+    packageSpecifier
+      .split("/")
+      .some((part) => !part || part === "." || part === "..")
+  ) {
+    throw new Error(
+      `Invalid package entry heading: ${packageSpecifier ?? "missing"}`,
+    );
+  }
+
+  return toPosixPath(path.posix.join("reference", `${packageSpecifier}.md`));
 }
 
 function errorMessage(error: unknown) {
