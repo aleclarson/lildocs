@@ -193,7 +193,8 @@ html.is-animating .transition-scale {
   top: 0;
   align-self: start;
   max-height: 100vh;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding-block: 70px 24px;
 }
 
@@ -850,8 +851,12 @@ html.mermaidFullscreenOpen {
 }
 
 .toc a {
+  display: block;
+  overflow: hidden;
   color: var(--ld-color-muted-text);
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tocDepth3 {
