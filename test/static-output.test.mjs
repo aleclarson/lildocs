@@ -114,7 +114,12 @@ test("generates API reference pages from sibling package exports", async () => {
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /greet/);
   assert.match(sidebar, /<span class="navFolder">\s*Reference\s*<\/span>/);
-  assert.doesNotMatch(sidebar, /fixture-lib/);
+  assert.match(sidebar, /href="\.\/fixture-lib\.html"[^>]*>\s*fixture-lib\s*<\/a>/);
+  assert.match(
+    sidebar,
+    /href="\.\/fixture-lib\/bar\.html"[^>]*>\s*fixture-lib\/bar\s*<\/a>/,
+  );
+  assert.doesNotMatch(sidebar, /<span class="navFolder">\s*Fixture Lib\s*<\/span>/);
   assert.match(subpathHtml, /<h1 id="fixture-lib-bar">fixture-lib\/bar<\/h1>/);
   assert.match(subpathHtml, /bar/);
   assert.match(searchIndex, /Greets a person/);

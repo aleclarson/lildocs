@@ -282,9 +282,16 @@ function NavList({
       const isReferenceGroup = item.route === "reference/index.html";
       <li class={item.children.length > 0 ? "navGroup" : undefined}>
         @if (isReferenceGroup) {
-          <span class="navFolder">
-            {item.title as string}
-          </span>
+          <>
+            <span class="navFolder">
+              {item.title as string}
+            </span>
+            <NavList
+              items={flattenNavPages(item.children)}
+              currentRoute={currentRoute}
+              pageRoute={pageRoute}
+            />
+          </>
         } @else if (item.children.length > 0 && item.hasPage) {
           <details
             class="navDisclosure"
@@ -321,6 +328,19 @@ function NavList({
       </li>
     }
   </ul>
+}
+
+function flattenNavPages(items: NavItem[]): NavItem[] {
+  return items.flatMap(
+    (item) => [
+      ...(item.hasPage
+        ? [
+            { ...item, children: [] },
+          ]
+        : []),
+      ...flattenNavPages(item.children),
+    ],
+  );
 }
 
 function isActiveBranch(item: NavItem, currentRoute: string): boolean {
