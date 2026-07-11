@@ -262,8 +262,8 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.tocTitle \{[^}]*display: flex/);
   assert.match(css, /\.tocLinks \{[^}]*margin-left: 5px/);
   assert.match(css, /\.toc \{[^}]*overflow-x: hidden/);
-  assert.match(css, /\.toc a \{[^}]*text-overflow: ellipsis/);
-  assert.match(css, /\.toc a \{[^}]*white-space: nowrap/);
+  assert.match(css, /\.tocLinks a \{[^}]*text-overflow: ellipsis/);
+  assert.match(css, /\.tocLinks a \{[^}]*white-space: nowrap/);
   assert.match(css, /\.tocRail \{[^}]*background: var\(--ld-color-border\)/);
   assert.match(css, /\.tocVisibility \{[^}]*background: var\(--ld-color-accent\)/);
   assert.match(css, /\.tocVisibility \{[^}]*height 180ms var\(--ld-navigation-easing\)/);
