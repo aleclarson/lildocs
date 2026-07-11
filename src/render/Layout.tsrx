@@ -277,8 +277,13 @@ function NavList({
 }) @{
   <ul class="navList">
     @for (const item of items; key item.route) {
+      const isReferenceGroup = item.route === "reference/index.html";
       <li class={item.children.length > 0 ? "navGroup" : undefined}>
-        @if (item.children.length > 0 && item.hasPage) {
+        @if (isReferenceGroup) {
+          <span class="navFolder">
+            {item.title as string}
+          </span>
+        } @else if (item.children.length > 0 && item.hasPage) {
           <details
             class="navDisclosure"
             open={isActiveBranch(item, currentRoute)}
@@ -304,7 +309,7 @@ function NavList({
             {item.title as string}
           </a>
         }
-        @if (item.children.length > 0 && !item.hasPage) {
+        @if (item.children.length > 0 && !item.hasPage && !isReferenceGroup) {
           <NavList
             items={item.children}
             currentRoute={currentRoute}

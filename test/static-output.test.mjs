@@ -109,9 +109,12 @@ test("generates API reference pages from sibling package exports", async () => {
     "utf8",
   );
   const searchIndex = await readFile(path.join(outDir, "search-index.json"), "utf8");
+  const sidebar = documentationNavigation(referenceHtml);
   assert.match(referenceHtml, /<title>fixture-lib • fixture-lib<\/title>/);
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /greet/);
+  assert.match(sidebar, /<span class="navFolder">\s*Reference\s*<\/span>/);
+  assert.doesNotMatch(sidebar, /fixture-lib/);
   assert.match(subpathHtml, /<h1 id="fixture-lib-bar">fixture-lib\/bar<\/h1>/);
   assert.match(subpathHtml, /bar/);
   assert.match(searchIndex, /Greets a person/);
