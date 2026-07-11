@@ -1047,6 +1047,10 @@ html.mermaidFullscreenOpen {
   text-decoration: none;
 }
 
+.tocRepoLink:first-child {
+  border-top: 0;
+}
+
 .tocRepoLink:hover,
 .tocRepoLink:focus-visible {
   color: var(--ld-color-link);

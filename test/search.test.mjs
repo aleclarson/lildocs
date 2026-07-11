@@ -149,6 +149,11 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
   assert.match(html, /class="tocRepoLink"/);
   assert.match(html, /class="sidebarRepoLink"/);
+  assert.doesNotMatch(nestedHtml, /class="tocTitle"/);
+  assert.match(
+    nestedHtml,
+    /<nav aria-label="Table of contents">\s*<a class="tocRepoLink"/,
+  );
   assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
   assert.doesNotMatch(html, /--ld-repo-icon/);
   assert.doesNotMatch(nestedHtml, /--ld-repo-icon/);
@@ -252,6 +257,7 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.sectionHighlight \{[^}]*animation: section-highlight 2\.4s ease-out/);
   assert.match(css, /@keyframes section-highlight/);
   assert.match(css, /\.tocRepoLink \{[^}]*font-size: 0\.8rem/);
+  assert.match(css, /\.tocRepoLink:first-child \{[^}]*border-top: 0/);
   assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
   assert.match(css, /\.tocTitle \{[^}]*display: flex/);
   assert.match(css, /\.tocLinks \{[^}]*margin-left: 5px/);
