@@ -17,7 +17,6 @@ export default defineConfig([
     define: {
       "import.meta.main": "false",
     },
-    copy: [{ from: "src/render/**/*", to: "dist/render" }],
     dts: false,
     shims: true,
   },

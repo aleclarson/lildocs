@@ -30,7 +30,6 @@ import {
   type NavigationOptions,
   type ThemeConfig,
 } from "./theme.js";
-import type { ViteDevServer } from "vite";
 import type { PageNavigation } from "../render/types.js";
 
 export type BuildOptions = {
@@ -45,10 +44,7 @@ export type BuildOptions = {
   link?: LinkOptions;
   navigation?: NavigationOptions;
   homePagePreference?: HomePagePreference;
-  dev?: {
-    clientScriptPath: string;
-    viteServer?: ViteDevServer;
-  };
+  dev?: boolean;
   basePath?: string;
 };
 
@@ -160,16 +156,8 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
       2,
     );
     const pageNavigation = buildPageNavigation(model.pages);
-    const frontendAssets = options.dev
-      ? {
-          scriptPath: options.dev.clientScriptPath,
-          stylePaths: [],
-        }
-      : await buildFrontendAssets({ cwd: options.cwd, outDir });
-    const renderer = await createFrontendRenderer({
-      cwd: options.cwd,
-      viteServer: options.dev?.viteServer,
-    });
+    const frontendAssets = await buildFrontendAssets({ outDir });
+    const renderer = await createFrontendRenderer();
     frontendRenderer = renderer;
 
     await Promise.all(
@@ -188,6 +176,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
           navigation: configOptions.navigation,
           clientScriptPath: frontendAssets.scriptPath,
           clientStylePaths: frontendAssets.stylePaths,
+          dev: options.dev,
         });
         const outputPath = path.join(outDir, page.outputPath);
         await mkdir(path.dirname(outputPath), { recursive: true });

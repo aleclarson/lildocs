@@ -1,5 +1,6 @@
 import { createRoot } from "octane";
 import { initCopyCode } from "./copy-code.js";
+import { initDevReload } from "./dev-reload.js";
 import { initHeadingLinks } from "./heading-links.js";
 import { initNavigation } from "./navigation.js";
 import { preloadRelativeUrl, SearchBox } from "./Search.tsrx";
@@ -10,6 +11,7 @@ import { initTocVisibility } from "./toc-visibility.js";
 import type { SearchEntry } from "./Search.tsrx";
 
 initCopyCode();
+initDevReload();
 initHeadingLinks();
 initNavigation();
 initSectionHighlights();

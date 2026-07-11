@@ -1,10 +1,12 @@
+import { watch } from "node:fs";
 import { appendFile, mkdir, readFile, stat } from "node:fs/promises";
+import { createServer, type ServerResponse } from "node:http";
 import path from "node:path";
 import { buildSite, type BuildResult } from "./build.js";
 import { LildocsError } from "./errors.js";
-import { createFrontendDevServer, frontendDevScriptPath } from "./frontend.js";
 import { resolveInput } from "./input.js";
 import { isHiddenOrSystemPath } from "./paths.js";
+import { serveStaticFile } from "./server.js";
 import type { BackgroundOptions, FontOverrides, LinkOptions } from "./theme.js";
 
 export type DevOptions = {
@@ -33,16 +35,11 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
 
   await addGitExclude(options.cwd, outDir);
   await mkdir(outDir, { recursive: true });
-  const vite = await createFrontendDevServer({
-    cwd: options.cwd,
-    root: outDir,
-    host: options.host,
-    port: options.port,
-  });
   let rebuildTimer: NodeJS.Timeout | undefined;
   let rebuilding = false;
   let pending = false;
   let lastSuccessfulBuild: BuildResult | undefined;
+  const reloadClients = new Set<ServerResponse>();
 
   async function rebuild(emitReload: boolean, throwOnFailure = false) {
     if (rebuilding) {
@@ -62,17 +59,16 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
         background: options.background,
         link: options.link,
         homePagePreference: "readme-first",
-        dev: {
-          clientScriptPath: frontendDevScriptPath(),
-          viteServer: vite,
-        },
+        dev: true,
       });
       const elapsed = Math.round(performance.now() - started);
       console.log(
         `Rebuilt ${lastSuccessfulBuild.pages.length} page${lastSuccessfulBuild.pages.length === 1 ? "" : "s"} in ${elapsed}ms`,
       );
       if (emitReload) {
-        vite.ws.send({ type: "full-reload" });
+        for (const client of reloadClients) {
+          client.write("data: reload\n\n");
+        }
       }
     } catch (error) {
       if (throwOnFailure) {
@@ -98,21 +94,43 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
     }, 150);
   }
 
-  vite.watcher.add(input.docsRoot);
-  vite.watcher.on("all", (_event, file) => {
-    const changedPath = path.resolve(file);
-    if (
-      !isInside(input.docsRoot, changedPath) ||
-      shouldIgnore(changedPath, input.docsRoot, outDir)
-    ) {
+  await rebuild(false, true);
+  const watcher = watch(
+    input.docsRoot,
+    { recursive: true },
+    (_event, filename) => {
+      if (filename) {
+        const changedPath = path.resolve(input.docsRoot, filename);
+        if (shouldIgnore(changedPath, input.docsRoot, outDir)) {
+          return;
+        }
+      }
+      scheduleRebuild();
+    },
+  );
+  const server = createServer((request, response) => {
+    if (request.url === "/__lildocs_reload") {
+      response.writeHead(200, {
+        "cache-control": "no-cache",
+        connection: "keep-alive",
+        "content-type": "text/event-stream",
+      });
+      response.write("retry: 500\n\n");
+      reloadClients.add(response);
+      response.on("close", () => reloadClients.delete(response));
       return;
     }
-    scheduleRebuild();
+    void serveStaticFile(request, response, outDir);
+  });
+  await new Promise<void>((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(options.port, options.host, () => {
+      server.off("error", reject);
+      resolve();
+    });
   });
 
-  await rebuild(false, true);
-
-  const address = vite.httpServer?.address();
+  const address = server.address();
   const actualPort =
     typeof address === "object" && address ? address.port : options.port;
   const url = `http://${options.host}:${actualPort}/`;
@@ -124,7 +142,13 @@ export async function startDevServer(options: DevOptions): Promise<DevServer> {
       if (rebuildTimer) {
         clearTimeout(rebuildTimer);
       }
-      await vite.close();
+      watcher.close();
+      for (const client of reloadClients) {
+        client.end();
+      }
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+      });
     },
   };
 }

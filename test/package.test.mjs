@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -16,7 +16,7 @@ const bundledDependencies = [
   "marked",
   "marked-shiki",
 ];
-const externalDependencies = ["beautiful-mermaid", "octane", "shiki", "swup", "vite"];
+const externalDependencies = ["beautiful-mermaid", "shiki"];
 
 test("builds Markdown and API reference from the packed package", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "lildocs-package-"));
@@ -38,6 +38,10 @@ test("builds Markdown and API reference from the packed package", async () => {
   const manifest = JSON.parse(await readFile(path.join(packageDir, "package.json"), "utf8"));
   for (const dependency of bundledDependencies) {
     assert.equal(manifest.dependencies?.[dependency], undefined);
+  }
+  for (const dependency of ["octane", "swup", "vite"]) {
+    assert.equal(manifest.dependencies?.[dependency], undefined);
+    assert.equal(manifest.peerDependencies?.[dependency], undefined);
   }
 
   await mkdir(path.join(packageDir, "node_modules"), { recursive: true });
@@ -85,4 +89,47 @@ test("builds Markdown and API reference from the packed package", async () => {
     await readFile(path.join(outDir, "reference", "packed-fixture.html"), "utf8"),
     /packedGreeting/,
   );
+
+  const dev = spawn(
+    process.execPath,
+    [
+      path.join(packageDir, "dist", "cli.mjs"),
+      "dev",
+      docs,
+      "--out",
+      path.join(workspace, ".preview"),
+      "--port",
+      "0",
+    ],
+    { cwd: workspace, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  let stdout = "";
+  let stderr = "";
+  dev.stdout.setEncoding("utf8");
+  dev.stderr.setEncoding("utf8");
+  dev.stdout.on("data", (chunk) => {
+    stdout += chunk;
+  });
+  dev.stderr.on("data", (chunk) => {
+    stderr += chunk;
+  });
+  try {
+    const url = await waitFor(() => stdout.match(/listening at (http:\/\/[^\s]+)/)?.[1]);
+    assert.match(await fetch(url).then((response) => response.text()), /Packed docs/);
+  } catch (error) {
+    throw new Error(`${error.message}\nstdout:\n${stdout}\nstderr:\n${stderr}`);
+  } finally {
+    dev.kill();
+    await new Promise((resolve) => dev.once("exit", resolve));
+  }
 });
+
+async function waitFor(callback, timeout = 5000) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    const result = callback();
+    if (result) return result;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error("Timed out waiting for condition");
+}

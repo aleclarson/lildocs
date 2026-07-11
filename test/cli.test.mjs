@@ -43,10 +43,12 @@ test("dev command serves and rebuilds the generated site", async () => {
   try {
     const home = await fetchText(server.url);
     assert.match(home, /Fixture Home/);
-    assert.match(home, /\/@vite\/client/);
-    const client = await fetchText(new URL("/@vite/client", server.url));
-    assert.match(client, /createHotContext/);
-    assert.doesNotMatch(server.stderr(), /Failed to run dependency scan/);
+    assert.match(home, /window\.lildocsDev = true/);
+    assert.doesNotMatch(home, /\/@vite\/client/);
+    const clientPath = home.match(/<script type="module" src="([^"]+)"/)?.[1];
+    assert.ok(clientPath);
+    const client = await fetchText(new URL(clientPath, server.url));
+    assert.match(client, /EventSource/);
 
     await writeDocFile(docs, "index.md", "# Updated Home\n\nChanged content.");
     await waitFor(async () => {

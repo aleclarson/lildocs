@@ -18,6 +18,7 @@ export type LayoutProps = {
   navigation?: NavigationOptions;
   clientScriptPath: string;
   clientStylePaths: string[];
+  dev?: boolean;
 };
 
 export function Layout({
@@ -32,6 +33,7 @@ export function Layout({
   navigation,
   clientScriptPath,
   clientStylePaths,
+  dev,
 }: LayoutProps) @{
   const transition = navigation?.transition ?? "fade";
   const issueUrl = issueUrlForRepository(repositoryUrl);
@@ -167,7 +169,7 @@ export function Layout({
           issueUrl
             ? `window.lildocsIssueUrl = ${JSON.stringify(issueUrl)};`
             : ""
-        }`,
+        }${dev ? "window.lildocsDev = true;" : ""}`,
       }}
     />
     <script
