@@ -28,7 +28,7 @@
     "cmd-ts": "^0.15.0",
     "culori": "^4.0.2",
     "entities": "^8.0.0",
-    "exports-md": "^0.2.5",
+    "exports-md": "^0.2.7",
     "gray-matter": "^4.0.3",
     "marked": "^18.0.3",
     "marked-shiki": "^1.2.1",

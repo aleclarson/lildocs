@@ -21,8 +21,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       exports-md:
-        specifier: ^0.2.5
-        version: 0.2.5
+        specifier: ^0.2.7
+        version: 0.2.7
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -733,8 +733,8 @@ packages:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
 
-  exports-md@0.2.5:
-    resolution: {integrity: sha512-Io6JEsy4aBSuttOisi/xsgP102Wqkfn9JoFRNHMBEEPKRHxkhnr7x21zw2/jY9zM3YrG7ifrLElL1qRPMS/DEA==}
+  exports-md@0.2.7:
+    resolution: {integrity: sha512-rj0uXrPYQ/mFU7Seo8B98aqdigDI1kH4kjraslf24yh+GLmKkiR2nkl13p13M5hdtuakuPNfkUwRtbRkwLxk8A==}
     engines: {node: ^22.18.0 || >=24.2.0}
     hasBin: true
 
@@ -1767,7 +1767,7 @@ snapshots:
 
   expect-type@1.4.0: {}
 
-  exports-md@0.2.5:
+  exports-md@0.2.7:
     dependencies:
       cmd-ts: 0.15.0
     transitivePeerDependencies:
