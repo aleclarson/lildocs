@@ -108,8 +108,10 @@ lildocs init github-pages ./docs
 ```
 
 This command writes `.github/workflows/lildocs-pages.yml` if it does not already
-exist. The workflow runs `lildocs deploy`, uploads the generated output, and
-publishes it with GitHub's Pages deployment action.
+exist. The workflow obtains the current lildocs major and minor release line
+with `pnpm dlx`, runs `lildocs deploy`, uploads the generated output, and
+publishes it with GitHub's Pages deployment action. Lildocs does not need to be
+a project dependency.
 
 ## Options
 

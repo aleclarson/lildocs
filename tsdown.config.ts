@@ -1,4 +1,5 @@
 import { defineConfig } from "tsdown";
+import packageJson from "./package.json" with { type: "json" };
 
 export default defineConfig([
   {
@@ -15,6 +16,7 @@ export default defineConfig([
       ],
     },
     define: {
+      __LILDOCS_VERSION__: JSON.stringify(packageJson.version),
       "import.meta.main": "false",
     },
     dts: false,

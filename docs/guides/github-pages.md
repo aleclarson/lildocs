@@ -38,8 +38,9 @@ lildocs init github-pages ./docs --out ./site
 
 This writes `.github/workflows/lildocs-pages.yml` if it does not already exist.
 The workflow installs dependencies with pnpm, builds the project, runs
-`lildocs deploy`, uploads the output with `actions/upload-pages-artifact`, and
-deploys with `actions/deploy-pages`.
+the current lildocs major and minor release line with `pnpm dlx`, uploads the
+output with `actions/upload-pages-artifact`, and deploys with
+`actions/deploy-pages`. Lildocs does not need to be a project dependency.
 
 Pass the same output and base path that the workflow should use:
 

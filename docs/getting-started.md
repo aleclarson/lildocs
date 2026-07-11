@@ -6,13 +6,13 @@
 Run lildocs directly with `pnpm dlx`:
 
 ```bash
-pnpm dlx --package lildocs --package vite lildocs ./docs
+pnpm dlx lildocs@0.1.x ./docs
 ```
 
 Or add it to a project:
 
 ```bash
-pnpm add -D lildocs vite
+pnpm add -D lildocs
 ```
 
 Then call it from package scripts:

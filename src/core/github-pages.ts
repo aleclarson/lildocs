@@ -1,10 +1,13 @@
 import path from "node:path";
 
+declare const __LILDOCS_VERSION__: string;
+
 export type WorkflowOptions = {
   input: string;
   outDir: string;
   basePath?: string;
   pnpmVersion?: string | false;
+  lildocsVersion?: string;
 };
 
 const DEFAULT_PNPM_VERSION = "10.29.3";
@@ -56,6 +59,9 @@ export function renderGitHubPagesWorkflow(options: WorkflowOptions): string {
       ? ["--base", normalizeBasePath(options.basePath)]
       : []),
   ];
+  const lildocsVersion = patchVersionRange(
+    options.lildocsVersion ?? __LILDOCS_VERSION__,
+  );
 
   return `name: Deploy lildocs to GitHub Pages
 
@@ -85,7 +91,7 @@ ${pnpmActionSetupOptions}      - uses: actions/setup-node@49933ea5288caeca8642d1
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm exec lildocs ${deployArgs.map(shellQuote).join(" ")}
+      - run: pnpm dlx --package lildocs@${lildocsVersion} lildocs ${deployArgs.map(shellQuote).join(" ")}
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:
@@ -100,6 +106,14 @@ ${pnpmActionSetupOptions}      - uses: actions/setup-node@49933ea5288caeca8642d1
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
 `;
+}
+
+function patchVersionRange(version: string) {
+  const match = /^(\d+)\.(\d+)\./.exec(version);
+  if (!match) {
+    throw new Error(`Invalid lildocs version: ${version}`);
+  }
+  return `${match[1]}.${match[2]}.x`;
 }
 
 function shellQuote(value: string): string {
