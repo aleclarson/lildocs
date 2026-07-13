@@ -59,7 +59,7 @@ test("init github-pages writes a GitHub Pages workflow", async () => {
   assert.match(workflow, /pnpm install --frozen-lockfile/);
   assert.match(
     workflow,
-    /pnpm dlx --package lildocs@\d+\.\d+\.x lildocs deploy \.\/docs --out site/,
+    /pnpm dlx lildocs@\d+\.\d+\.x deploy \.\/docs --out site/,
   );
 });
 
@@ -96,7 +96,7 @@ test("init github-pages preserves base paths in the workflow", async () => {
   const workflow = await readFile(path.join(workspace, ".github", "workflows", "lildocs-pages.yml"), "utf8");
   assert.match(
     workflow,
-    /pnpm dlx --package lildocs@\d+\.\d+\.x lildocs deploy \.\/docs --out site --base \/repo\//,
+    /pnpm dlx lildocs@\d+\.\d+\.x deploy \.\/docs --out site --base \/repo\//,
   );
 });
 

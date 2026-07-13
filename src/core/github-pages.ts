@@ -91,7 +91,7 @@ ${pnpmActionSetupOptions}      - uses: actions/setup-node@49933ea5288caeca8642d1
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm dlx --package lildocs@${lildocsVersion} lildocs ${deployArgs.map(shellQuote).join(" ")}
+      - run: pnpm dlx lildocs@${lildocsVersion} ${deployArgs.map(shellQuote).join(" ")}
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:

@@ -46,7 +46,7 @@ test("renders GitHub Pages workflow with official actions pinned to SHAs and fal
   assert.match(workflow, /version: 10\.29\.3/);
   assert.match(
     workflow,
-    /pnpm dlx --package lildocs@\d+\.\d+\.x lildocs deploy \.\/docs --out dist/,
+    /pnpm dlx lildocs@\d+\.\d+\.x deploy \.\/docs --out dist/,
   );
 });
 
@@ -71,7 +71,7 @@ test("renders GitHub Pages workflow with project page base path", () => {
 
   assert.match(
     workflow,
-    /pnpm dlx --package lildocs@\d+\.\d+\.x lildocs deploy \.\/docs --out dist --base \/repo\//,
+    /pnpm dlx lildocs@\d+\.\d+\.x deploy \.\/docs --out dist --base \/repo\//,
   );
 });
 
@@ -82,5 +82,5 @@ test("uses the initializer major and minor lildocs version", () => {
     lildocsVersion: "3.4.5",
   });
 
-  assert.match(workflow, /pnpm dlx --package lildocs@3\.4\.x lildocs deploy/);
+  assert.match(workflow, /pnpm dlx lildocs@3\.4\.x deploy/);
 });
