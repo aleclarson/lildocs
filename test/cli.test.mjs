@@ -5,6 +5,16 @@ import path from "node:path";
 import { test } from "vitest";
 import { fixtureWorkspace, runCli, writeDocFile } from "./helpers/fixture.mjs";
 
+test("prints the package version", async () => {
+  const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+
+  for (const flag of ["--version", "-v"]) {
+    const result = await runCli([flag]);
+
+    assert.equal(result.stdout.trim(), packageJson.version);
+  }
+});
+
 test("builds with bare path invocation", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");

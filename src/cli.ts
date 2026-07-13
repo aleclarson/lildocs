@@ -15,6 +15,8 @@ import { buildSite } from "./core/build.js";
 import { startDevServer } from "./core/dev.js";
 import { deployGitHubPages, initGitHubPagesWorkflow } from "./core/deploy.js";
 
+declare const __LILDOCS_VERSION__: string;
+
 export type CliOptions = {
   input: string;
   out?: string;
@@ -355,6 +357,7 @@ const bareBuildCommand = command({
 
 const app = subcommands({
   name: "lildocs",
+  version: __LILDOCS_VERSION__,
   description:
     "Turn Markdown docs into a static searchable documentation site.",
   cmds: {
@@ -373,7 +376,9 @@ function isKnownTopLevelArg(arg: string | undefined) {
     arg === "dev" ||
     arg === "init" ||
     arg === "--help" ||
-    arg === "-h"
+    arg === "-h" ||
+    arg === "--version" ||
+    arg === "-v"
   );
 }
 
