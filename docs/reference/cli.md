@@ -13,6 +13,7 @@ lildocs supports these command shapes:
 lildocs <path>
 lildocs build <path>
 lildocs dev <path>
+lildocs shuffle <path>
 lildocs deploy <path>
 lildocs init github-pages <path>
 ```
@@ -87,6 +88,25 @@ lildocs dev ./docs --host 0.0.0.0 --port 4173
 The dev output directory must stay inside the current workspace, cannot be the
 repository root, and cannot contain the docs root.
 
+## Shuffle Command
+
+Preview a randomly selected light/dark theme pair, heading/body font pair, and
+code font:
+
+```bash
+lildocs shuffle ./docs --open
+```
+
+Each run starts the development server with a new combination. The preview does
+not change project configuration unless you keep it with `--save`:
+
+```bash
+lildocs shuffle ./docs --save
+```
+
+Saved choices use the regular `theme` and `font` fields in `config.json`, so
+they can be edited like any other appearance settings.
+
 ## Deploy Command
 
 Build GitHub Pages-ready output.
@@ -117,7 +137,7 @@ a project dependency.
 
 | Option | Applies to | Description |
 | --- | --- | --- |
-| `--out <dir>` | build, dev, deploy, init github-pages | Output directory for generated files. Build, deploy, and init github-pages default to `dist`; dev defaults to `.lildocs`. |
+| `--out <dir>` | build, dev, shuffle, deploy, init github-pages | Output directory for generated files. Build, deploy, and init github-pages default to `dist`; dev and shuffle default to `.lildocs`. |
 | `--theme <name>` | build, dev, deploy | Built-in lildocs theme or bundled Shiki theme name. |
 | `--font.heading <name-or-file>` | build, dev, deploy | Heading font from Google Fonts or a local font file. |
 | `--font.body <name-or-file>` | build, dev, deploy | Body and interface font from Google Fonts or a local font file. |
@@ -126,9 +146,10 @@ a project dependency.
 | `--background.gradient <gradient>` | build, dev, deploy | CSS background gradient. |
 | `--background.blendMode <mode>` | build, dev, deploy | CSS `background-blend-mode` for the theme color and background layers. |
 | `--link.underline <style>` | build, dev, deploy | Content link underline behavior: `always`, `hover`, or `none`. |
-| `--host <address>` | dev | Host address for the local development server. |
-| `--port <number>` | dev | Port for the local development server. |
-| `--open` | dev | Open the local development server in the default browser. |
+| `--host <address>` | dev, shuffle | Host address for the local development server. |
+| `--port <number>` | dev, shuffle | Port for the local development server. |
+| `--open` | dev, shuffle | Open the local development server in the default browser. |
+| `--save` | shuffle | Save the selected theme and fonts to `config.json`. |
 | `--base <path>` | deploy, init github-pages | GitHub Pages base path, such as `/repo/` for project pages. |
 
 CLI flags override matching `config.json` values. See

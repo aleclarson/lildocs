@@ -23,7 +23,7 @@ disk or from any static file host.
 - GitHub-flavored Markdown, frontmatter, callouts, code highlighting, images,
   assets, and Mermaid diagrams
 - Local static search with no external service
-- Build, development server, and GitHub Pages output modes
+- Build, development server, visual shuffle, and GitHub Pages output modes
 - Lightweight theming with system light/dark defaults, built-in themes, Shiki
   themes, local `theme.ts`, favicon/logo options, and font/background/link
   options

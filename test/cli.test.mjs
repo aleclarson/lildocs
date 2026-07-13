@@ -133,6 +133,49 @@ test("dev command prefers README.md when serving a directory", async () => {
   }
 });
 
+test("shuffle command previews a random theme and font combination", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, ".shuffle-site");
+  const server = await startDevCli(["shuffle", docs, "--out", outDir, "--port", "0"]);
+
+  try {
+    const output = server.stdout();
+    assert.match(output, /Shuffled visual settings:/);
+    assert.match(output, /Theme\s+\S+ \/ \S+/);
+    assert.match(output, /Fonts\s+.+ \/ .+/);
+    assert.match(output, /Code\s+.+/);
+
+    const home = await fetchText(server.url);
+    assert.match(home, /color-scheme: light dark/);
+    assert.match(home, /prefers-color-scheme: dark/);
+    assert.match(home, /fonts\.googleapis\.com/);
+  } finally {
+    await server.close();
+  }
+});
+
+test("shuffle command saves ordinary appearance config", async () => {
+  const { docs } = await fixtureWorkspace();
+  await writeFile(
+    path.join(docs, "config.json"),
+    `${JSON.stringify({ projectName: "Shuffle Fixture" }, null, 2)}\n`,
+  );
+  const server = await startDevCli(["shuffle", docs, "--port", "0", "--save"]);
+
+  try {
+    const config = JSON.parse(await readFile(path.join(docs, "config.json"), "utf8"));
+    assert.equal(config.projectName, "Shuffle Fixture");
+    assert.equal(typeof config.theme.light, "string");
+    assert.equal(typeof config.theme.dark, "string");
+    assert.equal(typeof config.font.heading, "string");
+    assert.equal(typeof config.font.body, "string");
+    assert.equal(typeof config.font.code, "string");
+    assert.match(server.stdout(), /Saved to .*config\.json/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("unknown commands report usage errors", async () => {
   await assert.rejects(() => runCli(["publish", "./docs"]), /Unknown arguments|Not a valid subcommand/);
 });
@@ -170,6 +213,7 @@ async function startDevCli(args, options = {}) {
 
   return {
     url,
+    stdout: () => stdout,
     stderr: () => stderr,
     close: async () => {
       if (child.exitCode !== null) {

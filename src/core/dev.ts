@@ -7,13 +7,18 @@ import { LildocsError } from "./errors.js";
 import { resolveInput } from "./input.js";
 import { isHiddenOrSystemPath } from "./paths.js";
 import { serveStaticFile } from "./server.js";
-import type { BackgroundOptions, FontOverrides, LinkOptions } from "./theme.js";
+import type {
+  BackgroundOptions,
+  FontOverrides,
+  LinkOptions,
+  ThemeConfig,
+} from "./theme.js";
 
 export type DevOptions = {
   input: string;
   outDir: string;
   cwd: string;
-  theme?: string;
+  theme?: ThemeConfig;
   fonts?: FontOverrides;
   background?: BackgroundOptions;
   link?: LinkOptions;

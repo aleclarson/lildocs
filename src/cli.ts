@@ -14,6 +14,7 @@ import {
 import { buildSite } from "./core/build.js";
 import { startDevServer } from "./core/dev.js";
 import { deployGitHubPages, initGitHubPagesWorkflow } from "./core/deploy.js";
+import { saveShuffledAppearance, shuffleAppearance } from "./core/shuffle.js";
 
 declare const __LILDOCS_VERSION__: string;
 
@@ -105,6 +106,11 @@ const portOption = option({
 const openOption = flag({
   long: "open",
   description: "Open the local development server in the default browser.",
+});
+
+const saveOption = flag({
+  long: "save",
+  description: "Save the shuffled theme and fonts to config.json.",
 });
 
 const baseOption = option({
@@ -250,6 +256,53 @@ const devCommand = command({
   },
 });
 
+const shuffleCommand = command({
+  name: "shuffle",
+  description: "Preview a random theme and font combination.",
+  args: {
+    input: inputArgument,
+    out: outOption,
+    host: hostOption,
+    port: portOption,
+    open: openOption,
+    save: saveOption,
+  },
+  handler: async (options) => {
+    const appearance = shuffleAppearance();
+    console.log("Shuffled visual settings:");
+    console.log(
+      `  Theme   ${appearance.theme.light} / ${appearance.theme.dark}`,
+    );
+    console.log(
+      `  Fonts   ${appearance.fonts.heading} / ${appearance.fonts.body}`,
+    );
+    console.log(`  Code    ${appearance.fonts.code}`);
+
+    if (options.save) {
+      const configPath = await saveShuffledAppearance(
+        options.input,
+        process.cwd(),
+        appearance,
+      );
+      console.log(`Saved to ${configPath}`);
+    }
+
+    const server = await startDevServer({
+      input: options.input,
+      outDir: options.out ?? ".lildocs",
+      theme: appearance.theme,
+      fonts: appearance.fonts,
+      cwd: process.cwd(),
+      host: options.host ?? "127.0.0.1",
+      port: parsePort(options.port ?? "3000"),
+    });
+    if (options.open) {
+      await openBrowser(server.url);
+    }
+    await new Promise(() => {});
+  },
+});
+
 function parsePort(value: string) {
   const port = Number(value);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
@@ -364,6 +417,7 @@ const app = subcommands({
     build: buildCommand,
     deploy: deployCommand,
     dev: devCommand,
+    shuffle: shuffleCommand,
     init: initCommand,
   },
 });
@@ -374,6 +428,7 @@ function isKnownTopLevelArg(arg: string | undefined) {
     arg === "build" ||
     arg === "deploy" ||
     arg === "dev" ||
+    arg === "shuffle" ||
     arg === "init" ||
     arg === "--help" ||
     arg === "-h" ||

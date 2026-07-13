@@ -83,6 +83,16 @@ lildocs dev ./docs --host 0.0.0.0 --port 4173
 The dev output directory must stay inside the current workspace, cannot be the
 repository root, and cannot contain the docs root.
 
+To explore a random light/dark theme pair and complementary font combination,
+start a shuffled preview:
+
+```bash
+lildocs shuffle ./docs --open
+```
+
+Run it again for another combination, or add `--save` to keep the selected
+theme and fonts in `config.json`.
+
 ## Next Steps
 
 Read [Writing content](features/content.md) and
