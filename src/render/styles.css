@@ -148,8 +148,8 @@ body {
 
 .contentGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(160px, 16vw);
-  gap: clamp(28px, 5vw, 72px);
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 20vw);
+  gap: 2vw;
   width: min(100% - 48px, 1280px);
   margin-inline: auto;
 }

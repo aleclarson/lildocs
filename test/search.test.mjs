@@ -256,6 +256,8 @@ test("uses theme colors for search input placeholder and focus styles", async ()
   assert.match(css, /\.searchResults mark \{[^}]*background: color-mix\(in srgb, var\(--ld-color-link\) 18%, transparent\)/);
   assert.match(css, /\.sectionHighlight \{[^}]*animation: section-highlight 2\.4s ease-out/);
   assert.match(css, /@keyframes section-highlight/);
+  assert.match(css, /\.contentGrid \{[^}]*grid-template-columns: minmax\(0, 1fr\) minmax\(160px, 20vw\)/);
+  assert.match(css, /\.contentGrid \{[^}]*gap: 2vw/);
   assert.match(css, /\.tocRepoLink \{[^}]*font-size: 0\.8rem/);
   assert.match(css, /\.tocRepoLink:first-child \{[^}]*border-top: 0/);
   assert.match(css, /\.tocRepoLink \.repoIcon \{[^}]*width: 16px/);
