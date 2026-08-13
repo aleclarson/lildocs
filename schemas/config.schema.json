@@ -184,6 +184,11 @@
       "additionalProperties": false,
       "description": "API reference generation from package exports.",
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to generate API reference pages. Set to false to disable automatic package.json discovery and reference generation."
+        },
         "packageJson": {
           "type": "string",
           "minLength": 1,

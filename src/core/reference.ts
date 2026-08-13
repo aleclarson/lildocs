@@ -23,6 +23,10 @@ export async function buildReferencePages(options: {
   reference?: ReferenceOptions;
   githubRepository?: string;
 }): Promise<AdditionalPage[]> {
+  if (options.reference?.enabled === false) {
+    return [];
+  }
+
   const packageJson = await resolveReferencePackageJson(options);
   if (!packageJson) {
     return [];

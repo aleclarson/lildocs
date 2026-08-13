@@ -33,6 +33,7 @@ want persistent defaults:
     "underline": "hover"
   },
   "reference": {
+    "enabled": true,
     "packageJson": "../package.json"
   },
   "navigation": {
@@ -106,9 +107,10 @@ ordering, breadcrumbs, previous and next links, and transition examples.
 See [Generated API reference](../features/api-reference.md) for export discovery,
 generated paths, declaration handling, and GitHub links.
 
-| Field                   | Description                                                                                                          |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `reference.packageJson` | Docs-root-relative path to a `package.json` whose exported TypeScript declarations generate `/reference/` API pages. |
+| Field                   | Description                                                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `reference.enabled`     | Whether to generate API reference pages. Defaults to `true`; set to `false` to disable automatic package discovery and reference generation.                               |
+| `reference.packageJson` | Docs-root-relative path to a `package.json` whose exported TypeScript declarations generate `/reference/` API pages when reference generation is enabled.                |
 
 ## CLI Flag Mappings
 
@@ -133,5 +135,5 @@ and have no JSON config equivalent.
 `--base <path>` applies to `deploy` and `init github-pages`, and has no JSON
 config equivalent.
 
-`favicon`, `logo.image`, `logo.text`, `logo.font`, and
+`favicon`, `logo.image`, `logo.text`, `logo.font`, `reference.enabled`, and
 `reference.packageJson` are configuration-only and have no CLI flag equivalents.

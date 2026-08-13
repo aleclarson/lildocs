@@ -14,3 +14,12 @@ test("config schema lists the exact bundled shiki themes", async () => {
     bundledThemesInfo.map((theme) => theme.id).sort((a, b) => a.localeCompare(b)),
   );
 });
+
+test("config schema exposes the reference generation toggle", async () => {
+  const schema = JSON.parse(await readFile("schemas/config.schema.json", "utf8"));
+  const reference = schema.properties.reference.properties;
+
+  assert.equal(reference.enabled.type, "boolean");
+  assert.equal(reference.enabled.default, true);
+  assert.equal(reference.packageJson.type, "string");
+});

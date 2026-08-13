@@ -26,6 +26,7 @@ export type DocsConfig = {
 };
 
 export type ReferenceOptions = {
+  enabled?: boolean;
   packageJson?: string;
 };
 
@@ -89,6 +90,7 @@ export function mergeConfigOptions(options: {
       underline: options.link?.underline ?? options.config.link?.underline,
     },
     reference: {
+      enabled: options.config.reference?.enabled,
       packageJson: options.config.reference?.packageJson,
     },
     navigation: {
@@ -231,6 +233,11 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
         `Docs config "reference" must be an object: ${configPath}`,
       );
     }
+    assertOptionalBoolean(
+      config.reference.enabled,
+      "reference.enabled",
+      configPath,
+    );
     assertOptionalString(
       config.reference.packageJson,
       "reference.packageJson",
@@ -270,6 +277,7 @@ function validateDocsConfig(value: unknown, configPath: string): DocsConfig {
       : undefined,
     reference: config.reference
       ? {
+          enabled: config.reference.enabled,
           packageJson: config.reference.packageJson,
         }
       : undefined,
@@ -295,6 +303,18 @@ function assertOptionalString(
   ) {
     throw new LildocsError(
       `Docs config "${name}" must be a non-empty string: ${configPath}`,
+    );
+  }
+}
+
+function assertOptionalBoolean(
+  value: unknown,
+  name: string,
+  configPath: string,
+) {
+  if (value !== undefined && typeof value !== "boolean") {
+    throw new LildocsError(
+      `Docs config "${name}" must be a boolean: ${configPath}`,
     );
   }
 }

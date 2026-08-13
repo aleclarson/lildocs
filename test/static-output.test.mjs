@@ -125,6 +125,65 @@ test("generates API reference pages from sibling package exports", async () => {
   assert.match(searchIndex, /Greets a person/);
 });
 
+test("disables automatic API reference discovery when configured", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeExportedDeclarations(workspace);
+  await writeFile(
+    path.join(docs, "config.json"),
+    JSON.stringify({ reference: { enabled: false } }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  await access(path.join(outDir, "index.html"));
+  await assert.rejects(
+    () => access(path.join(outDir, "reference", "fixture-lib.html")),
+    { code: "ENOENT" },
+  );
+});
+
+test("avoids wildcard export failures when API reference discovery is disabled", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeFile(
+    path.join(workspace, "package.json"),
+    JSON.stringify({
+      name: "wildcard-fixture",
+      exports: {
+        "./types/*": {
+          types: "./dist/types/*.d.ts",
+          default: "./dist/types/*.js",
+        },
+      },
+    }),
+  );
+  await writeFile(
+    path.join(docs, "config.json"),
+    JSON.stringify({ reference: { enabled: false } }),
+  );
+
+  await runCli([docs, "--out", outDir]);
+
+  await access(path.join(outDir, "index.html"));
+  await assert.rejects(() => access(path.join(outDir, "reference")), {
+    code: "ENOENT",
+  });
+});
+
+test("rejects a non-boolean API reference enabled setting", async () => {
+  const { docs } = await fixtureWorkspace();
+  await writeFile(
+    path.join(docs, "config.json"),
+    JSON.stringify({ reference: { enabled: "false" } }),
+  );
+
+  await assert.rejects(
+    () => runCli([docs]),
+    /Docs config "reference\.enabled" must be a boolean/,
+  );
+});
+
 test("generates API reference pages from configured package exports", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
