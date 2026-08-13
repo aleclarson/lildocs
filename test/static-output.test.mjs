@@ -308,6 +308,10 @@ test("renders gfm tables task lists and strikethrough", async () => {
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<table>/);
   assert.match(css, /\.content h1,[^}]*line-height: 1\.2/);
+  assert.match(
+    css,
+    /\.content article h1 > code \{[^}]*padding: 0\.08em 0\.16em;[^}]*border-radius: 8px/,
+  );
   assert.match(css, /\.content article p \{[^}]*line-height: 1\.9/);
   assert.match(css, /\.content article li \{[^}]*line-height: 1\.9/);
   assert.match(css, /\.content article h1 \+ blockquote \{[^}]*margin-top: -0\.6rem/);
