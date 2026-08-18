@@ -306,7 +306,7 @@ html.is-animating .transition-scale {
 }
 
 .content article li {
-  margin-block: 1em;
+  margin-block: 0.5em;
   line-height: 1.9;
 }
 
