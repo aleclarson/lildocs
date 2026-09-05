@@ -7,6 +7,23 @@ description: Use when authoring, reviewing, or restructuring Markdown documentat
 
 > Help readers make correct decisions quickly: organize around tasks and concepts, state boundaries plainly, and prove claims with concrete examples.
 
+## Scope
+
+Apply general writing guidance to Markdown documentation wherever it lives,
+including READMEs: page purpose, clarity, factual accuracy, terminology, and
+useful examples.
+
+Apply docs-site conventions only to pages published from the project's
+configured docs root, which may be a directory other than `docs/`. These include
+home-page branding, purpose blockquotes, folder-based navigation, docs-set
+organization, and generated-site validation. Preserve the purpose and existing
+structure of standalone documents such as READMEs. Paths under `docs/` below
+illustrate the configured docs root rather than require that directory name.
+
+Public API Documentation governs source-level TSDoc and the division of
+responsibility between source, guides, and generated declarations. Apply it
+when the task touches public API documentation.
+
 ## Read the Project
 
 Base documentation on the current project's facts, vocabulary, and support
@@ -32,7 +49,7 @@ Use published docs only when local package docs are unavailable:
 https://aleclarson.github.io/lildocs/
 ```
 
-Treat generated-site constraints as content constraints: folder-based
+For docs-site pages, treat generated-site constraints as content constraints: folder-based
 navigation, static links, headings and anchors, local search, diagrams, and
 assets all affect how readers find and trust the docs.
 
@@ -44,7 +61,7 @@ where they should go next.
 
 ## General Technical Documentation Guidelines
 
-Apply these guidelines to explanatory content throughout the docs. The home
+Apply these guidelines to explanatory Markdown, including READMEs. The docs-site home
 page's established slogan remains the intentional branding exception described
 below.
 
@@ -69,10 +86,12 @@ below.
 12. Use consistent terminology across pages.
 13. Add diagrams only when relationships, ownership, flow, or branching are
     easier to understand visually.
-14. Validate commands, links, examples, formatting, and the generated
-    documentation site before publishing.
+14. Validate commands, links, examples, and formatting before publishing. For
+    docs-site changes, also validate the generated documentation site.
 
 ## Home Page
+
+This section applies only to pages in the configured docs root.
 
 Treat the home page as the project's introduction, not as a map of the docs.
 Use the project's canonical display name as the H1 and its established
@@ -91,7 +110,7 @@ This branding blockquote takes precedence over the general purpose-blockquote
 rule below; the rest of the home page can orient readers and link to the next
 steps.
 
-For new pages in this project, follow the H1 with a purpose blockquote unless
+For new docs-site pages, follow the H1 with a purpose blockquote unless
 nearby docs use a different contract. The blockquote should clarify the page's
 real job: the decision it supports, the task it helps complete, or the boundary
 it draws.
@@ -121,6 +140,8 @@ Prefer direct clarity over page-navigation language.
 ```
 
 ## Information Architecture
+
+This section applies to the docs set in the configured docs root.
 
 Organize docs by reader movement, not by source-code ownership. A useful docs
 set has a few clear shapes:
@@ -348,8 +369,10 @@ Before finishing docs changes, verify that:
 - claims are grounded in project files, tests, package docs, or source
 - every non-trivial concept has a nearby example
 - guide examples use project-realistic names, paths, and commands
-- links, headings, anchors, diagrams, and assets work in the generated site
+- links, headings, anchors, diagrams, and assets work in the target renderer
+  (including the generated site for docs-site changes)
 - terminology is consistent across changed pages
 
-Run the project's available checks, such as formatting, linting, typechecking,
-tests, or a local docs build.
+Run checks relevant to the changed documentation, such as formatting and link
+checks. For docs-site changes, run a local docs build when available. Run lint,
+typecheck, or tests when changes affect code or executable examples.
