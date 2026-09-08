@@ -16,6 +16,27 @@ test("writes static html pages and copied assets", async () => {
   await access(path.join(outDir, "assets", "images", "sample.svg"));
 });
 
+test("writes original markdown beside each page using its generated route", async () => {
+  const { docs, workspace } = await fixtureWorkspace();
+  const outDir = path.join(workspace, "site");
+  await writeDocFile(docs, "nested/Hello World.md", "# Héllo\r\n\r\n[Guide](../guide.md)\r\n");
+
+  await runCli([path.join(docs, "quickstart.md"), "--out", outDir]);
+
+  for (const [source, output] of [
+    ["quickstart.md", "index.md"],
+    ["index.md", "index-2.md"],
+    ["guide.md", "guide.md"],
+    ["nested/Hello World.md", "nested/hello-world.md"],
+  ]) {
+    assert.equal(
+      await readFile(path.join(outDir, output), "utf8"),
+      await readFile(path.join(docs, source), "utf8"),
+    );
+  }
+  await assert.rejects(() => access(path.join(outDir, ".hidden.md")), { code: "ENOENT" });
+});
+
 test("emits only bundled icon masks for tabler icons", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
@@ -104,6 +125,9 @@ test("generates API reference pages from sibling package exports", async () => {
   await runCli([docs, "--out", outDir]);
 
   const referenceHtml = await readFile(path.join(outDir, "reference", "fixture-lib.html"), "utf8");
+  const referenceMarkdown = await readFile(path.join(outDir, "reference", "fixture-lib.md"), "utf8");
+  assert.match(referenceMarkdown, /^# fixture-lib/m);
+  assert.match(referenceMarkdown, /FixtureOptions/);
   const subpathHtml = await readFile(
     path.join(outDir, "reference", "fixture-lib", "bar.html"),
     "utf8",

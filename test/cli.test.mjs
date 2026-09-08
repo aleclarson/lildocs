@@ -60,11 +60,22 @@ test("dev command serves and rebuilds the generated site", async () => {
     const client = await fetchText(new URL(clientPath, server.url));
     assert.match(client, /EventSource/);
 
+    const markdownUrl = new URL("guide.md", server.url);
+    const markdown = await fetch(markdownUrl);
+    assert.equal(markdown.status, 200);
+    assert.equal(markdown.headers.get("content-type"), "text/plain; charset=utf-8");
+    assert.equal(await markdown.text(), await readFile(path.join(docs, "guide.md"), "utf8"));
+    const head = await fetch(markdownUrl, { method: "HEAD" });
+    assert.equal(head.status, 200);
+    assert.equal(head.headers.get("content-type"), "text/plain; charset=utf-8");
+    assert.equal(await head.text(), "");
+
     await writeDocFile(docs, "index.md", "# Updated Home\n\nChanged content.");
     await waitFor(async () => {
       const updated = await fetchText(server.url);
       return updated.includes("Updated Home");
     });
+    assert.equal(await fetchText(new URL("index.md", server.url)), "# Updated Home\n\nChanged content.");
   } finally {
     await server.close();
   }

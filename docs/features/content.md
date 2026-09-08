@@ -58,6 +58,17 @@ Use normal Markdown images for local assets:
 
 Local assets referenced by Markdown are copied into the generated site.
 
+## Plain Markdown URLs
+
+Every generated page has a plain Markdown file at the same URL with `.html`
+replaced by `.md`. For example, `features/content.html` has
+`features/content.md`, and the home page has `index.md`, even when its source
+is named `README.md`. Generated API reference pages also have Markdown files.
+
+These files preserve the original Markdown text, including frontmatter, links,
+and code blocks. They are included in static builds and served as plain text
+by the development server.
+
 ## Callouts
 
 Use GitHub-style blockquote callouts to highlight notes, tips, important

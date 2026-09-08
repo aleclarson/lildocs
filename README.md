@@ -19,6 +19,7 @@ disk or from any static file host.
 ## What it covers
 
 - Markdown folders or individual Markdown entry files
+- Plain Markdown URLs for every page, such as `guide.md` alongside `guide.html`
 - Generated navigation, page titles, heading anchors, and table-of-contents data
 - GitHub-flavored Markdown, frontmatter, callouts, code highlighting, images,
   assets, and Mermaid diagrams

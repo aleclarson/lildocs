@@ -181,6 +181,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
         const outputPath = path.join(outDir, page.outputPath);
         await mkdir(path.dirname(outputPath), { recursive: true });
         await writeFile(outputPath, html);
+        await writeFile(outputPath.replace(/\.html$/, ".md"), page.rawMarkdown);
       }),
     );
 
