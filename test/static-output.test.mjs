@@ -33,6 +33,10 @@ test("writes original markdown beside each page using its generated route", asyn
       await readFile(path.join(outDir, output), "utf8"),
       await readFile(path.join(docs, source), "utf8"),
     );
+    const html = await readFile(path.join(outDir, output.replace(/\.md$/, ".html")), "utf8");
+    assert.ok(html.includes(
+      `<body><!-- Agents: Read ./${path.basename(output)} for this document's plain Markdown text to use fewer tokens. -->`,
+    ));
   }
   await assert.rejects(() => access(path.join(outDir, ".hidden.md")), { code: "ENOENT" });
 });
