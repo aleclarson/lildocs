@@ -278,6 +278,11 @@ slowing down the main explanation. Be generous with short, descriptive
 headings: readers should be able to scan the page and go directly to the
 information they need.
 
+Write subheadings around the reader's goal, question, or lookup need. Prefer
+goals and outcomes in guides; use precise concept and mechanism names where
+readers need explanation or reference. Make headings specific enough that
+readers can predict what each section contains.
+
 Prefer observable outcomes over vague benefits.
 
 ```md
