@@ -65,8 +65,16 @@ Apply these guidelines to explanatory Markdown, including READMEs. The docs-site
 page's established slogan remains the intentional branding exception described
 below.
 
-1. Start with the reader's problem, decision, or task.
-2. Explain when the tool is useful and how it differs from common alternatives.
+Assume readers understand less than you expect, have little patience, and
+prefer simple language. Make necessary connections explicit without talking
+down to them. Introduce concepts only as needed so readers are not asked to
+absorb several unfamiliar ideas at once.
+
+1. Lead with the main idea that addresses the reader's problem, decision, or
+   task.
+2. Follow immediately with the value proposition: what the reader gains and
+   when it is useful. Explain differences from common alternatives where they
+   help the reader choose.
 3. Use plain, direct language; avoid slogans, marketing, and unnecessary
    jargon.
 4. State limits, costs, prerequisites, and failure cases beside the benefits
@@ -261,8 +269,14 @@ package boundary over documenting the leak as official API.
 
 ## Writing Quality
 
-Lead with the reader's next decision or action, then provide the smallest
-command, config, file tree, table, or Markdown pattern that completes it.
+After the main idea and its value, provide the smallest command, config, file
+tree, table, or Markdown pattern that supports the reader's next decision or
+action.
+
+Give finer details their own sections so readers can find them without
+slowing down the main explanation. Be generous with short, descriptive
+headings: readers should be able to scan the page and go directly to the
+information they need.
 
 Prefer observable outcomes over vague benefits.
 
