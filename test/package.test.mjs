@@ -86,7 +86,10 @@ test("builds Markdown and API reference from the packed package", async () => {
 
   assert.match(await readFile(path.join(outDir, "index.html"), "utf8"), /Packed docs/);
   assert.match(
-    await readFile(path.join(outDir, "reference", "packed-fixture.html"), "utf8"),
+    await readFile(
+      path.join(outDir, "reference", "packed-fixture", "index.html"),
+      "utf8",
+    ),
     /packedGreeting/,
   );
 

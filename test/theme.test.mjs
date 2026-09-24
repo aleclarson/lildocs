@@ -47,7 +47,7 @@ test("uses the default built-in theme with no config", async () => {
   await runCli([docs, "--out", outDir]);
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   assert.match(css, /--ld-color-link: #1c6b48/);
   assert.match(css, /family=Baloo\+2:wght@600;700&display=swap/);
   assert.match(css, /family=Inter:wght@400;500&display=swap/);
@@ -85,7 +85,7 @@ test("customizes light and dark themes from docs config", async () => {
   await runCli([docs, "--out", outDir]);
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   assert.match(css, /--ld-color-link: #0f766e/);
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
   assert.match(css, /--ld-color-background: #22272e/);
@@ -451,7 +451,7 @@ test("loads navigation feel options from docs config", async () => {
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  assert.match(html, /<div id="swup" class="contentGrid">/);
+  assert.match(html, /<div id="lildocs-outlet" class="contentGrid">/);
   assert.match(html, /<main class="content transition-slide">/);
   assert.match(html, /<aside class="toc transition-slide">/);
   assert.match(css, /--ld-navigation-duration: 240ms/);
@@ -485,7 +485,7 @@ test("maps shiki theme names to lildocs css variables", async () => {
   await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
 
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(css, /--ld-color-background: #24292e/);
   assert.match(css, /--ld-color-text: #e1e4e8/);

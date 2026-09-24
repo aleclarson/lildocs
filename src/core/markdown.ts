@@ -9,6 +9,7 @@ import { LildocsError } from "./errors.js";
 import type { MermaidRenderer } from "./mermaid.js";
 import {
   isExternalOrAnchorUrl,
+  relativeUrl,
   resolveMarkdownDocumentPath,
   rootRelativeUrl,
   toPosixPath,
@@ -208,11 +209,7 @@ function rewriteLink(model: ContentModel, page: Page, href: string) {
     return href;
   }
 
-  const relative = path.posix.relative(
-    path.posix.dirname(page.route),
-    targetPage.route,
-  );
-  const url = relative.startsWith(".") ? relative : `./${relative}`;
+  const url = relativeUrl(page.route, targetPage.route);
   const hash = href.includes("#")
     ? href.slice(href.indexOf("#") + 1)
     : undefined;
@@ -250,11 +247,13 @@ function stripHtml(value: string) {
 }
 
 function stableIdPart(value: string) {
-  return value
-    .replace(/\.[^.]+$/, "")
-    .replace(/[^a-z0-9_-]+/gi, "-")
-    .replace(/^-+|-+$/g, "")
-    .toLowerCase();
+  return (
+    value
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^a-z0-9_-]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "index"
+  );
 }
 
 function errorMessage(error: unknown) {

@@ -1,5 +1,7 @@
 export function initDevReload() {
-  if (!window.lildocsDev || typeof EventSource === "undefined") {
+  const lildocs = (window as typeof window & { __lildocs?: { dev?: boolean } })
+    .__lildocs;
+  if (!lildocs?.dev || typeof EventSource === "undefined") {
     return;
   }
 

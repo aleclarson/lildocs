@@ -30,13 +30,13 @@ Unique local substring.
 
   const guideHeading = index.find((entry) => entry.kind === "section" && entry.title === "Guide Heading");
   assert.equal(guideHeading?.pageTitle, "Frontmatter Title");
-  assert.equal(guideHeading?.route, "guide.html#guide-heading");
+  assert.equal(guideHeading?.route, "/guide#guide-heading");
   assert.equal(guideHeading?.depth, 2);
   assert.ok(guideHeading?.headings.includes("Guide Heading"));
   assert.ok(guideHeading?.text.includes("Nested content"));
 
   const localFiles = index.find((entry) => entry.kind === "section" && entry.title === "Local Files");
-  assert.equal(localFiles?.route, "details.html#local-files");
+  assert.equal(localFiles?.route, "/details#local-files");
   assert.deepEqual(localFiles?.headings, ["Details", "Install", "Local Files"]);
   assert.ok(localFiles?.text.includes("Unique local substring"));
 });
@@ -108,17 +108,15 @@ test("emits search UI and Vite frontend bundle", async () => {
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /id="lildocs-search-input"/);
-  assert.match(html, /id="lildocs-search-index"/);
   assert.doesNotMatch(html, /fonts\.googleapis\.com\/css2\?family=Material\+Symbols\+Rounded/);
   assert.match(html, /class="searchIcon ti ti-search"/);
   assert.match(html, /id="lildocs-overlay-root"/);
-  assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
+  assert.match(html, /<script type="module" crossorigin="" src="[^"]*assets\/lildocs\/index-[^"]*\.js"/);
   assert.match(frontendScript, /matchEntry/);
   assert.match(frontendScript, /matchingSnippet/);
   assert.match(frontendScript, /containsTerms/);
   assert.match(frontendScript, /renderHighlighted/);
   assert.match(frontendScript, /titleMatches\.length < 4/);
-  assert.match(frontendScript, /embeddedIndex/);
   assert.match(frontendScript, /searchResultsHeader/);
   assert.match(frontendScript, /searchResultType/);
   assert.match(frontendScript, /Create a GitHub issue/);
@@ -143,8 +141,11 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
-  const guideHtml = await readFile(path.join(outDir, "guide.html"), "utf8");
+  const nestedHtml = await readFile(
+    path.join(outDir, "nested", "page", "index.html"),
+    "utf8",
+  );
+  const guideHtml = await readFile(path.join(outDir, "guide", "index.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const icon = await readFile(path.join(outDir, "assets", "github-icon.svg"), "utf8");
   assert.match(html, /class="tocRepoLink"/);
@@ -152,25 +153,25 @@ test("emits GitHub repository link at the bottom of the table of contents", asyn
   assert.doesNotMatch(nestedHtml, /class="tocTitle"/);
   assert.match(
     nestedHtml,
-    /<nav aria-label="Table of contents">\s*<a class="tocRepoLink"/,
+    /<nav aria-label="Table of contents">[\s\S]{0,80}<a class="tocRepoLink"/,
   );
   assert.match(html, /<span class="repoIcon" aria-hidden="true"><\/span>/);
   assert.doesNotMatch(html, /--ld-repo-icon/);
   assert.doesNotMatch(nestedHtml, /--ld-repo-icon/);
   assert.doesNotMatch(html, /\.repoIcon \{/);
   assert.match(html, /href="https:\/\/github\.com\/example\/project"/);
-  assert.match(html, /window\.lildocsIssueUrl = "https:\/\/github\.com\/example\/project\/issues\/new"/);
+  assert.match(html, /issueUrl.{0,120}example.project.issues.new/);
   assert.match(html, /aria-label="View repository on GitHub"/);
   assert.match(html, /<span>example\/project<\/span>/);
   assert.match(
     guideHtml,
     /<p class="tocTitle">\s*<span class="ti ti-align-left" aria-hidden="true"><\/span>\s*On this page/,
   );
-  assert.match(guideHtml, /<div class="tocLinks" data-toc-links>/);
+  assert.match(guideHtml, /<div class="tocLinks" data-toc-links="?true"?>/);
   assert.match(guideHtml, /<span class="tocRail" aria-hidden="true"><\/span>/);
   assert.match(
     guideHtml,
-    /<span class="tocVisibility" data-toc-visibility aria-hidden="true"><\/span>/,
+    /<span class="tocVisibility" data-toc-visibility="?true"? aria-hidden="true"><\/span>/,
   );
   assert.ok(guideHtml.indexOf("On this page") < guideHtml.indexOf('class="tocRepoLink"'));
   assert.match(css, /mask: url\("\.\/github-icon\.svg"\) center \/ contain no-repeat/);
@@ -206,23 +207,21 @@ test("search script preloads links and supports keyboard result selection", asyn
   await runCli([docs, "--out", outDir]);
 
   const frontendScript = await readFrontendBundle(outDir);
-  assert.match(frontendScript, /document\.addEventListener\("mouseover"/);
-  assert.match(frontendScript, /preload\.rel = "prefetch"/);
-  assert.match(frontendScript, /event\.key === "ArrowDown"/);
-  assert.match(frontendScript, /event\.key === "ArrowUp"/);
-  assert.match(frontendScript, /event\.key === "Enter"/);
-  assert.match(frontendScript, /const key = event\.key\.toLowerCase\(\)/);
-  assert.match(frontendScript, /key === "k"/);
-  assert.match(frontendScript, /event\.shiftKey && key === "f"/);
+  assert.match(frontendScript, /rel = "prefetch"/);
+  assert.match(frontendScript, /"ArrowDown"/);
+  assert.match(frontendScript, /"ArrowUp"/);
+  assert.match(frontendScript, /"Enter"/);
+  assert.match(frontendScript, /key\.toLowerCase\(\)/);
+  assert.match(frontendScript, /=== "k"/);
+  assert.match(frontendScript, /shiftKey && .*=== "f"/);
   assert.match(frontendScript, /lildocs:search-toggle/);
-  assert.match(frontendScript, /selected\.click\(\)/);
-  assert.match(frontendScript, /preloadRelativeUrl\(selected\.getAttribute\("href"\), preloadedUrls\)/);
-  assert.match(frontendScript, /match\.entry\.kind === "section"/);
+  assert.match(frontendScript, /\.click\(\)/);
+  assert.match(frontendScript, /getAttribute\("href"\)/);
+  assert.match(frontendScript, /kind === "section"/);
   assert.match(frontendScript, /lildocs:section-highlight/);
-  assert.match(frontendScript, /lildocs:page-view/);
   assert.match(frontendScript, /sectionHighlight/);
   assert.match(frontendScript, /\.toc a\[href/);
-  assert.match(frontendScript, /queueSectionHighlight\(link\.href\)/);
+  assert.match(frontendScript, /queueSectionHighlight/);
   assert.match(frontendScript, /Missing docs for/);
   assert.match(frontendScript, /I searched the docs for/);
 });
@@ -304,11 +303,13 @@ test("emits collapsible sidebar controls with Tabler icons", async () => {
   assert.match(frontendScript, /sidebar-collapsed/);
   assert.match(frontendScript, /sidebar-menu-open/);
   assert.match(frontendScript, /lildocs:sidebar-menu-open/);
-  assert.match(frontendScript, /window\.matchMedia\("\(max-width: 860px\)"\)/);
-  assert.match(frontendScript, /open \? "Close navigation menu" : "Open navigation menu"/);
-  assert.match(frontendScript, /\(event\.metaKey \|\| event\.ctrlKey\) && event\.key\.toLowerCase\(\) === "b"/);
-  assert.match(frontendScript, /event\.preventDefault\(\)/);
-  assert.match(frontendScript, /classList\.contains\("sidebar-collapsed"\)/);
+  assert.match(frontendScript, /matchMedia\("\(max-width: 860px\)"\)/);
+  assert.match(frontendScript, /"Close navigation menu"/);
+  assert.match(frontendScript, /"Open navigation menu"/);
+  assert.match(frontendScript, /metaKey \|\| .*ctrlKey/);
+  assert.match(frontendScript, /=== "b"/);
+  assert.match(frontendScript, /preventDefault\(\)/);
+  assert.match(frontendScript, /contains\("sidebar-collapsed"\)/);
   assert.match(icons, /\.ti-layout-sidebar-left-collapse/);
   assert.match(icons, /\.ti-layout-sidebar-left-expand/);
   assert.match(icons, /\.ti-menu-2/);

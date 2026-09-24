@@ -15,8 +15,12 @@ export type Heading = {
 export type Page = {
   sourcePath: string;
   relativePath: string;
+  /** App-relative route path, such as `/guide/intro` or `/`. */
   route: string;
+  /** Output file for the route, such as `guide/intro/index.html`. */
   outputPath: string;
+  /** Plain-Markdown sibling output, such as `guide/intro.md`. */
+  markdownPath: string;
   title: string;
   rawMarkdown: string;
   markdown: string;
@@ -97,7 +101,7 @@ function pageFromMarkdown(input: ResolvedInput, page: AdditionalPage): Page {
   const parsed = matter(page.rawMarkdown);
   const relativePath = toPosixPath(page.relativePath);
   const isHome = page.sourcePath === input.homePage;
-  const route = isHome ? "index.html" : markdownPathToRoute(relativePath);
+  const route = isHome ? "/" : markdownPathToRoute(relativePath);
   const headings = extractHeadings(parsed.content);
   const title = inferTitle(parsed.data, parsed.content, page.sourcePath);
 
@@ -105,7 +109,8 @@ function pageFromMarkdown(input: ResolvedInput, page: AdditionalPage): Page {
     sourcePath: page.sourcePath,
     relativePath,
     route,
-    outputPath: route,
+    outputPath: routeToOutputPath(route),
+    markdownPath: routeToMarkdownPath(route),
     title,
     rawMarkdown: page.rawMarkdown,
     markdown: parsed.content,
@@ -202,8 +207,16 @@ function formatFilename(value: string) {
 function markdownPathToRoute(relativePath: string) {
   const parsed = path.posix.parse(relativePath);
   const slug = slugify(parsed.name);
-  const dir = parsed.dir ? `${parsed.dir}/` : "";
-  return `${dir}${slug}.html`;
+  const dir = parsed.dir ? `/${parsed.dir}` : "";
+  return slug === "index" && dir ? dir : `${dir}/${slug}`;
+}
+
+function routeToOutputPath(route: string) {
+  return route === "/" ? "index.html" : `${route.slice(1)}/index.html`;
+}
+
+function routeToMarkdownPath(route: string) {
+  return route === "/" ? "index.md" : `${route.slice(1)}.md`;
 }
 
 function routeRank(page: Page, homePage: string) {
@@ -333,17 +346,22 @@ function isInsideOutput(relativePath: string, outDirName: string) {
 }
 
 function ensureUniqueRoutes(pages: Page[]) {
-  const seen = new Map<string, number>();
+  const taken = new Set<string>();
 
   for (const page of pages) {
-    const count = seen.get(page.route) ?? 0;
-    seen.set(page.route, count + 1);
-    if (count === 0) {
-      continue;
+    let route = page.route;
+    let suffix = 1;
+    while (
+      taken.has(routeToOutputPath(route)) ||
+      taken.has(routeToMarkdownPath(route))
+    ) {
+      route = `${page.route}-${++suffix}`;
     }
 
-    const parsed = path.posix.parse(page.route);
-    page.route = `${parsed.dir ? `${parsed.dir}/` : ""}${parsed.name}-${count + 1}.html`;
-    page.outputPath = page.route;
+    page.route = route;
+    page.outputPath = routeToOutputPath(route);
+    page.markdownPath = routeToMarkdownPath(route);
+    taken.add(page.outputPath);
+    taken.add(page.markdownPath);
   }
 }

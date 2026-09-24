@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -82,17 +82,17 @@ export async function runCli(args, options = {}) {
 }
 
 export async function readFrontendBundle(outDir) {
-  const entryPath = await frontendEntryPath(outDir);
-  return readFile(entryPath, "utf8");
+  const assetsDir = path.join(outDir, "assets", "lildocs");
+  const files = (await readdir(assetsDir)).filter((file) => file.endsWith(".js")).sort();
+  const chunks = await Promise.all(files.map((file) => readFile(path.join(assetsDir, file), "utf8")));
+  return chunks.join("\n");
 }
 
 export async function frontendEntryPath(outDir) {
-  const manifest = JSON.parse(
-    await readFile(path.join(outDir, "assets", "lildocs", ".vite", "manifest.json"), "utf8"),
-  );
-  const entry = Object.values(manifest).find((chunk) => chunk?.isEntry && chunk.file);
+  const assetsDir = path.join(outDir, "assets", "lildocs");
+  const entry = (await readdir(assetsDir)).find((file) => /^index-.*\.js$/.test(file));
   if (!entry) {
-    throw new Error("Missing Vite frontend manifest entry");
+    throw new Error("Missing frontend bundle entry");
   }
-  return path.join(outDir, "assets", "lildocs", entry.file);
+  return path.join(assetsDir, entry);
 }

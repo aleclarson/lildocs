@@ -11,8 +11,8 @@ test("writes static html pages and copied assets", async () => {
   await runCli([docs, "--out", outDir]);
 
   await access(path.join(outDir, "index.html"));
-  await access(path.join(outDir, "guide.html"));
-  await access(path.join(outDir, "quickstart.html"));
+  await access(path.join(outDir, "guide", "index.html"));
+  await access(path.join(outDir, "quickstart", "index.html"));
   await access(path.join(outDir, "assets", "images", "sample.svg"));
 });
 
@@ -23,19 +23,24 @@ test("writes original markdown beside each page using its generated route", asyn
 
   await runCli([path.join(docs, "quickstart.md"), "--out", outDir]);
 
-  for (const [source, output] of [
-    ["quickstart.md", "index.md"],
-    ["index.md", "index-2.md"],
-    ["guide.md", "guide.md"],
-    ["nested/Hello World.md", "nested/hello-world.md"],
+  for (const [source, output, htmlPath, markdownUrl] of [
+    ["quickstart.md", "index.md", "index.html", "./index.md"],
+    ["index.md", "index-2.md", "index-2/index.html", "../index-2.md"],
+    ["guide.md", "guide.md", "guide/index.html", "../guide.md"],
+    [
+      "nested/Hello World.md",
+      "nested/hello-world.md",
+      "nested/hello-world/index.html",
+      "../hello-world.md",
+    ],
   ]) {
     assert.equal(
       await readFile(path.join(outDir, output), "utf8"),
       await readFile(path.join(docs, source), "utf8"),
     );
-    const html = await readFile(path.join(outDir, output.replace(/\.md$/, ".html")), "utf8");
+    const html = await readFile(path.join(outDir, htmlPath), "utf8");
     assert.ok(html.includes(
-      `<body><!-- Agents: Read ./${path.basename(output)} for this document's plain Markdown text to use fewer tokens. -->`,
+      `<body><!-- Agents: Read ${markdownUrl} instead of this HTML file for a plainer version that uses fewer tokens. -->`,
     ));
   }
   await assert.rejects(() => access(path.join(outDir, ".hidden.md")), { code: "ENOENT" });
@@ -73,7 +78,7 @@ test("rewrites markdown links to generated html routes", async () => {
   await runCli([docs, "--out", outDir]);
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /href=".\/guide.html"/);
+  assert.match(html, /href=".\/guide\/index.html"/);
 });
 
 test("appends nearest package name to document titles", async () => {
@@ -84,7 +89,7 @@ test("appends nearest package name to document titles", async () => {
   await runCli([docs, "--out", outDir]);
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
-  const guideHtml = await readFile(path.join(outDir, "guide.html"), "utf8");
+  const guideHtml = await readFile(path.join(outDir, "guide", "index.html"), "utf8");
   assert.match(homeHtml, /<title>Fixture Home • fixture-docs<\/title>/);
   assert.match(guideHtml, /<title>Frontmatter Title • fixture-docs<\/title>/);
 });
@@ -98,14 +103,17 @@ test("links header brand text to the home page", async () => {
   await runCli([docs, "--out", outDir]);
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
-  const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
+  const nestedHtml = await readFile(
+    path.join(outDir, "nested", "page", "index.html"),
+    "utf8",
+  );
   assert.match(
     homeHtml,
-    /<a class="brand" href="\.\/index\.html"><span>fixture-docs<\/span><\/a>/,
+    /<a class="brand" href="\.\/index\.html">[\s\S]{0,200}<span>fixture-docs<\/span>[\s\S]{0,50}<\/a>/,
   );
   assert.match(
     nestedHtml,
-    /<a class="brand" href="\.\.\/index\.html"><span>fixture-docs<\/span><\/a>/,
+    /<a class="brand" href="\.\.\/\.\.\/index\.html">[\s\S]{0,200}<span>fixture-docs<\/span>[\s\S]{0,50}<\/a>/,
   );
 });
 
@@ -128,12 +136,15 @@ test("generates API reference pages from sibling package exports", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const referenceHtml = await readFile(path.join(outDir, "reference", "fixture-lib.html"), "utf8");
+  const referenceHtml = await readFile(
+    path.join(outDir, "reference", "fixture-lib", "index.html"),
+    "utf8",
+  );
   const referenceMarkdown = await readFile(path.join(outDir, "reference", "fixture-lib.md"), "utf8");
   assert.match(referenceMarkdown, /^# fixture-lib/m);
   assert.match(referenceMarkdown, /FixtureOptions/);
   const subpathHtml = await readFile(
-    path.join(outDir, "reference", "fixture-lib", "bar.html"),
+    path.join(outDir, "reference", "fixture-lib", "bar", "index.html"),
     "utf8",
   );
   const searchIndex = await readFile(path.join(outDir, "search-index.json"), "utf8");
@@ -142,10 +153,10 @@ test("generates API reference pages from sibling package exports", async () => {
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /greet/);
   assert.match(sidebar, /<span class="navFolder">\s*Reference\s*<\/span>/);
-  assert.match(sidebar, /href="\.\/fixture-lib\.html"[^>]*>\s*fixture-lib\s*<\/a>/);
+  assert.match(sidebar, /href="\.\/index\.html"[^>]*>\s*fixture-lib\s*<\/a>/);
   assert.match(
     sidebar,
-    /href="\.\/fixture-lib\/bar\.html"[^>]*>\s*fixture-lib\/bar\s*<\/a>/,
+    /href="\.\/bar\/index\.html"[^>]*>\s*fixture-lib\/bar\s*<\/a>/,
   );
   assert.doesNotMatch(sidebar, /<span class="navFolder">\s*Fixture Lib\s*<\/span>/);
   assert.match(subpathHtml, /<h1 id="fixture-lib-bar">fixture-lib\/bar<\/h1>/);
@@ -166,7 +177,7 @@ test("disables automatic API reference discovery when configured", async () => {
 
   await access(path.join(outDir, "index.html"));
   await assert.rejects(
-    () => access(path.join(outDir, "reference", "fixture-lib.html")),
+    () => access(path.join(outDir, "reference", "fixture-lib", "index.html")),
     { code: "ENOENT" },
   );
 });
@@ -228,7 +239,10 @@ test("generates API reference pages from configured package exports", async () =
 
   await runCli([docs, "--out", outDir]);
 
-  const referenceHtml = await readFile(path.join(outDir, "reference", "fixture-lib.html"), "utf8");
+  const referenceHtml = await readFile(
+    path.join(outDir, "reference", "fixture-lib", "index.html"),
+    "utf8",
+  );
   assert.match(referenceHtml, /<h1 id="fixture-lib">fixture-lib<\/h1>/);
   assert.match(referenceHtml, /FixtureOptions/);
   assert.match(referenceHtml, /<strong>Properties<\/strong>/);
@@ -331,7 +345,7 @@ test("renders gfm tables task lists and strikethrough", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "guide.html"), "utf8");
+  const html = await readFile(path.join(outDir, "guide", "index.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   const frontendScript = await readFrontendBundle(outDir);
   assert.match(html, /<table>/);
@@ -355,13 +369,12 @@ test("renders gfm tables task lists and strikethrough", async () => {
   assert.match(frontendScript, /Expand table/);
   assert.match(frontendScript, /ti ti-arrows-maximize/);
   assert.match(frontendScript, /ti ti-arrows-minimize/);
-  assert.match(frontendScript, /source\.cloneNode\(true\)/);
-  assert.match(frontendScript, /frame\.append\(viewport, toolbar\)/);
+  assert.match(frontendScript, /cloneNode\(true\)/);
+  assert.match(frontendScript, /append\(viewport, toolbar\)/);
   assert.match(frontendScript, /tableFullscreenViewport content/);
-  assert.match(frontendScript, /dialog\.showModal\(\)/);
-  assert.match(frontendScript, /dialog\.addEventListener\("cancel"/);
-  assert.match(frontendScript, /event\.preventDefault\(\)/);
-  assert.match(frontendScript, /lildocs:page-view/);
+  assert.match(frontendScript, /showModal\(\)/);
+  assert.match(frontendScript, /addEventListener\("cancel"/);
+  assert.match(frontendScript, /preventDefault\(\)/);
   assert.match(html, /type="checkbox"/);
   assert.match(html, /<del>Removed copy<\/del>/);
 });
@@ -377,7 +390,7 @@ test("renders github-style callouts", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "callouts.html"), "utf8");
+  const html = await readFile(path.join(outDir, "callouts", "index.html"), "utf8");
   assert.match(html, /<div class="markdown-alert markdown-alert-note">/);
   assert.match(html, /<p class="markdown-alert-title">/);
   assert.match(html, /<span class="ti ti-info-circle markdown-alert-icon" aria-hidden="true"><\/span>/);
@@ -398,7 +411,7 @@ test("renders regular blockquotes", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "quotes.html"), "utf8");
+  const html = await readFile(path.join(outDir, "quotes", "index.html"), "utf8");
   assert.match(html, /<blockquote>\s*<p>A quoted note\.<\/p>\s*<\/blockquote>/);
 });
 
@@ -409,7 +422,7 @@ test("renders h1-adjacent blockquotes before body copy", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "subtitle.html"), "utf8");
+  const html = await readFile(path.join(outDir, "subtitle", "index.html"), "utf8");
   assert.match(
     html,
     /<h1 id="title">Title<\/h1>\s*<blockquote>\s*<p>Short supporting copy\.<\/p>\s*<\/blockquote>\s*<p>Body copy\.<\/p>/,
@@ -427,7 +440,7 @@ test("highlights code blocks with shiki", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   assert.match(html, /class="shiki/);
   assert.match(html, /--shiki-light:/);
   assert.match(html, /--shiki-dark:/);
@@ -440,9 +453,9 @@ test("emits copy-to-clipboard controls for code blocks", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   const frontendScript = await readFrontendBundle(outDir);
-  assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
+  assert.match(html, /<script type="module" crossorigin="" src="[^"]*assets\/lildocs\/index-[^"]*\.js" data-flamefront-asset="scripts"><\/script>/);
   assert.match(frontendScript, /navigator\.clipboard\?\.writeText/);
   assert.match(frontendScript, /ti ti-copy copyCodeIcon/);
   assert.match(frontendScript, /ti ti-copy-check copyCodeIcon/);
@@ -456,9 +469,9 @@ test("copies heading links with fragments except for the page heading", async ()
 
   const frontendScript = await readFrontendBundle(outDir);
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  assert.match(frontendScript, /heading\.tagName === "H1" \? "" : heading\.id/);
+  assert.match(frontendScript, /tagName === "H1" \? "" : .*\.id/);
   assert.match(frontendScript, /navigator\.clipboard/);
-  assert.match(frontendScript, /document\.execCommand\("copy"\)/);
+  assert.match(frontendScript, /execCommand\("copy"\)/);
   assert.match(frontendScript, /headingLinkCopied/);
   assert.match(frontendScript, /ti ti-link/);
   assert.match(frontendScript, /ti ti-check/);
@@ -468,7 +481,7 @@ test("copies heading links with fragments except for the page heading", async ()
   assert.doesNotMatch(css, /content: "Link copied"/);
 });
 
-test("emits swup navigation enhancement assets", async () => {
+test("emits fragment navigation enhancement assets", async () => {
   const { docs, workspace } = await fixtureWorkspace();
   const outDir = path.join(workspace, "site");
 
@@ -476,14 +489,14 @@ test("emits swup navigation enhancement assets", async () => {
 
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   const frontendScript = await readFrontendBundle(outDir);
-  assert.match(html, /<div id="swup" class="contentGrid">/);
+  assert.match(html, /<div id="lildocs-outlet" class="contentGrid">/);
   assert.match(html, /id="lildocs-sidebar-navigation" aria-label="Documentation navigation"/);
   assert.match(html, /<main class="content transition-fade">/);
   assert.match(html, /<aside class="toc transition-fade">/);
-  assert.match(html, /<script type="module" src=".\/assets\/lildocs\/assets\/.*\.js"><\/script>/);
-  assert.match(frontendScript, /window\.location\.protocol === "file:"/);
-  assert.match(frontendScript, /#lildocs-sidebar-navigation/);
-  assert.match(frontendScript, /page:view/);
+  assert.match(html, /<script type="module" crossorigin="" src="[^"]*assets\/lildocs\/index-[^"]*\.js"/);
+  assert.match(frontendScript, /index\.fragment\.json/);
+  assert.match(frontendScript, /__lildocs/);
+  assert.match(frontendScript, /lildocs-sidebar-navigation/);
   assert.doesNotMatch(frontendScript, /insertAdjacentElement\("afterend", toc\)/);
   assert.match(frontendScript, /data-toc-visibility/);
   assert.match(frontendScript, /getBoundingClientRect/);
@@ -498,7 +511,7 @@ test("uses lildocs code background for shiki blocks", async () => {
 
   await runCli([docs, "--out", outDir, "--theme", "github-dark"]);
 
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   assert.match(html, /class="shiki github-dark"/);
   assert.match(html, /background-color:var\(--ld-color-code-background\)/);
   assert.doesNotMatch(html, /background-color:#24292e/);
@@ -532,7 +545,7 @@ test("uses the local theme shiki theme for code blocks", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "code.html"), "utf8");
+  const html = await readFile(path.join(outDir, "code", "index.html"), "utf8");
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /class="shiki github-dark"/);
@@ -547,7 +560,7 @@ test("omits frontmatter from rendered content", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "guide.html"), "utf8");
+  const html = await readFile(path.join(outDir, "guide", "index.html"), "utf8");
   assert.doesNotMatch(html, /title: Frontmatter Title/);
 });
 
@@ -558,7 +571,7 @@ test("generates unique stable heading anchors", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "duplicates.html"), "utf8");
+  const html = await readFile(path.join(outDir, "duplicates", "index.html"), "utf8");
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
   assert.match(html, /id="repeat"/);
   assert.match(html, /id="repeat-2"/);
@@ -575,9 +588,12 @@ test("copies nested assets with nested relative links", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
-  assert.match(html, /src="..\/assets\/images\/sample.svg"/);
-  assert.match(html, /href="..\/index.html"/);
+  const html = await readFile(
+    path.join(outDir, "nested", "page", "index.html"),
+    "utf8",
+  );
+  assert.match(html, /src="..\/..\/assets\/images\/sample.svg"/);
+  assert.match(html, /href="..\/..\/index.html"/);
 });
 
 test("renders next page links in generated navigation order", async () => {
@@ -591,17 +607,20 @@ test("renders next page links in generated navigation order", async () => {
   assert.match(homeHtml, /<nav class="pageNav" aria-label="Page navigation">/);
   assert.doesNotMatch(homeHtml, /rel="prev"/);
   assert.match(homeHtml, /Next: /);
-  assert.match(homeHtml, /rel="next" href=".\/guide.html"/);
+  assert.match(homeHtml, /rel="next" href=".\/guide\/index.html"/);
   assert.match(homeHtml, /Frontmatter Title/);
 
-  const nestedHtml = await readFile(path.join(outDir, "nested", "page.html"), "utf8");
+  const nestedHtml = await readFile(
+    path.join(outDir, "nested", "page", "index.html"),
+    "utf8",
+  );
   assert.doesNotMatch(nestedHtml, /rel="prev"/);
   assert.match(nestedHtml, /Frontmatter Title/);
   assert.match(nestedHtml, /Next: /);
-  assert.match(nestedHtml, /rel="next" href="..\/quickstart.html"/);
+  assert.match(nestedHtml, /rel="next" href="..\/..\/quickstart\/index.html"/);
   assert.match(nestedHtml, /Quickstart/);
 
-  const lastHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
+  const lastHtml = await readFile(path.join(outDir, "quickstart", "index.html"), "utf8");
   assert.doesNotMatch(lastHtml, /<nav class="pageNav"/);
   assert.doesNotMatch(lastHtml, /rel="prev"/);
   assert.doesNotMatch(lastHtml, /rel="next"/);
@@ -632,11 +651,11 @@ test("hoists entry point links in referenced sidebar order", async () => {
   assert.doesNotMatch(sidebar, /Fixture Home/);
   assert.doesNotMatch(sidebar, /href="\.\/index\.html"/);
   assertOrderedText(sidebar, ["Quickstart", "Frontmatter Title", "Nested", "Nested Page"]);
-  assert.match(homeHtml, /rel="next" href=".\/quickstart.html"/);
+  assert.match(homeHtml, /rel="next" href=".\/quickstart\/index.html"/);
 
-  const quickstartHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
+  const quickstartHtml = await readFile(path.join(outDir, "quickstart", "index.html"), "utf8");
   assert.doesNotMatch(quickstartHtml, /rel="prev"/);
-  assert.match(quickstartHtml, /rel="next" href=".\/guide.html"/);
+  assert.match(quickstartHtml, /rel="next" href="..\/guide\/index.html"/);
 });
 
 test("keeps manual navigation order ahead of entry point link order", async () => {
@@ -688,9 +707,9 @@ test("uses docs config navigation order for pages folders and page links", async
 
   await runCli([docs, "--out", outDir]);
 
-  const quickstartHtml = await readFile(path.join(outDir, "quickstart.html"), "utf8");
+  const quickstartHtml = await readFile(path.join(outDir, "quickstart", "index.html"), "utf8");
   assert.doesNotMatch(quickstartHtml, /rel="prev"/);
-  assert.match(quickstartHtml, /rel="next" href=".\/nested\/page.html"/);
+  assert.match(quickstartHtml, /rel="next" href="..\/nested\/page\/index.html"/);
 
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   const sidebar = documentationNavigation(homeHtml);
@@ -748,8 +767,8 @@ test("renders sidebar folder names as title-cased labels instead of links", asyn
   const html = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(html, /<span class="navFolder">Nested Section<\/span>/);
   assert.doesNotMatch(html, /<span class="navFolder">nested section<\/span>/);
-  assert.doesNotMatch(html, /<a[^>]+href="\.\/nested-section\/page\.html"[^>]*>\s*nested section\s*<\/a>/);
-  assert.match(html, /<a href="\.\/nested-section\/page\.html">Nested Page<\/a>/);
+  assert.doesNotMatch(html, /<a[^>]+href="\.\/nested-section\/page\/index\.html"[^>]*>\s*nested section\s*<\/a>/);
+  assert.match(html, /<a href="\.\/nested-section\/page\/index\.html">Nested Page<\/a>/);
 });
 
 test("renders group breadcrumbs before grouped page content", async () => {
@@ -759,11 +778,16 @@ test("renders group breadcrumbs before grouped page content", async () => {
 
   await runCli([docs, "--out", outDir]);
 
-  const html = await readFile(path.join(outDir, "nested-section", "deep", "page.html"), "utf8");
+  const html = await readFile(
+    path.join(outDir, "nested-section", "deep", "page", "index.html"),
+    "utf8",
+  );
   const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
-  assert.match(
-    html,
-    /<article><p class="groupBreadcrumbs">Nested Section \/ Deep<\/p><div><h1 id="nested-page">Nested Page<\/h1>/,
+  assert.match(html, /<p class="groupBreadcrumbs">Nested Section \/ Deep<\/p>/);
+  assert.ok(
+    html.indexOf('class="groupBreadcrumbs"') <
+      html.indexOf('<h1 id="nested-page">'),
+    "expected group breadcrumbs before the page heading",
   );
   assert.match(css, /\.groupBreadcrumbs \{[^}]*margin-block-end: 0px !important/);
 });
@@ -803,13 +827,13 @@ test("renders folders with index pages as expandable page rows", async () => {
   const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
   assert.match(
     homeHtml,
-    /<details class="navDisclosure"><summary>Nested<\/summary><ul class="navList">/,
+    /<details class="navDisclosure"><summary>Nested<\/summary>[\s\S]{0,60}<ul class="navList">/,
   );
   assert.doesNotMatch(homeHtml, /<a href="\.\/nested\/index\.html">Nested<\/a>/);
-  assert.match(homeHtml, /<a href="\.\/nested\/page\.html">Nested Page<\/a>/);
+  assert.match(homeHtml, /<a href="\.\/nested\/page\/index\.html">Nested Page<\/a>/);
 
   const nestedHtml = await readFile(path.join(outDir, "nested", "index.html"), "utf8");
-  assert.match(nestedHtml, /<details class="navDisclosure" open><summary class="active">Nested<\/summary>/);
+  assert.match(nestedHtml, /<details class="navDisclosure" open=""><summary class="active">Nested<\/summary>/);
 });
 
 test("omits previous and next navigation for single page sites", async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "octane";
-import { queueSectionHighlight } from "./section-highlight.js";
+import { queueSectionHighlight } from "./enhance.ts";
 
 export type SearchEntry = {
   kind: "page" | "section";
@@ -21,38 +21,43 @@ type SearchMatch = {
   type: "title" | "body";
 };
 
-export function SearchBox({
-  anchorElement,
-  index,
-  siteRoot,
-  preloadedUrls,
-  issueUrl,
-}: {
-  anchorElement: Element;
-  index: SearchEntry[];
-  siteRoot: URL;
-  preloadedUrls: Set<string>;
-  issueUrl?: string;
-}) @{
+const preloadedUrls = new Set<string>();
+const siteRoot = new URL("../../", import.meta.url);
+const searchIndexUrl = new URL("search-index.json", siteRoot);
+
+export function SearchBox({ issueUrl }: { issueUrl?: string }) @{
   const inputRef = useRef<HTMLInputElement | null>(null);
   const selectedRef = useRef<HTMLAnchorElement | null>(null);
+  const [index, setIndex] = useState<SearchEntry[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const matches = useMemo(() => searchIndex(index, query), [index, query]);
 
   useEffect(() => {
-    selectedRef.current?.scrollIntoView({ block: "nearest" });
-    preloadRelativeUrl(
-      selectedRef.current?.getAttribute("href"),
-      preloadedUrls,
-    );
-  }, [matches, preloadedUrls, selectedIndex]);
+    let cancelled = false;
+    void fetch(searchIndexUrl).then(
+      (response) => response.json() as Promise<SearchEntry[]>,
+    ).then((entries) => {
+      if (!cancelled) {
+        setIndex(entries);
+      }
+    }).catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
+    selectedRef.current?.scrollIntoView({ block: "nearest" });
+    preloadRelativeUrl(selectedRef.current?.getAttribute("href"));
+  }, [matches, selectedIndex]);
+
+  useEffect(() => {
+    const anchor = document.getElementById("lildocs-search-root");
     const closeOnOutsidePointer = (event: PointerEvent) => {
       if (
-        event.target instanceof Node && !anchorElement.contains(event.target)
+        anchor && event.target instanceof Node && !anchor.contains(event.target)
       ) {
         setOpen(false);
       }
@@ -62,7 +67,7 @@ export function SearchBox({
       "pointerdown",
       closeOnOutsidePointer,
     );
-  }, [anchorElement]);
+  }, []);
 
   useEffect(() => {
     const toggleSearch = () => {
@@ -154,7 +159,7 @@ export function SearchBox({
           event.preventDefault();
           const selected = selectedRef.current;
           if (selected) {
-            preloadRelativeUrl(selected.getAttribute("href"), preloadedUrls);
+            preloadRelativeUrl(selected.getAttribute("href"));
             selected.click();
           }
           return;
@@ -195,7 +200,14 @@ export function SearchBox({
             <div class="searchResultList" role="listbox">
               @for (const match of matches; index matchIndex; key `${match.entry.route}:${match.title}`) {
                 const selected = matchIndex === selectedIndex;
-                const resultUrl = new URL(match.entry.route, siteRoot).href;
+                const [route, hash] = match.entry.route.split("#");
+                const pagePath =
+                  route === "/"
+                    ? "index.html"
+                    : `${route.replace(/^\/+|\/+$/g, "")}/index.html`;
+                const resultUrl = new URL(`${pagePath}${
+                  hash ? `#${hash}` : ""
+                }`, siteRoot).href;
                 <a
                   ref={selected ? selectedRef : undefined}
                   href={resultUrl}
@@ -272,10 +284,7 @@ function searchIndex(index: SearchEntry[], query: string) {
   ).slice(0, 8);
 }
 
-export function preloadRelativeUrl(
-  href: string | null | undefined,
-  preloadedUrls: Set<string>,
-) {
+export function preloadRelativeUrl(href: string | null | undefined) {
   if (!href || href.startsWith("mailto:") || href.startsWith("#")) {
     return;
   }

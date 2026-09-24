@@ -44,7 +44,7 @@ export async function serveStaticFile(
   }
 
   const relativePath = pathname === "/" ? "index.html" : pathname.slice(1);
-  const filePath = path.resolve(outDir, relativePath);
+  let filePath = path.resolve(outDir, relativePath);
   if (!isInside(outDir, filePath)) {
     res.writeHead(404);
     res.end("Not Found");
@@ -58,6 +58,17 @@ export async function serveStaticFile(
     res.writeHead(404);
     res.end("Not Found");
     return;
+  }
+
+  if (fileStat.isDirectory()) {
+    filePath = path.join(filePath, "index.html");
+    try {
+      fileStat = await stat(filePath);
+    } catch {
+      res.writeHead(404);
+      res.end("Not Found");
+      return;
+    }
   }
 
   if (!fileStat.isFile()) {

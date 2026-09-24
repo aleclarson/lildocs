@@ -1,90 +1,110 @@
 import { existsSync } from "node:fs";
-import { cp, readFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL, fileURLToPath } from "node:url";
-import type { Page } from "./content.js";
-import { LildocsError } from "./errors.js";
-import type { ResolvedLogo } from "./logo.js";
-import type { NavItem } from "./nav.js";
-import { toPosixPath } from "./paths.js";
-import type { NavigationOptions } from "./theme.js";
-import type { PageNavigation } from "../render/types.js";
-
-export type FrontendAssets = {
-  scriptPath: string;
-  stylePaths: string[];
-};
-
-export type RenderPageProps = {
-  page: Page;
-  nav: NavItem[];
-  pageNavigation?: PageNavigation;
-  css: string;
-  searchIndexJson: string;
-  logo: ResolvedLogo;
-  favicon?: string;
-  repositoryUrl?: string;
-  projectName?: string;
-  navigation?: NavigationOptions;
-  clientScriptPath: string;
-  clientStylePaths: string[];
-  dev?: boolean;
-};
-
-export type RenderPage = (props: RenderPageProps) => string;
-
-export type FrontendRenderer = {
-  renderPage: RenderPage;
-  close: () => Promise<void>;
-};
-
-type ManifestChunk = {
-  file?: string;
-  css?: string[];
-  isEntry?: boolean;
-};
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { rootRelativeUrl } from "./paths.js";
 
 const sourceDir = path.dirname(fileURLToPath(import.meta.url));
+
+/** Placeholder baked into prebuilt bundles; replaced per docs build. */
+const basenamePlaceholder = "/__lildocs_base__";
+
+export type RenderedDocument = {
+  html: string;
+  routeData?: unknown;
+  status: number;
+};
+
+export type RouteFragmentArtifact = {
+  protocol: number;
+  route: string;
+  boundary: string;
+  html: string;
+  routeData: unknown;
+  boundaries: unknown[];
+  hydration: unknown;
+  status: number;
+};
+
+export type SiteDocuments = {
+  renderDocument(
+    template: string,
+    request: Request,
+    options?: { mode?: "server" | "static" | "shell" | "client" },
+  ): Promise<RenderedDocument>;
+  renderFragment(request: Request): Promise<RouteFragmentArtifact>;
+};
+
+type RendererModule = {
+  createSiteRenderer(options: {
+    basename?: string;
+    data: unknown;
+  }): SiteDocuments;
+};
+
+let modulePromise: Promise<RendererModule> | undefined;
+
+export function rendererModuleUrl() {
+  return pathToFileURL(path.join(renderOutputDir(), "server", "renderer.mjs"))
+    .href;
+}
+
+export function renderDistDir() {
+  return renderOutputDir();
+}
+
+export function loadRendererModule() {
+  modulePromise ??= import(rendererModuleUrl()) as Promise<RendererModule>;
+  return modulePromise;
+}
+
+export async function createSiteRenderer(options: {
+  basename: string;
+  data: unknown;
+}) {
+  const module = await loadRendererModule();
+  return module.createSiteRenderer(options);
+}
+
+export function readClientTemplate() {
+  return readFile(path.join(renderOutputDir(), "client", "index.html"), "utf8");
+}
 
 export async function readRenderAsset(name: string) {
   return readFile(path.join(renderOutputDir(), name), "utf8");
 }
 
-export async function buildFrontendAssets(options: {
-  outDir: string;
-}): Promise<FrontendAssets> {
-  const source = path.join(renderOutputDir(), "client");
-  const outDir = path.join(options.outDir, "assets", "lildocs");
-  await cp(source, outDir, { recursive: true });
+/**
+ * Copy the prebuilt client bundle into the site and rewrite the baked
+ * basename placeholder to the deployment basename.
+ */
+export async function installClientAssets(outDir: string, basename: string) {
+  const source = path.join(renderOutputDir(), "client", "assets");
+  const target = path.join(outDir, "assets", "lildocs");
+  await mkdir(target, { recursive: true });
+  await cp(source, target, { recursive: true });
 
-  const manifestPath = path.join(outDir, ".vite", "manifest.json");
-  const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Record<
-    string,
-    ManifestChunk
-  >;
-  const entry = Object.values(manifest).find(
-    (chunk): chunk is Required<Pick<ManifestChunk, "file">> & ManifestChunk =>
-      chunk.isEntry === true && typeof chunk.file === "string",
-  );
-  if (!entry) {
-    throw new LildocsError("Lildocs package is missing its frontend entry.");
+  for (const name of await readdir(target)) {
+    if (!name.endsWith(".js") && !name.endsWith(".css")) {
+      continue;
+    }
+
+    const filePath = path.join(target, name);
+    const source = await readFile(filePath, "utf8");
+    await writeFile(filePath, source.replaceAll(basenamePlaceholder, basename));
   }
-
-  return {
-    scriptPath: toPosixPath(path.join("assets", "lildocs", entry.file)),
-    stylePaths: (entry.css ?? []).map((file) =>
-      toPosixPath(path.join("assets", "lildocs", file)),
-    ),
-  };
 }
 
-export async function createFrontendRenderer(): Promise<FrontendRenderer> {
-  const rendererPath = path.join(renderOutputDir(), "server", "renderer.mjs");
-  const mod = (await import(pathToFileURL(rendererPath).href)) as unknown;
-  return {
-    renderPage: renderPageExport(mod),
-    close: async () => {},
-  };
+/** Rewrite the placeholder asset prefix in an emitted document. */
+export function rewriteDocumentAssets(
+  html: string,
+  route: string,
+  basename: string,
+) {
+  const assetsPrefix = `${rootRelativeUrl(route, "assets/lildocs")}/`;
+  return html
+    .replaceAll(`${basenamePlaceholder}/assets/`, assetsPrefix)
+    .replaceAll(basenamePlaceholder, basename);
 }
 
 function renderOutputDir() {
@@ -93,17 +113,4 @@ function renderOutputDir() {
     return nested;
   }
   return path.resolve(sourceDir, "../../dist/render");
-}
-
-function renderPageExport(mod: unknown): RenderPage {
-  const renderPage =
-    mod && typeof mod === "object" && "renderPage" in mod
-      ? (mod.renderPage as unknown)
-      : undefined;
-  if (typeof renderPage !== "function") {
-    throw new LildocsError(
-      "Lildocs package renderer did not export renderPage.",
-    );
-  }
-  return renderPage as RenderPage;
 }

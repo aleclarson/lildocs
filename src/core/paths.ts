@@ -13,10 +13,20 @@ export function isHiddenOrSystemPath(relativePath: string) {
     );
 }
 
+/**
+ * URL from one route to another, relative to the source page's directory.
+ * Routes are directory-style app paths such as `/guide/intro`.
+ */
 export function relativeUrl(fromRoute: string, toRoute: string) {
-  const fromDir = path.posix.dirname(fromRoute);
-  const relative = path.posix.relative(fromDir, toRoute);
+  const file = toRoute === "/" ? "index.html" : `${toRoute}/index.html`;
+  const relative = path.posix.relative(fromRoute, file);
   return relative.startsWith(".") ? relative : `./${relative}`;
+}
+
+/** URL of a route's plain-Markdown sibling, relative to its page. */
+export function markdownUrl(route: string) {
+  const name = route === "/" ? "index" : (route.split("/").pop() ?? "index");
+  return route === "/" ? `./${name}.md` : `../${name}.md`;
 }
 
 export function isExternalOrAnchorUrl(href: string) {
@@ -49,14 +59,10 @@ export function resolveMarkdownDocumentPath(
 }
 
 export function pageDepth(route: string) {
-  const dir = path.posix.dirname(route);
-  return dir === "." ? 0 : dir.split("/").length;
+  return route.split("/").filter(Boolean).length;
 }
 
 export function rootRelativeUrl(route: string, target: string) {
-  const prefix =
-    pageDepth(route) === 0
-      ? "."
-      : Array.from({ length: pageDepth(route) }, () => "..").join("/");
-  return `${prefix}/${target}`;
+  const prefix = "../".repeat(pageDepth(route)) || "./";
+  return `${prefix}${target}`;
 }

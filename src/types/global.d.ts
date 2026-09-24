@@ -1,5 +1,6 @@
 interface Window {
-  lildocsDev?: boolean;
-  lildocsIssueUrl?: string;
-  lildocsSearchUrl?: string;
+  __lildocs?: {
+    basename?: string;
+    dev?: boolean;
+  };
 }

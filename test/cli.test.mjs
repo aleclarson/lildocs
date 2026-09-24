@@ -53,9 +53,9 @@ test("dev command serves and rebuilds the generated site", async () => {
   try {
     const home = await fetchText(server.url);
     assert.match(home, /Fixture Home/);
-    assert.match(home, /window\.lildocsDev = true/);
+    assert.match(home, /window\.__lildocs=\{"basename":"\/","dev":true\}/);
     assert.doesNotMatch(home, /\/@vite\/client/);
-    const clientPath = home.match(/<script type="module" src="([^"]+)"/)?.[1];
+    const clientPath = home.match(/<script type="module"[^>]*src="([^"]+)"/)?.[1];
     assert.ok(clientPath);
     const client = await fetchText(new URL(clientPath, server.url));
     assert.match(client, /EventSource/);
@@ -156,10 +156,10 @@ test("shuffle command previews a random theme and font combination", async () =>
     assert.match(output, /Fonts\s+.+ \/ .+/);
     assert.match(output, /Code\s+.+/);
 
-    const home = await fetchText(server.url);
-    assert.match(home, /color-scheme: light dark/);
-    assert.match(home, /prefers-color-scheme: dark/);
-    assert.match(home, /fonts\.googleapis\.com/);
+    const css = await fetchText(new URL("assets/lildocs.css", server.url));
+    assert.match(css, /color-scheme: light dark/);
+    assert.match(css, /prefers-color-scheme: dark/);
+    assert.match(css, /fonts\.googleapis\.com/);
   } finally {
     await server.close();
   }

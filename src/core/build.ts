@@ -2,12 +2,13 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { mergeConfigOptions, readDocsConfig } from "./config.js";
-import { buildContentModel, type Page } from "./content.js";
+import { buildContentModel, type ContentModel, type Page } from "./content.js";
 import {
-  buildFrontendAssets,
-  createFrontendRenderer,
+  createSiteRenderer,
+  installClientAssets,
+  readClientTemplate,
   readRenderAsset,
-  type FrontendRenderer,
+  rewriteDocumentAssets,
 } from "./frontend.js";
 import { resolveInput, type HomePagePreference } from "./input.js";
 import { copyAssets, renderMarkdownPage, type AssetCopy } from "./markdown.js";
@@ -15,7 +16,7 @@ import { createMermaidRenderer } from "./mermaid.js";
 import { buildNavigation } from "./nav.js";
 import { buildReferencePages } from "./reference.js";
 import { resolveLogoOptions, type LogoOptions } from "./logo.js";
-import { relativeUrl } from "./paths.js";
+import { markdownUrl } from "./paths.js";
 import { buildSearchIndex } from "./search.js";
 import {
   resolveFontOverrides,
@@ -30,7 +31,7 @@ import {
   type NavigationOptions,
   type ThemeConfig,
 } from "./theme.js";
-import type { PageNavigation } from "../render/types.js";
+import type { DocsData, PageData, SiteData } from "../render/app/data.js";
 
 export type BuildOptions = {
   input: string;
@@ -123,7 +124,7 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     ...backgroundResolution.assets,
     ...logoResolution.assets,
   ];
-  let frontendRenderer: FrontendRenderer | undefined;
+  const basename = normalizeBasename(options.basePath);
 
   try {
     await rm(outDir, { recursive: true, force: true });
@@ -155,36 +156,54 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
       null,
       2,
     );
-    const pageNavigation = buildPageNavigation(model.pages);
-    const frontendAssets = await buildFrontendAssets({ outDir });
-    const renderer = await createFrontendRenderer();
-    frontendRenderer = renderer;
+    const data = buildDocsData(model, {
+      basename,
+      projectName,
+      logo: logoResolution.logo,
+      favicon: logoResolution.favicon,
+      repositoryUrl,
+      transition: configOptions.navigation.transition ?? "fade",
+      dev: options.dev,
+    });
+    const renderer = await createSiteRenderer({ basename, data });
+    const template = await readClientTemplate();
 
     await Promise.all(
       model.pages.map(async (page) => {
-        const nav = buildNavigation(model, page);
-        const html = renderer.renderPage({
-          page,
-          nav,
-          pageNavigation: pageNavigation.get(page.route),
-          css: configuredCss,
-          searchIndexJson,
-          logo: logoResolution.logo,
-          favicon: logoResolution.favicon,
-          repositoryUrl,
-          projectName,
-          navigation: configOptions.navigation,
-          clientScriptPath: frontendAssets.scriptPath,
-          clientStylePaths: frontendAssets.stylePaths,
-          dev: options.dev,
-        });
+        const url = `http://lildocs.local${basename === "/" ? "" : basename}${page.route}`;
+        const request = new Request(url);
+        const [document, fragment] = await Promise.all([
+          renderer.renderDocument(template, request, { mode: "static" }),
+          renderer.renderFragment(request),
+        ]);
+        const pageDir = path.join(outDir, path.dirname(page.outputPath));
         const outputPath = path.join(outDir, page.outputPath);
-        await mkdir(path.dirname(outputPath), { recursive: true });
-        await writeFile(outputPath, html);
-        await writeFile(outputPath.replace(/\.html$/, ".md"), page.rawMarkdown);
+        await mkdir(pageDir, { recursive: true });
+        await writeFile(
+          outputPath,
+          rewriteDocumentAssets(
+            insertAgentNote(document.html, page),
+            page.route,
+            basename,
+          ),
+        );
+        await writeFile(
+          outputPath.replace(/index\.html$/, "index.data.json"),
+          `${JSON.stringify(document.routeData ?? null)}\n`,
+        );
+        await writeFile(
+          outputPath.replace(/index\.html$/, "index.fragment.html"),
+          fragment.html,
+        );
+        await writeFile(
+          outputPath.replace(/index\.html$/, "index.fragment.json"),
+          `${JSON.stringify(fragment)}\n`,
+        );
+        await writeFile(path.join(outDir, page.markdownPath), page.rawMarkdown);
       }),
     );
 
+    await installClientAssets(outDir, basename);
     await writeFile(path.join(outDir, "assets", "lildocs.css"), css);
     await writeFile(
       path.join(outDir, "assets", "tabler-icons.css"),
@@ -194,7 +213,6 @@ export async function buildSite(options: BuildOptions): Promise<BuildResult> {
     await writeFile(path.join(outDir, "search-index.json"), searchIndexJson);
     await copyAssets(assets);
   } finally {
-    await frontendRenderer?.close();
     await mermaid.close();
   }
 
@@ -315,31 +333,63 @@ function githubRepositoryName(
   return match?.[1];
 }
 
-function buildPageNavigation(pages: Page[]) {
-  const navigation = new Map<string, PageNavigation>();
-
-  if (pages.length < 2) {
-    return navigation;
+function normalizeBasename(basePath: string | undefined) {
+  const trimmed = basePath?.trim() ?? "";
+  if (!trimmed || trimmed === "/") {
+    return "/";
   }
 
-  for (const [index, page] of pages.entries()) {
-    const previous = pages[index - 1];
-    const next = pages[index + 1];
-    navigation.set(page.route, {
+  const withLeadingSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return withLeadingSlash.replace(/\/+$/, "") || "/";
+}
+
+function buildDocsData(
+  model: ContentModel,
+  options: {
+    basename: string;
+    projectName?: string;
+    logo: SiteData["logo"];
+    favicon?: string;
+    repositoryUrl?: string;
+    transition: string;
+    dev?: boolean;
+  },
+): DocsData {
+  const site: SiteData = {
+    basename: options.basename,
+    projectName: options.projectName,
+    logo: options.logo,
+    favicon: options.favicon,
+    repositoryUrl: options.repositoryUrl,
+    repositoryLabel: githubRepositoryName(options.repositoryUrl),
+    issueUrl: options.repositoryUrl
+      ? `${options.repositoryUrl}/issues/new`
+      : undefined,
+    nav: buildNavigation(model),
+    transition: options.transition,
+    dev: options.dev,
+  };
+  const pages: Record<string, PageData> = {};
+
+  for (const [index, page] of model.pages.entries()) {
+    const previous = model.pages[index - 1];
+    const next = model.pages[index + 1];
+    pages[page.route] = {
+      route: page.route,
+      title: page.title,
+      html: page.html ?? "",
+      headings: page.headings,
       previous: previous
-        ? {
-            title: previous.title,
-            href: relativeUrl(page.route, previous.route),
-          }
+        ? { title: previous.title, route: previous.route }
         : undefined,
-      next: next
-        ? {
-            title: next.title,
-            href: relativeUrl(page.route, next.route),
-          }
-        : undefined,
-    });
+      next: next ? { title: next.title, route: next.route } : undefined,
+    };
   }
 
-  return navigation;
+  return { site, pages };
+}
+
+function insertAgentNote(html: string, page: Page) {
+  const note = `<!-- Agents: Read ${markdownUrl(page.route)} instead of this HTML file for a plainer version that uses fewer tokens. -->`;
+  return html.replace(/<body\b[^>]*>/, (tag) => `${tag}${note}`);
 }

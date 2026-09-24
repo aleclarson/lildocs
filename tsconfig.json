@@ -17,5 +17,11 @@
     "src/**/*.d.ts",
     "tsdown.config.ts",
     "vitest.config.ts"
+  ],
+  "exclude": [
+    "src/render/vite.config.ts",
+    "src/render/app/app.ts",
+    "src/render/app/entry-server.ts",
+    "src/render/app/main.ts"
   ]
 }

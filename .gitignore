@@ -2,3 +2,5 @@ dist/
 .lildocs/
 node_modules/
 src/generated/
+
+src/render/.flamefront/

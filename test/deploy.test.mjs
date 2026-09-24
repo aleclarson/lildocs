@@ -42,10 +42,10 @@ test("deploy preserves build options", async () => {
     "Roboto Mono",
   ]);
 
-  const html = await readFile(path.join(outDir, "index.html"), "utf8");
-  assert.match(html, /Inter/);
-  assert.match(html, /Source Sans 3/);
-  assert.match(html, /Roboto Mono/);
+  const css = await readFile(path.join(outDir, "assets", "lildocs.css"), "utf8");
+  assert.match(css, /Inter/);
+  assert.match(css, /Source\+Sans\+3/);
+  assert.match(css, /Roboto\+Mono/);
 });
 
 test("init github-pages writes a GitHub Pages workflow", async () => {
