@@ -203,7 +203,7 @@ function registerPageNavigation(
 
     event.preventDefault();
     navigate({
-      pathname: site.basename === "/" ? route : `${site.basename}${route}`,
+      pathname: route,
       search: url.search,
       hash: url.hash,
     });
