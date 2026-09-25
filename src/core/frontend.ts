@@ -95,7 +95,7 @@ export async function installClientAssets(outDir: string, basename: string) {
   }
 }
 
-/** Rewrite the placeholder asset prefix in an emitted document. */
+/** Rewrite emitted asset URLs to the page-relative assets/lildocs prefix. */
 export function rewriteDocumentAssets(
   html: string,
   route: string,
@@ -104,6 +104,7 @@ export function rewriteDocumentAssets(
   const assetsPrefix = `${rootRelativeUrl(route, "assets/lildocs")}/`;
   return html
     .replaceAll(`${basenamePlaceholder}/assets/`, assetsPrefix)
+    .replaceAll('"assets/', `"${assetsPrefix}`)
     .replaceAll(basenamePlaceholder, basename);
 }
 
