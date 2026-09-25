@@ -19,7 +19,7 @@ disk or from any static file host.
 ## What it covers
 
 - Markdown folders or individual Markdown entry files
-- Plain Markdown URLs for every page, such as `guide.md` alongside `guide.html`
+- Plain Markdown URLs for every page, such as `guide.md` alongside `guide/`
 - Generated navigation, page titles, heading anchors, and table-of-contents data
 - GitHub-flavored Markdown, frontmatter, callouts, code highlighting, images,
   assets, and Mermaid diagrams
@@ -31,16 +31,16 @@ disk or from any static file host.
 
 ## Documentation
 
-- [Getting started](https://aleclarson.github.io/lildocs/getting-started.html)
-- [Writing content](https://aleclarson.github.io/lildocs/features/content.html)
-- [Navigation and page structure](https://aleclarson.github.io/lildocs/features/navigation.html)
-- [Local search](https://aleclarson.github.io/lildocs/features/search.html)
-- [Mermaid diagrams](https://aleclarson.github.io/lildocs/features/mermaid.html)
-- [Generated API reference](https://aleclarson.github.io/lildocs/features/api-reference.html)
-- [GitHub Pages deployment](https://aleclarson.github.io/lildocs/guides/github-pages.html)
-- [CLI reference](https://aleclarson.github.io/lildocs/reference/cli.html)
-- [Configuration reference](https://aleclarson.github.io/lildocs/reference/configuration.html)
-- [Themes and styling](https://aleclarson.github.io/lildocs/reference/theming.html)
+- [Getting started](https://aleclarson.github.io/lildocs/getting-started/)
+- [Writing content](https://aleclarson.github.io/lildocs/features/content/)
+- [Navigation and page structure](https://aleclarson.github.io/lildocs/features/navigation/)
+- [Local search](https://aleclarson.github.io/lildocs/features/search/)
+- [Mermaid diagrams](https://aleclarson.github.io/lildocs/features/mermaid/)
+- [Generated API reference](https://aleclarson.github.io/lildocs/features/api-reference/)
+- [GitHub Pages deployment](https://aleclarson.github.io/lildocs/guides/github-pages/)
+- [CLI reference](https://aleclarson.github.io/lildocs/reference/cli/)
+- [Configuration reference](https://aleclarson.github.io/lildocs/reference/configuration/)
+- [Themes and styling](https://aleclarson.github.io/lildocs/reference/theming/)
 
 `lildocs` is intentionally narrow: no manual nav config, versioned docs, MDX,
 plugin system, hosted search, auth, CMS features, i18n, redirects, analytics, or
@@ -63,10 +63,10 @@ Keep behavior aligned with the README, documentation, and existing tests.
 The project uses:
 
 - `cmd-ts` for CLI parsing
-- Octane SSR for rendering and client interactivity
+- Flamefront and Octane for prerendering and client navigation
 - `marked` and `gray-matter` for Markdown and frontmatter
 - native dynamic `import()` for local theme loading
-- `tsdown` for the CLI bundle and Vite for the frontend bundle/dev server
+- `tsdown` for the CLI bundle and Vite for the renderer bundle
 - `oxlint` for linting
 - Prettier with the TSRX plugin for formatting
 - Vitest with the Octane Vite compiler plugin

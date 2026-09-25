@@ -20,10 +20,10 @@ Keep product behavior aligned with the README, generated documentation, and exis
 ## Tooling
 
 - CLI parsing: `cmd-ts`
-- Rendering: Octane SSR
+- Rendering: Flamefront prerendering + Octane app
 - Markdown/frontmatter: `marked` and `gray-matter`
 - Theme loading: native dynamic `import()`
-- Bundling: `tsdown` for the CLI and Vite for the frontend
+- Bundling: `tsdown` for the CLI and Vite/Flamefront for the renderer
 - Linting: `oxlint`
 - Formatting: Prettier with `@tsrx/prettier-plugin`
 - Tests: Vitest with `octane/compiler/vite`

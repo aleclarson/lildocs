@@ -45,8 +45,8 @@ relative imports and re-exports by default, and property comments render below
 declaration blocks.
 
 Each export uses its full package specifier as its pathname. For a package named
-`foo`, the `.` export is written to `/reference/foo.html`, while `./bar` is
-written to `/reference/foo/bar.html`.
+`foo`, the `.` export is written to `/reference/foo/`, while `./bar` is
+written to `/reference/foo/bar/`.
 
 When the nearest package metadata points to a GitHub repository, generated
 symbol sections include GitHub code search links.
